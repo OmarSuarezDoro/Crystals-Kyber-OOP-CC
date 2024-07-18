@@ -51,7 +51,9 @@ include_directories(${PROJECT_SOURCE_DIR}/src)
 add_executable(
   client_main
   src/client.cc
-)
+  src/Polynomial.h
+  src/Matrix.h
+  )
 
 # target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
 

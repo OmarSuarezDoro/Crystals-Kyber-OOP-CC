@@ -1,0 +1,109 @@
+/**
+ * Universidad de La Laguna
+ * Escuela Superior de Ingeniería y Tecnología
+ * Grado en Ingeniería Informática
+ * Trabajo de Fin de Grado - Kleptographic Attacks on Lattice-Based CryptoSystems
+ *
+ * @author Omar Suárez Doro
+ * @date July 18 2024
+ * @version v0.1.0
+ * @brief This file contains the header declaration and implementation of the class Polynomial
+ */
+
+#include <vector>
+#include <iostream>
+#include <assert.h>
+
+#pragma once
+
+template <typename T>
+class Polynomial {
+ public:
+  Polynomial(const unsigned int& kSize);
+  
+  // Getters
+  int GetSize() const { return vector_.size(); }
+
+  // Operator overload
+  const T& operator[](int index) const;
+  T& operator[](int index);
+  Polynomial<T> operator+(const Polynomial<T>& kPolynomial2) const;
+  
+  template <typename B> friend std::ostream& operator<<(std::ostream& os, const Polynomial<B> kPolynomial);
+ private:
+  std::vector<T> vector_;
+};
+
+/**
+ * @brief Construct a new Polynomial< T>:: Polynomial object
+ * 
+ * @tparam T : Template type parameter
+ * @param kSize : The size of the polynomial
+ */
+template <typename T>
+Polynomial<T>::Polynomial(const unsigned int& kSize) {
+  vector_ = std::vector<T>(kSize, 0);
+}
+
+
+/**
+ * @brief Operator overload for the << operator
+ * 
+ * @tparam T : Template type parameter
+ * @param os : The output stream
+ * @param kPolynomial : The polynomial to be printed
+ * @return std::ostream& 
+ */
+template <typename T>
+std::ostream& operator<<(std::ostream& os, const Polynomial<T> kPolynomial) {
+  const int kSize = kPolynomial.vector_.size() - 1;
+  int i = 0;
+  os << "[";
+  for (const auto& element : kPolynomial.vector_) {
+    os << element << (kSize == i++ ? "]" : ", ");
+  }
+  return os;
+}
+
+/**
+ * @brief This method returns the element at the given index - A const version
+ * 
+ * @tparam T : Template type parameter
+ * @param index : The index of the element to be returned
+ * @return const T& 
+ */
+template <typename T> 
+const T& Polynomial<T>::operator[](int index) const {
+  assert(index < GetSize());
+  return vector_[index];
+}
+
+/**
+ * @brief This method returns the element at the given index
+ * 
+ * @tparam T : Template type parameter
+ * @param index : The index of the element to be returned
+ * @return T& 
+ */
+template <typename T> 
+T& Polynomial<T>::operator[](int index) {
+  assert(index < GetSize());
+  return vector_[index];
+}
+
+/**
+ * @brief This method adds two polynomials
+ * 
+ * @tparam T : Template type parameter
+ * @param kPolynomial2 : The polynomial to be added
+ * @return Polynomial<T> 
+ */
+template <typename T>
+Polynomial<T> Polynomial<T>::operator+(const Polynomial<T>& kPolynomial2) const {
+  assert(GetSize() == kPolynomial2.GetSize());
+  Polynomial<T> result(GetSize());
+  for (int i = 0; i < GetSize(); i++) {
+    result[i] = vector_[i] + kPolynomial2[i];
+  }
+  return result;
+}
