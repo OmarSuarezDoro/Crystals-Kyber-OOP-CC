@@ -23,7 +23,7 @@ The main purpouse of this repository is to document the CKA in a **didactic way*
 | Concept | Short Description |
 | ------- | ----------------- |
 | Lattice | A lattice is a mathematic structure, which is built by lineal combinations of a n -vectors, where n define the dimention of the lattice. |
-|LWE problem | The **learning with errors** problem consist in, having a vectorial base and a point (P) in the plane. Discover which lineal combination of the vectors should we use, in orther to be in the closest point to P.
+|LWE problem | The **learning with errors** problem consist in, having a vectorial base and a point (P) in the plane. Discover which lineal combination of the vectors should we use, in order to be in the closest point to P.
  
 
 ## 5. Components

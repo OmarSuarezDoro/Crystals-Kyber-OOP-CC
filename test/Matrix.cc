@@ -188,3 +188,14 @@ TEST_F(MatrixTest, PolynomialMatrixOutputStreamOperatorTest) {
   ss << mat4_;
   EXPECT_EQ(ss.str(), "([3, 2, 1], [4, 3, 2])\n([0, 0, 0], [0, 0, 0])\n");
 }
+
+/**
+ * @brief Test for the transpose method.
+ */
+TEST_F(MatrixTest, TransposeTest) {
+  Matrix<int> result = mat1_.GetTranspose();
+  EXPECT_EQ(result(0, 0), 1);
+  EXPECT_EQ(result(0, 1), 3);
+  EXPECT_EQ(result(1, 0), 2);
+  EXPECT_EQ(result(1, 1), 4);
+}

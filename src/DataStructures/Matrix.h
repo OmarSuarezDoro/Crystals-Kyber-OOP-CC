@@ -29,6 +29,7 @@ class Matrix {
   // Getters
   unsigned int GetColumnsSize() const { return columns_; }
   unsigned int GetRowsSize() const { return rows_; }
+  Matrix<T> GetTranspose() const;
 
   // Operator overload
   const T& operator()(unsigned int index_rows, unsigned int index_cols) const;
@@ -129,6 +130,23 @@ Matrix<T> Matrix<T>::operator+(const Matrix<T>& kMatrix2) const {
   for (unsigned int i = 0; i < GetRowsSize(); i++) {
     for (unsigned int j = 0; j < GetColumnsSize(); j++) {
       result(i, j) = vector_[i * GetColumnsSize() + j] + kMatrix2(i, j);
+    }
+  }
+  return result;
+}
+
+/**
+ * @brief This method returns the transpose of the matrix
+ * 
+ * @tparam T : Template type parameter
+ * @return Matrix<T>
+ */
+template <typename T>
+Matrix<T> Matrix<T>::GetTranspose() const {
+  Matrix<T> result(GetColumnsSize(), GetRowsSize());
+  for (unsigned int i = 0; i < GetRowsSize(); i++) {
+    for (unsigned int j = 0; j < GetColumnsSize(); j++) {
+      result(j, i) = vector_[i * GetColumnsSize() + j];
     }
   }
   return result;
