@@ -5,17 +5,16 @@
 #include "./Components/Keccak.h"
 
 int main() {
-  std::cout << "Hello World!" << std::endl;
-  Matrix<Polynomial<int>> mat(2, 2, 3);
-  std::cout << mat << std::endl;
-  mat(0, 0)[0] = 1;
-  mat(0, 0)[1] = 2;
-  mat(0, 0)[2] = 3;
-  mat(0, 1)[0] = 4;
+  Keccak keccak;
+  Bytes miau("Hello World");
+  // Bytes bytes = keccak.XOF(miau, miau, miau, 32);
+  // Bytes bytes = keccak.H(miau, 32);
+  // Bytes bytes = keccak.PRF(miau, 128, 32);
+  // Bytes bytes = keccak.KDF(miau, 32);
+  Bytes bytes = keccak.G(miau)[0];
+  Bytes bytes2 = keccak.G(miau)[1];
 
-  Matrix<Polynomial<int>> mat2(2, 2, 3);
-  mat2(0, 0)[0] = 552;
-
-  std::cout << mat + mat2 << std::endl;
+  std::cout << bytes.FromBytesToHex() << std::endl; 
+  std::cout << bytes2.FromBytesToHex() << std::endl; 
   return 0;
 }

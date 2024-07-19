@@ -11,33 +11,31 @@
  * some cryptographic functionalities.
  */
 
+#pragma once
+
+#include <iostream>
 #include <string>
 #include <tuple>
-// #include <cryptopp/hex.h>
-// #include <cryptopp/sha3.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/sha3.h>
 #include <cryptopp/shake.h>
-// #include <cryptopp/filters.h>
+#include <cryptopp/filters.h>
 
 #include "../DataStructures/Bytes.h"
 
-#pragma once
 
 class Keccak {
 public:
   Keccak();
-  ~Keccak();
-
-  Bytes XOF(const Bytes& bytes32, const Bytes& a, const Bytes& b, int length);
-  std::tuple<Bytes, Bytes> G(const Bytes& input_bytes);
-  Bytes H(const Bytes& input_bytes);
+  static Bytes H(const Bytes& input_bytes, int length);
+  static Bytes XOF(const Bytes& bytes32, const Bytes& a, const Bytes& b, int length);
   static Bytes PRF(const Bytes& sigma, int byte_to_hash, int length);
-  Bytes KDF(const Bytes& input_bytes, int length);
-
-  // Métodos estáticos para operaciones SHAKE y SHA3
-  static Bytes shake128(const Bytes& input_data, int output_length);
-  static Bytes shake256(const Bytes& input_data, int output_length);
-  static Bytes sha3_512(const Bytes& input_data);
+  static Bytes KDF(const Bytes& input_bytes, int length);
+  static std::vector<Bytes> G(const Bytes& input_bytes);
 
  private:
+  static Bytes _shake128(const Bytes& input_data, int output_length);
+  static Bytes _shake256(const Bytes& input_data, int output_length);
+  static Bytes _sha3_512(const Bytes& input_data);
 
 };

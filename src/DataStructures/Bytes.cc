@@ -11,7 +11,7 @@
  */
 
 #include "Bytes.h"
-
+#include <iostream>
 /**
  * @brief Construct a new Bytes:: Bytes object
  * 
@@ -44,7 +44,7 @@ Bytes::Bytes(const Bytes& kBytes) {
  * @param kByte : The byte to be stored
  */
 Bytes::Bytes(const uint8_t& kByte) {
-  bytes_ = "" + kByte;
+  bytes_ = char(kByte);
 }
 
 /**
@@ -369,6 +369,36 @@ std::string Bytes::FromBitsToBytes(const std::string& kBits) {
   std::string result = "";
   for (int i = 0; i < kBits.size(); i += 8) {
     result += std::bitset<8>(kBits.substr(i, 8)).to_ulong();
+  }
+  return result;
+}
+
+/**
+ * @brief Convert the Bytes object to a string of hexadecimal numbers
+ * 
+ * @return std::string : The string of hexadecimal numbers
+ */
+std::string Bytes::FromBytesToHex() const {
+  std::string result = "";
+  const char hex_chars[] = "0123456789abcdef";
+  for (unsigned char byte : bytes_) {
+    result += hex_chars[(byte >> 4) & 0x0F];
+    result += hex_chars[byte & 0x0F];
+  }
+  return result;
+}
+
+
+/**
+ * @brief Convert the Bytes object to a string of numbers
+ * 
+ * @return std::string : The string of numbers
+ */
+std::string Bytes::FromBytesToNumbers() const {
+  std::string result = "";
+  for (int i = 0; i < bytes_.size(); ++i) {
+    int character_in_numeric = bytes_[i];
+    result += std::to_string(character_in_numeric) + " ";
   }
   return result;
 }

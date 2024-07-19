@@ -52,6 +52,9 @@ class Bytes {
   std::string toBigEndian() const;
   std::string toLittleEndian() const;
   std::string FromBytesToBits() const;
+  std::string FromBytesToHex() const;
+  std::string FromBytesToNumbers() const;
+  Bytes GetNBytes(const int& start_index, const int& kN) const { return Bytes(bytes_.substr(start_index, kN)); }
 
   static std::string FromBitsToBytes(const std::string& kBits);
   

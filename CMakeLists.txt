@@ -62,6 +62,10 @@ add_executable(
 )
 
 
+# Añadir la biblioteca Crypto++
+link_directories(/usr/include/cryptopp/lib)
+target_link_libraries(client_main cryptopp)
+
 # Add expected compiler features to a target.
 target_compile_features(runTests PRIVATE cxx_std_17)
 target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
