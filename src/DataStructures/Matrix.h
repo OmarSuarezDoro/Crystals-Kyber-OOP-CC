@@ -37,6 +37,7 @@ class Matrix {
   template <typename B> friend std::ostream& operator<<(std::ostream& os, const Matrix<B>& kMatrix);
 
  private:
+  bool isPolynomial_ = false;
   unsigned int rows_;
   unsigned int columns_;
   std::vector<T> vector_;
@@ -56,8 +57,10 @@ Matrix<T>::Matrix(const unsigned int& kRows, const unsigned int& kColumns, const
   columns_ = kColumns;
   if (kSizeElements == 0) {
     vector_ = std::vector<T>(kRows * kColumns, 0);
+    isPolynomial_ = false;
     return;
   }
+  isPolynomial_ = true;
   vector_ = std::vector<T>(kRows * kColumns, T(kSizeElements));
   return;
 }
@@ -76,12 +79,7 @@ std::ostream& operator<<(std::ostream& os, const Matrix<T>& kMatrix) {
   for (unsigned int i = 0; i < kMatrix.rows_; i++) {
     os << "(";
     for (unsigned int j = 0; j < kMatrix.columns_; j++) {
-      bool condition = MAX_REPRESENTATION_SIZE < kMatrix.vector_[i * kMatrix.columns_ + j].GetSize();
-      if (condition) {
-        os << "a" << i + j;
-      } else {
-        os << kMatrix.vector_[i * kMatrix.columns_ + j];
-      }
+      os << kMatrix.vector_[i * kMatrix.columns_ + j];
       os << ((kMatrix.columns_ == j + 1) ? ")" : ", ");
     }
     os << std::endl;
