@@ -2,7 +2,6 @@
 *.d
 *.vscode/
 build/*
-docs/html
 docs/latex
 
 # Compiled Object files
