@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['crystal_2dkyber_2dc_2d_0',['Crystal-Kyber-C-',['../index.html',1,'']]]
+  ['implementation_20of_20crystals_20kyber_20algorithm_0',['Implementation of Crystals Kyber Algorithm',['../index.html',1,'']]]
 ];
