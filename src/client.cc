@@ -2,6 +2,7 @@
 
 #include "./DataStructures/Polynomial.h"
 #include "./DataStructures/Matrix.h"
+#include "./Components/Keccak.h"
 
 int main() {
   std::cout << "Hello World!" << std::endl;

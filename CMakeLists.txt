@@ -45,7 +45,9 @@ add_executable(
   test/gtest_main.cc
   test/Polynomial.cc
   test/Matrix.cc
-)
+  test/Bytes.cc
+  ./src/DataStructures/Bytes.cc
+  )
 
 # Adds an executable target called "client_main" to be built from the source files listed in the command invocation.
 add_executable(
@@ -53,14 +55,17 @@ add_executable(
   ./src/client.cc
   ./src/DataStructures/Polynomial.h
   ./src/DataStructures/Matrix.h
+  ./src/DataStructures/Bytes.cc
+  ./src/DataStructures/Bytes.h
+  ./src/Components/Keccak.cc
+  ./src/Components/Keccak.h
 )
 
-# target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
 
 # Add expected compiler features to a target.
-target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
 target_compile_features(runTests PRIVATE cxx_std_17)
+target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
 
 # Add compile options to a target.
-target_compile_options(runTests PRIVATE -Wall -Wextra -Wpedantic)
-target_compile_options(client_main PRIVATE -Wall -Wextra -Wpedantic)
+target_compile_options(runTests PRIVATE)
+target_compile_options(client_main PRIVATE)
