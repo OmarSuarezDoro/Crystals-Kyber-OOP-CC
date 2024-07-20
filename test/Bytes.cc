@@ -55,7 +55,7 @@ TEST_F(BytesTest, CopyConstructorTest) {
 TEST_F(BytesTest, ParameterizedConstructorWithByteTest) {
   uint8_t byte = 'A';
   Bytes bytes(byte);
-  EXPECT_EQ(bytes.GetBytes(), "\0A");
+  EXPECT_EQ(bytes.GetBytes(), "A");
 }
 
 /**
@@ -227,7 +227,7 @@ TEST_F(BytesTest, InequalityOperatorTest) {
  */
 TEST_F(BytesTest, SubscriptOperatorTest) {
   Bytes bytes("test");
-  EXPECT_EQ(bytes[Bytes("0")], 't');
+  EXPECT_EQ(bytes[0], 't');
 }
 
 /**

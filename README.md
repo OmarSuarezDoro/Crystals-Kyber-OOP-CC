@@ -10,6 +10,7 @@ Authors:
 - [4. Main Concepts](#4-main-concepts)
 - [5. Components](#5-components)
   - [a) Data Structures](#a-data-structures)
+  - [b) Keccak](#b-keccak)
 
 
 
@@ -67,4 +68,26 @@ Matrix<Polynomial<int>> mat5_ = Matrix<Polynomial<int>>(2, 2, 3);
 Matrix<Polynomial<int>> result = mat4_ + mat5_;
 ```
 
-3. **Bytes**: This class implements a set of bytes
+3. **Bytes**: This class implements a set of bytes. They are mapped as `std::string` object, due to its facility in char(which have a size of 1 Byte, as 8 bits). The main reason of using our own **Byte Structure** is to follow facade patterns, in order to simplify the management of some custom **data structures** that libraries like [Crypto++](https://github.com/weidai11/cryptopp) use.
+
+The bytes structure allow us to make operations with Bytes in a simple way. Here is a list of some methods that are included in this class:
+- operator+ : which make the concatenation
+- bitwise operations like and (&), or (|), not(~)..
+- operator<< and operator>> : which will make a shift in any char that the string has. **CAREFUL!** It doesn't take care of carrying bits, it will make shift operation in any byte, and the bits that are overflowed will dissapear. **TAKE CARE OF THIS**.
+- A few methods of transformation Bytes to Bits, Bytes to Numbers, Bytes to Hexadecimal.
+
+### b) **Keccak**
+The Keccak component consists in a set of **Cryptographic functions** which are provided by the [Crypto++](https://github.com/weidai11/cryptopp) library. Keccak is structured by static methods (this is because, in our opinion, it is easy to understand the kyber as boxes that implements a set of functions that we will need), that we will call **"Logic Gates"**.
+
+This Logic Gates operates with privates methods which use the functions of the library Cryto++ and return our custom byte structure. This logic gates are:
+- XOF : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO
+- PRF : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO
+- KDF : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO
+- G : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO
+- H : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO
+
+
+### C) 
+
+
+

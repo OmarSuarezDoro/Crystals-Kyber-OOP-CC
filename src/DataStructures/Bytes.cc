@@ -153,16 +153,8 @@ Bytes Bytes::operator<<(const int& kShift) const {
  */
 Bytes Bytes::operator>>(const int& kShift) const {
   std::string result = "";
-  int remain_shift = kShift;
-  for (int i = 0; i < bytes_.size(); ++i) {
-    // If the number of bits to shift is greater than 8 we need to store them and then shift the next byte
-    if (remain_shift >= 8) {
-      result += bytes_[i] >> remain_shift;
-      remain_shift -= 8;
-    } else {
-      result += bytes_[i] >> remain_shift;
-      result += bytes_[i + 1] << (8 - remain_shift);
-    }
+  for (const auto& element : bytes_) {
+    result += element >> kShift;
   }
   return result;
 }
@@ -282,19 +274,9 @@ Bytes Bytes::operator<<=(const int& kShift) {
  * @return Bytes : The shifted Bytes object
  */
 Bytes Bytes::operator>>=(const int& kShift) {
-  std::string result = "";
-  int remain_shift = kShift;
-  for (int i = 0; i < bytes_.size(); ++i) {
-    // If the number of bits to shift is greater than 8 we need to store them and then shift the next byte
-    if (remain_shift >= 8) {
-      result += bytes_[i] >> remain_shift;
-      remain_shift -= 8;
-    } else {
-      result += bytes_[i] >> remain_shift;
-      result += bytes_[i + 1] << (8 - remain_shift);
-    }
+  for (auto& element : bytes_) {
+    element >>= kShift;
   }
-  bytes_ = result;
   return *this;
 }
 

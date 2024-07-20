@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['polynomial_12',['Polynomial',['../classPolynomial.html#ab28a11db1300f6f0a1c07a3e57ea6bb6',1,'Polynomial']]]
+  ['g_44',['G',['../classKeccak.html#a19ca533d189dcb9bd3d0171813581086',1,'Keccak']]],
+  ['gettranspose_45',['GetTranspose',['../classMatrix.html#a439589c6d3f4ca1f9ad0c299e7efd9bd',1,'Matrix']]]
 ];
