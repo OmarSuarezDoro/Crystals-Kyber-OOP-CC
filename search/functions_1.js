@@ -1,6 +1,7 @@
 var searchData=
 [
-  ['operator_28_29_9',['operator()',['../classMatrix.html#a8ac87a472fea65c216943a72f43babe2',1,'Matrix::operator()(unsigned int index_rows, unsigned int index_cols) const'],['../classMatrix.html#a66967d5fae3c7fb21c1c753f72bb60a8',1,'Matrix::operator()(unsigned int index_rows, unsigned int index_cols)']]],
-  ['operator_2b_10',['operator+',['../classMatrix.html#a0deb8db244c907e441b295cb3f8a2610',1,'Matrix::operator+()'],['../classPolynomial.html#a8b9a213388d9f15d50f5c1324a5c66a1',1,'Polynomial::operator+(const Polynomial&lt; T &gt; &amp;kPolynomial2) const']]],
-  ['operator_5b_5d_11',['operator[]',['../classPolynomial.html#af3d243cdf6373cfd64cc97e5c4417765',1,'Polynomial::operator[](int index) const'],['../classPolynomial.html#ae16b2c25af57ff83ef9e46346eb0da1f',1,'Polynomial::operator[](int index)']]]
+  ['frombitstobytes_40',['FromBitsToBytes',['../classBytes.html#a1b0eab61142a9c9288a92b5004a66242',1,'Bytes']]],
+  ['frombytestobits_41',['FromBytesToBits',['../classBytes.html#a778cb3103a5838f3b0fb604e0e116143',1,'Bytes']]],
+  ['frombytestohex_42',['FromBytesToHex',['../classBytes.html#a24bbbad41ce224429614fe1f4d6169be',1,'Bytes']]],
+  ['frombytestonumbers_43',['FromBytesToNumbers',['../classBytes.html#aa1c183b4eee260b3ac90c4ef5315069e',1,'Bytes']]]
 ];

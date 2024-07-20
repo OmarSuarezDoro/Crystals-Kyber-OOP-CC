@@ -66,7 +66,7 @@ $(function() {
 <div class="title">Implementation of Crystals Kyber Algorithm </div>  </div>
 </div><!--header-->
 <div class="contents">
-<div class="textblock"><p><a class="anchor" id="md__home_noex_projects_Crystal_Kyber_C__README"></a>Authors:</p><ul>
+<div class="textblock"><p><a class="anchor" id="md__home_noex_Crystal_Kyber_C__README"></a>Authors:</p><ul>
 <li><b>Omar Suárez Doro</b> (<a href="#" onclick="location.href='mai'+'lto:'+'alu'+'01'+'014'+'83'+'474'+'@u'+'ll.'+'ed'+'u.e'+'s'; return false;">alu01<span style="display: none;">.nosp@m.</span>0148<span style="display: none;">.nosp@m.</span>3474@<span style="display: none;">.nosp@m.</span>ull.<span style="display: none;">.nosp@m.</span>edu.e<span style="display: none;">.nosp@m.</span>s</a>)</li>
 <li><b>Edgar Pérez Ramos</b> (<a href="#" onclick="location.href='mai'+'lto:'+'alu'+'01'+'012'+'07'+'667'+'@u'+'ll.'+'ed'+'u.e'+'s'; return false;">alu01<span style="display: none;">.nosp@m.</span>0120<span style="display: none;">.nosp@m.</span>7667@<span style="display: none;">.nosp@m.</span>ull.<span style="display: none;">.nosp@m.</span>edu.e<span style="display: none;">.nosp@m.</span>s</a>)</li>
 <li><b>Pino Caballero Gil</b> (<a href="#" onclick="location.href='mai'+'lto:'+'pca'+'ba'+'lle'+'@u'+'ll.'+'ed'+'u.e'+'s'; return false;">pcaba<span style="display: none;">.nosp@m.</span>lle@<span style="display: none;">.nosp@m.</span>ull.e<span style="display: none;">.nosp@m.</span>du.e<span style="display: none;">.nosp@m.</span>s</a>) </li>
@@ -97,7 +97,7 @@ $(function() {
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">Lattice   </td><td class="markdownTableBodyNone">A lattice is a mathematic structure, which is built by lineal combinations of a n -vectors, where n define the dimention of the lattice.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">LWE problem   </td><td class="markdownTableBodyNone">The <b>learning with errors</b> problem consist in, having a vectorial base and a point (P) in the plane. Discover which lineal combination of the vectors should we use, in orther to be in the closest point to P.   </td></tr>
+<td class="markdownTableBodyNone">LWE problem   </td><td class="markdownTableBodyNone">The <b>learning with errors</b> problem consist in, having a vectorial base and a point (P) in the plane. Discover which lineal combination of the vectors should we use, in order to be in the closest point to P.   </td></tr>
 </table>
 <h1><a class="anchor" id="autotoc_md5"></a>
 5. Components</h1>
@@ -135,7 +135,15 @@ a) Data Structures</h2>
 <div class="line">    mat4_(0, 1) = p2;</div>
 <div class="line">    mat5_(0, 0) = p1;</div>
 <div class="line">Matrix&lt;Polynomial&lt;int&gt;&gt; result = mat4_ + mat5_;</div>
-</div><!-- fragment --> </div></div><!-- PageDoc -->
+</div><!-- fragment --><ol type="1">
+<li><b><a class="el" href="classBytes.html" title="This file contains the header declaration of the class Bytes.">Bytes</a></b>: This class implements a set of bytes. They are mapped as <code>std::string</code> object, due to its facility in char(which have a size of 1 Byte, as 8 bits). The main reason of using our own <b>Byte Structure</b> is to follow facade patterns, in order to simplify the management of some custom <b>data structures</b> that libraries like <a href="https://github.com/weidai11/cryptopp">Crypto++</a> use.</li>
+</ol>
+<p>The bytes structure allow us to make operations with <a class="el" href="classBytes.html" title="This file contains the header declaration of the class Bytes.">Bytes</a> in a simple way. Here is a list of some methods that are included in this class:</p><ul>
+<li>operator+ : which make the concatenation</li>
+<li>bitwise operations like and (&amp;), or (|), not(~)..</li>
+<li>operator&lt;&lt; : which will print the Byte in Hexadecimal characters. </li>
+</ul>
+</div></div><!-- PageDoc -->
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
