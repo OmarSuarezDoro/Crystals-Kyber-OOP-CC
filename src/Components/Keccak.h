@@ -23,7 +23,6 @@
 
 #include "../DataStructures/Bytes.h"
 
-
 class Keccak {
 public:
   Keccak();

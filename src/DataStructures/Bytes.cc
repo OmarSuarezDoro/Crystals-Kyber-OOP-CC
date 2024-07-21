@@ -11,7 +11,7 @@
  */
 
 #include "Bytes.h"
-#include <iostream>
+
 /**
  * @brief Construct a new Bytes:: Bytes object
  * 
@@ -376,11 +376,34 @@ std::string Bytes::FromBytesToHex() const {
  * 
  * @return std::string : The string of numbers
  */
-std::string Bytes::FromBytesToNumbers() const {
-  std::string result = "";
+long Bytes::FromBytesToNumbers() const {
+  long result = 0;
   for (int i = 0; i < bytes_.size(); ++i) {
-    int character_in_numeric = bytes_[i];
-    result += std::to_string(character_in_numeric) + " ";
+    // Iterate through the bytes
+    for (int j = 0; j < bytes_[i]; ++j) {
+      if (((bytes_[i] >> j) & 1) == 1) {
+        result += pow(2, i  * 8 + j);
+      }
+    }
   }
   return result;
+}
+
+/**
+ * @brief Reverse the bits of the Bytes object
+ * 
+ * @return std::string : The reversed Bytes object
+ */
+Bytes Bytes::BitReverse(int length) const {
+  std::string result = "";
+  for (int i = GetBytesSize() - 1; i >= 0; --i) {
+    for (int j = 0; j < 8; ++j) {
+      result += ((bytes_[i] >> j) & 1) + '0';
+    }
+  }
+  std::string result_in_bytes = "";
+  for (int i = 0; i < result.size(); i += 8) {
+    result_in_bytes += std::bitset<8>(result.substr(i, 8)).to_ulong();
+  }
+  return Bytes(result_in_bytes);
 }

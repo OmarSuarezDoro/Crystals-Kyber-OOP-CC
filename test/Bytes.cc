@@ -261,3 +261,20 @@ TEST_F(BytesTest, FromBitsToBytesTest) {
   std::string bits = "01000001";
   EXPECT_EQ(Bytes::FromBitsToBytes(bits), "A");
 }
+
+/**
+ * @brief Test for the FromBytesToHex() method.
+ */
+TEST_F(BytesTest, FromBytesToHexTest) {
+  Bytes bytes("A");
+  EXPECT_EQ(bytes.FromBytesToHex(), "41");
+}
+
+/**
+ * @brief Test for the BitReverse() method.
+ */
+TEST_F(BytesTest, BitReverseTest) {
+  Bytes bytes("12");
+  Bytes result = bytes.BitReverse(2);
+  EXPECT_EQ(result.FromBytesToHex(), "4c8c");
+}

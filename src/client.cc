@@ -3,18 +3,19 @@
 #include "./DataStructures/Polynomial.h"
 #include "./DataStructures/Matrix.h"
 #include "./Components/Keccak.h"
+#include "./Components/NTT.h"
 
+
+// Bits interpretados de derecha izquierda (como normalmente sería)
+// Mientras que los bytes se interpretan de izquierda a derecha
 int main() {
   Keccak keccak;
-  Bytes miau("Hello World");
-  // Bytes bytes = keccak.XOF(miau, miau, miau, 32);
-  // Bytes bytes = keccak.H(miau, 32);
-  // Bytes bytes = keccak.PRF(miau, 128, 32);
-  // Bytes bytes = keccak.KDF(miau, 32);
-  Bytes bytes = keccak.G(miau)[0];
-  Bytes bytes2 = keccak.G(miau)[1];
-
-  std::cout << bytes.FromBytesToHex() << std::endl; 
-  std::cout << bytes2.FromBytesToHex() << std::endl; 
+  // NTT miau(256, 3329);
+  // std::cout << miau._FirstPrimitiveRoot(512) << std::endl;
+  Bytes miau("  ");
+  std::cout << miau.BitReverse(2).FromBytesToBits() << std::endl;  // 00000100 0000100
+  std::cout << miau.BitReverse(2).FromBytesToNumbers() << std::endl; // 1028
+  std::cout << miau.BitReverse(2).FromBytesToHex() << std::endl; // 0404
+  
   return 0;
 }

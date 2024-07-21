@@ -76,7 +76,7 @@ The bytes structure allow us to make operations with Bytes in a simple way. Here
 - operator<< and operator>> : which will make a shift in any char that the string has. **CAREFUL!** It doesn't take care of carrying bits, it will make shift operation in any byte, and the bits that are overflowed will dissapear. **TAKE CARE OF THIS**.
 - A few methods of transformation Bytes to Bits, Bytes to Numbers, Bytes to Hexadecimal.
 
-### b) **Keccak**
+### b) Keccak
 The Keccak component consists in a set of **Cryptographic functions** which are provided by the [Crypto++](https://github.com/weidai11/cryptopp) library. Keccak is structured by static methods (this is because, in our opinion, it is easy to understand the kyber as boxes that implements a set of functions that we will need), that we will call **"Logic Gates"**.
 
 This Logic Gates operates with privates methods which use the functions of the library Cryto++ and return our custom byte structure. This logic gates are:
@@ -87,7 +87,7 @@ This Logic Gates operates with privates methods which use the functions of the l
 - H : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO
 
 
-### C) 
+### c) 
 
 
 

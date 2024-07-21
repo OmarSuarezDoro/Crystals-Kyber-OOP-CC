@@ -10,7 +10,10 @@
  * @brief This file contains the header declaration of the class Bytes
  */
 #include <bitset>
+#include <cmath>
 #include <string>
+#include <iostream>
+#include <algorithm>
 
 #pragma once
 
@@ -53,8 +56,10 @@ class Bytes {
   std::string toLittleEndian() const;
   std::string FromBytesToBits() const;
   std::string FromBytesToHex() const;
-  std::string FromBytesToNumbers() const;
+  long FromBytesToNumbers() const;
+  Bytes BitReverse(int length) const;
   Bytes GetNBytes(const int& start_index, const int& kN) const { return Bytes(bytes_.substr(start_index, kN)); }
+  
 
   static std::string FromBitsToBytes(const std::string& kBits);
   

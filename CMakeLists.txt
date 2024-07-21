@@ -43,10 +43,12 @@ include_directories(${PROJECT_SOURCE_DIR}/src)
 add_executable(
   runTests
   test/gtest_main.cc
-  test/Polynomial.cc
-  test/Matrix.cc
   test/Bytes.cc
+  test/Matrix.cc
+  test/Polynomial.cc
+  test/Keccak.cc
   ./src/DataStructures/Bytes.cc
+  ./src/Components/Keccak.cc
   )
 
 # Adds an executable target called "client_main" to be built from the source files listed in the command invocation.
@@ -59,12 +61,15 @@ add_executable(
   ./src/DataStructures/Bytes.h
   ./src/Components/Keccak.cc
   ./src/Components/Keccak.h
-)
+  ./src/Components/NTT.cc
+  ./src/Components/NTT.h
+  )
 
 
 # Añadir la biblioteca Crypto++
 link_directories(/usr/include/cryptopp/lib)
 target_link_libraries(client_main cryptopp)
+target_link_libraries(runTests cryptopp)
 
 # Add expected compiler features to a target.
 target_compile_features(runTests PRIVATE cxx_std_17)
