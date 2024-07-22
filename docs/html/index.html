@@ -81,6 +81,7 @@ $(function() {
 <li><a href="#5-components">5. Components</a><ul>
 <li><a href="#a-data-structures">a) Data Structures</a></li>
 <li><a href="#b-keccak">b) Keccak</a></li>
+<li>[c) ]()</li>
 </ul>
 </li>
 </ul>
@@ -139,24 +140,39 @@ a) Data Structures</h2>
 </div><!-- fragment --><ol type="1">
 <li><b><a class="el" href="classBytes.html" title="This file contains the header declaration of the class Bytes.">Bytes</a></b>: This class implements a set of bytes. They are mapped as <code>std::string</code> object, due to its facility in char(which have a size of 1 Byte, as 8 bits). The main reason of using our own <b>Byte Structure</b> is to follow facade patterns, in order to simplify the management of some custom <b>data structures</b> that libraries like <a href="https://github.com/weidai11/cryptopp">Crypto++</a> use.</li>
 </ol>
-<p>The bytes structure allow us to make operations with <a class="el" href="classBytes.html" title="This file contains the header declaration of the class Bytes.">Bytes</a> in a simple way. Here is a list of some methods that are included in this class:</p><ul>
+<p>The bytes structure work with each bytes as <b>Little Endian</b> way, that means that the left Byte is the less significant. However, bits are interpreted from right to left (the common way to read binary).</p>
+<p>The bytes structure allow us to make operations with <a class="el" href="classBytes.html" title="This file contains the header declaration of the class Bytes.">Bytes</a> in a simple way. Hereis a list of some methods that are included in this class:</p><ul>
 <li>operator+ : which make the concatenation</li>
 <li>bitwise operations like and (&amp;), or (|), not(~)..</li>
 <li>operator&lt;&lt; and operator&gt;&gt; : which will make a shift in any char that the string has. <b>CAREFUL!</b> It doesn't take care of carrying bits, it will make shift operation in any byte, and the bits that are overflowed will dissapear. <b>TAKE CARE OF THIS</b>.</li>
-<li>A few methods of transformation <a class="el" href="classBytes.html" title="This file contains the header declaration of the class Bytes.">Bytes</a> to Bits, <a class="el" href="classBytes.html" title="This file contains the header declaration of the class Bytes.">Bytes</a> to Numbers, <a class="el" href="classBytes.html" title="This file contains the header declaration of the class Bytes.">Bytes</a> to Hexadecimal.</li>
+<li>A few methods of transformation:<ul>
+<li>FromBytesToBits: Return a string of the bit representation of each byte.</li>
+<li>FromBytesToHex: Return a string of hex representation of each byte.</li>
+<li>FromBytesToNumbers: Return a long with the value of the bytes, It iterates, adding each bit * 2^n to the result.</li>
+<li>GetBytesAsNumbersVector: Return an int vector that contains each separated int value of the bytes.</li>
+</ul>
+</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md7"></a>
-b) &lt;strong&gt;Keccak&lt;/strong&gt;</h2>
+b) Keccak</h2>
 <p>The <a class="el" href="classKeccak.html" title="This file contains the header declaration of the class Keccak, which give us some cryptographic funct...">Keccak</a> component consists in a set of <b>Cryptographic functions</b> which are provided by the <a href="https://github.com/weidai11/cryptopp">Crypto++</a> library. <a class="el" href="classKeccak.html" title="This file contains the header declaration of the class Keccak, which give us some cryptographic funct...">Keccak</a> is structured by static methods (this is because, in our opinion, it is easy to understand the kyber as boxes that implements a set of functions that we will need), that we will call **"Logic Gates"**.</p>
-<p>This Logic Gates operates with privates methods which use the functions of the library Cryto++ and return our custom byte structure. This logic gates are:</p><ul>
-<li>XOF : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO</li>
-<li>PRF : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO</li>
-<li>KDF : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO</li>
+<p>This Logic Gates operates with privates methods which use the functions of the library Cryto++ and return our custom byte structure. This logic gates are:</p>
+<table class="markdownTable">
+<tr class="markdownTableHead">
+<th class="markdownTableHeadNone">Gate   </th><th class="markdownTableHeadNone">Description    </th></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Extendable-output function (<b>XOF</b>)   </td><td class="markdownTableBodyNone">Is an extension of the cryptographic hash that allows its output to be arbitrarily long.    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">Pseudorandom function family(<b>PRF</b>)   </td><td class="markdownTableBodyNone">Is a collection of efficiently-computable functions which emulate a random oracle in the following way: no efficient algorithm can distinguish (with significant advantage) between a function chosen randomly from the PRF family and a random oracle (a function whose outputs are fixed completely at random).    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Key derivation function (<b>KDF</b>)   </td><td class="markdownTableBodyNone">Is a cryptographic algorithm that derives one or more secret keys from a secret value such as a master key, a password, or a passphrase using a pseudorandom function   </td></tr>
+</table>
+<ul>
 <li>G : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO</li>
 <li>H : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO</li>
 </ul>
 <h2><a class="anchor" id="autotoc_md8"></a>
-C)</h2>
+c) Bytes</h2>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 <!-- start footer part -->
