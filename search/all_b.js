@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['_7ebytes_34',['~Bytes',['../classBytes.html#a5861879e91bad95c447ce95105a2b62a',1,'Bytes']]]
+  ['xof_35',['XOF',['../classKeccak.html#a00338b2da527b8421b6d52f08bbe86e2',1,'Keccak']]]
 ];
