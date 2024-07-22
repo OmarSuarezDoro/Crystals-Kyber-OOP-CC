@@ -21,7 +21,7 @@
    * @param n The number to find the primitive root.
    * @return The first primitive root of n.
    */
-int NTT::_FirstPrimitiveRoot(int n) {
+int NTT::_FirstPrimitiveRoot(int n) { // 256
   // Checking conditions
   if (!_IsPrime(q_)) {
     throw std::invalid_argument("Q must be a prime number.");

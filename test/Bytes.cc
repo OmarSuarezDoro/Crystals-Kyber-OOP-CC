@@ -239,14 +239,6 @@ TEST_F(BytesTest, ToBigEndianTest) {
 }
 
 /**
- * @brief Test for the toLittleEndian() method.
- */
-TEST_F(BytesTest, ToLittleEndianTest) {
-  Bytes bytes("test");
-  EXPECT_EQ(bytes.toLittleEndian(), "test");
-}
-
-/**
  * @brief Test for the FromBytesToBits() method.
  */
 TEST_F(BytesTest, FromBytesToBitsTest) {
@@ -277,4 +269,56 @@ TEST_F(BytesTest, BitReverseTest) {
   Bytes bytes("12");
   Bytes result = bytes.BitReverse(2);
   EXPECT_EQ(result.FromBytesToHex(), "4c8c");
+}
+
+/**
+ * @brief Test for the GetNBytes() method.
+ */
+TEST_F(BytesTest, GetNBytesTest) {
+  Bytes bytes("test");
+  EXPECT_EQ(bytes.GetNBytes(1, 2).GetBytes(), "es");
+}
+
+/**
+ * @brief Test for the FromBytesToNumbers() method.
+ * 
+ */
+TEST_F(BytesTest, FromBytesToNumbersTest) {
+  Bytes bytes("  ");
+  EXPECT_EQ(bytes.FromBytesToNumbers(), 8224);
+}
+
+/**
+ * @brief Test for the GetBytesSize() method.
+ */
+TEST_F(BytesTest, GetBytesSizeTest) {
+  Bytes bytes("test");
+  EXPECT_EQ(bytes.GetBytesSize(), 4);
+}
+
+/**
+ * @brief Test for the SetBytes() method.
+ */
+TEST_F(BytesTest, SetBytesTest) {
+  Bytes bytes;
+  bytes.SetBytes("test");
+  EXPECT_EQ(bytes.GetBytes(), "test");
+}
+
+/**
+ * @brief Test for the GetBytes() method.
+ */
+TEST_F(BytesTest, GetBytesTest) {
+  Bytes bytes("test");
+  EXPECT_EQ(bytes.GetBytes(), "test");
+}
+
+/**
+ * @brief Test for the GetBytesAsNumbersVector() method.
+ */
+TEST_F(BytesTest, GetBytesAsNumbersVectorTest) {
+  Bytes bytes("test");
+  std::vector<int> result = bytes.GetBytesAsNumbersVector();
+  std::vector<int> expected_result = {116, 101, 115, 116};
+  EXPECT_EQ(result, expected_result);
 }

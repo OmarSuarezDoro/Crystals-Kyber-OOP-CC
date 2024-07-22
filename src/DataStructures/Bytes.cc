@@ -320,15 +320,6 @@ std::string Bytes::toBigEndian() const {
 }
 
 /**
- * @brief Get the Bytes object in Little Endian format
- * 
- * @return std::string : The Bytes object in Little Endian format
- */
-std::string Bytes::toLittleEndian() const {
-  return bytes_;
-}
-
-/**
  * @brief Convert the Bytes object to a string of bits
  * 
  * @return std::string : The string of bits
@@ -406,4 +397,18 @@ Bytes Bytes::BitReverse(int length) const {
     result_in_bytes += std::bitset<8>(result.substr(i, 8)).to_ulong();
   }
   return Bytes(result_in_bytes);
+}
+
+
+/**
+ * @brief Get a vector of intergers that represents each byte value
+ * 
+ * @return std::vector<int> : The vector of integers
+ */
+std::vector<int> Bytes::GetBytesAsNumbersVector() const {
+  std::vector<int> result;
+  for (int i = 0; i < bytes_.size(); ++i) {
+    result.push_back(bytes_[i]);
+  }
+  return result;
 }

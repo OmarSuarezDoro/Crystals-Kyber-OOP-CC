@@ -23,6 +23,7 @@ class Bytes {
   Bytes(const std::string& kBytes);
   Bytes(const Bytes& kBytes);
   Bytes(const uint8_t& kByte);
+  // Bytes(const int& kByte);
   ~Bytes();
 
   // Getters
@@ -53,12 +54,12 @@ class Bytes {
 
   // Methods
   std::string toBigEndian() const;
-  std::string toLittleEndian() const;
   std::string FromBytesToBits() const;
   std::string FromBytesToHex() const;
   long FromBytesToNumbers() const;
   Bytes BitReverse(int length) const;
   Bytes GetNBytes(const int& start_index, const int& kN) const { return Bytes(bytes_.substr(start_index, kN)); }
+  std::vector<int> GetBytesAsNumbersVector() const;
   
 
   static std::string FromBitsToBytes(const std::string& kBits);

@@ -11,6 +11,7 @@ Authors:
 - [5. Components](#5-components)
   - [a) Data Structures](#a-data-structures)
   - [b) Keccak](#b-keccak)
+  - [c) ]()
 
 
 
@@ -70,24 +71,37 @@ Matrix<Polynomial<int>> result = mat4_ + mat5_;
 
 3. **Bytes**: This class implements a set of bytes. They are mapped as `std::string` object, due to its facility in char(which have a size of 1 Byte, as 8 bits). The main reason of using our own **Byte Structure** is to follow facade patterns, in order to simplify the management of some custom **data structures** that libraries like [Crypto++](https://github.com/weidai11/cryptopp) use.
 
-The bytes structure allow us to make operations with Bytes in a simple way. Here is a list of some methods that are included in this class:
+The bytes structure work with each bytes as **Little Endian** way, that means that the left Byte is the less significant. However, bits are interpreted from right to left (the common way to read binary).
+
+
+The bytes structure allow us to make operations with Bytes in a simple way. Hereis a list of some methods that are included in this class:
 - operator+ : which make the concatenation
 - bitwise operations like and (&), or (|), not(~)..
 - operator<< and operator>> : which will make a shift in any char that the string has. **CAREFUL!** It doesn't take care of carrying bits, it will make shift operation in any byte, and the bits that are overflowed will dissapear. **TAKE CARE OF THIS**.
-- A few methods of transformation Bytes to Bits, Bytes to Numbers, Bytes to Hexadecimal.
+- A few methods of transformation:
+  - FromBytesToBits: Return a string of the bit representation of each byte.
+  - FromBytesToHex: Return a string of hex representation of each byte.
+  - FromBytesToNumbers: Return a long with the value of the bytes, It iterates, adding each bit * 2^n to the result.
+  - GetBytesAsNumbersVector: Return an int vector that contains each separated int value of the bytes.
+ 
 
 ### b) Keccak
 The Keccak component consists in a set of **Cryptographic functions** which are provided by the [Crypto++](https://github.com/weidai11/cryptopp) library. Keccak is structured by static methods (this is because, in our opinion, it is easy to understand the kyber as boxes that implements a set of functions that we will need), that we will call **"Logic Gates"**.
 
 This Logic Gates operates with privates methods which use the functions of the library Cryto++ and return our custom byte structure. This logic gates are:
-- XOF : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO
-- PRF : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO
-- KDF : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO
+
+|Gate | Description |
+| --- | --- |
+|Extendable-output function (**XOF**)| Is an extension of the cryptographic hash that allows its output to be arbitrarily long.|
+|Pseudorandom function family(**PRF**)|Is a collection of efficiently-computable functions which emulate a random oracle in the following way: no efficient algorithm can distinguish (with significant advantage) between a function chosen randomly from the PRF family and a random oracle (a function whose outputs are fixed completely at random).|
+|Key derivation function (**KDF**) | Is a cryptographic algorithm that derives one or more secret keys from a secret value such as a master key, a password, or a passphrase using a pseudorandom function|
+
+
 - G : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO
 - H : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO
 
 
-### c) 
+### c) Bytes
 
 
 
