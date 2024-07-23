@@ -29,7 +29,6 @@ int NTT::_FirstPrimitiveRoot(int n) { // 256
   if ((q_ - 1) % n != 0) {
     throw std::invalid_argument("n must divide q - 1.");
   }
-  
   // We are going to check if base^n = 1 and base to another lower power is not 1.
   for (int base = 2; base < q_; base++) {
     bool is_primitive_root = true;
@@ -88,27 +87,27 @@ bool NTT::_IsPrime(int n) {
   return true;
 }
 
-// Polynomial<int> NTT::_NTT(const Polynomial<int>& kPolynomial) {
-//   int n = kPolynomial.GetSize() + 1;
-//   int phi = _FirstPrimitiveRoot(2 * n);
-//   int counter = 1;
-//   int mid_index = n / 2;
-//   Polynomial<int> result = kPolynomial;
-//   while (counter < n) {
-//     for (int i = 0; i < counter; i++) {
-//       int j1 = 2 * i * mid_index;
-//       int j2 = j1 + mid_index - 1;
+Polynomial<int> NTT::_NTT(const Polynomial<int>& kPolynomial) {
+  int n = kPolynomial.GetSize() + 1;
+  int phi = _FirstPrimitiveRoot(2 * n);
+  int counter = 1;
+  int mid_index = n / 2;
+  Polynomial<int> result = kPolynomial;
+  while (counter < n) {
+    for (int i = 0; i < counter; i++) {
+      int j1 = 2 * i * mid_index;
+      int j2 = j1 + mid_index - 1;
 
-//       int S = _PowerWithMod(phi, _BitRev(counter + i, n), q_);
-//       for (int j = j1; j <= j2; j++) {
-//         int temp_element = result[j];
-//         int temp_mirror_element = result[j + mid_index];
-//         result[j] = (temp_element + temp_mirror_element * S) % q_;
-//         result[j + mid_index] = (temp_element - temp_mirror_element * S) % q_;
-//       }
-//     }
-//     counter = 2 * counter;
-//     mid_index = mid_index / 2;
-//   }
-//   return result;
-// }
+      int S = _PowerWithMod(phi, Bytes(counter + i).BitReverse(n).FromBytesToNumbers(), q_);
+      for (int j = j1; j <= j2; j++) {
+        int temp_element = result[j];
+        int temp_mirror_element = result[j + mid_index];
+        result[j] = (temp_element + temp_mirror_element * S) % q_;
+        result[j + mid_index] = (temp_element - temp_mirror_element * S) % q_;
+      }
+    }
+    counter = 2 * counter;
+    mid_index = mid_index / 2;
+  }
+  return result;
+}

@@ -15,6 +15,8 @@
 #include <cmath>
 
 #include "../DataStructures/Matrix.h"
+#include "../DataStructures/Bytes.h"
+
 
 #pragma once
 

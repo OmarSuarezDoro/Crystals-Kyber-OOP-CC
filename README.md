@@ -69,7 +69,7 @@ Matrix<Polynomial<int>> mat5_ = Matrix<Polynomial<int>>(2, 2, 3);
 Matrix<Polynomial<int>> result = mat4_ + mat5_;
 ```
 
-3. **Bytes**: This class implements a set of bytes. They are mapped as `std::string` object, due to its facility in char(which have a size of 1 Byte, as 8 bits). The main reason of using our own **Byte Structure** is to follow facade patterns, in order to simplify the management of some custom **data structures** that libraries like [Crypto++](https://github.com/weidai11/cryptopp) use.
+3. **Bytes**: This class implements a set of bytes. They are mapped as `std::string` object, due to its facility in char(which have a size of 1 Byte, as 8 bits). The main reason of using our own **Byte Structure** is to follow facade patterns, in order to simplify the management of some custom **data structures** that libraries like [Cryptopp](https://github.com/weidai11/cryptopp) use.
 
 The bytes structure work with each bytes as **Little Endian** way, that means that the left Byte is the less significant. However, bits are interpreted from right to left (the common way to read binary).
 
@@ -86,22 +86,53 @@ The bytes structure allow us to make operations with Bytes in a simple way. Here
  
 
 ### b) Keccak
-The Keccak component consists in a set of **Cryptographic functions** which are provided by the [Crypto++](https://github.com/weidai11/cryptopp) library. Keccak is structured by static methods (this is because, in our opinion, it is easy to understand the kyber as boxes that implements a set of functions that we will need), that we will call **"Logic Gates"**.
+The Keccak component consists in a set of **Cryptographic functions** which are provided by the [Cryptopp](https://github.com/weidai11/cryptopp) library, also known as Crypto++. Keccak is structured by static methods (this is because, in our opinion, it is easy to understand the kyber as boxes that implements a set of functions that we will need), that we will call **"Logic Gates"**.
 
-This Logic Gates operates with privates methods which use the functions of the library Cryto++ and return our custom byte structure. This logic gates are:
+This Logic Gates operates with privates methods which use the functions of the library Crytopp and return our custom byte structure. This logic gates are:
 
 |Gate | Description |
 | --- | --- |
 |Extendable-output function (**XOF**)| Is an extension of the cryptographic hash that allows its output to be arbitrarily long.|
 |Pseudorandom function family(**PRF**)|Is a collection of efficiently-computable functions which emulate a random oracle in the following way: no efficient algorithm can distinguish (with significant advantage) between a function chosen randomly from the PRF family and a random oracle (a function whose outputs are fixed completely at random).|
 |Key derivation function (**KDF**) | Is a cryptographic algorithm that derives one or more secret keys from a secret value such as a master key, a password, or a passphrase using a pseudorandom function|
+|(**H**) |Hash function used to derive cryptographic material (seed for public matrix A, coins, shared keys) from arbitrary-length byte strings. Output is a 32-byte string.|
+|(**G**)|Hash function used to generate noise polynomials for the secret key. Output is a concatenation of two 32-byte strings.|
 
 
-- G : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO
-- H : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO
+### c) NTT (Number Theoretic Transform)
+
+The NTT is a variant of the Discrete Fourier Transform (DFT), but it operates in a finite field instead of complex numbers. This allows for efficient computations with integers, which is crucial for cryptographic applications.
+
+The primary reason for using NTT in cryptographic schemes like Kyber is to **efficiently perform polynomial multiplication**.  
+
+> [!info]
+>
+> The computational complexity is highly increased due to this algorithm:
+>
+> $$
+O(n^2) \rightarrow O(n~\cdot~log(n)) 
+> $$
+> This happens because the following domain transformation is performed:
+> $$
+R_q^{k~\cdot~k} \rightarrow R_q^k \\
+> $$
+> Where **q** is the prime that we are using in the algorithm and **k** the dimension.
+>  $$
+>   \begin{pmatrix}
+\begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix}\\
+\begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix}
+\end{pmatrix}	
+\longrightarrow
+\begin{pmatrix}
+\begin{bmatrix}165\end{bmatrix} \\
+\begin{bmatrix}125\end{bmatrix} \\
+\end{pmatrix}
+$$
+>
+>
 
 
-### c) Bytes
-
+ 
+s
 
 
