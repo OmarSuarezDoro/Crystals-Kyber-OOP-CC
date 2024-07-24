@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ntt_40',['NTT',['../classNTT.html',1,'']]]
+  ['ntt_41',['NTT',['../classNTT.html',1,'']]]
 ];
