@@ -81,9 +81,18 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:ab28a11db1300f6f0a1c07a3e57ea6bb6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPolynomial.html#ab28a11db1300f6f0a1c07a3e57ea6bb6">Polynomial</a> (const unsigned int &amp;kSize)</td></tr>
 <tr class="memdesc:ab28a11db1300f6f0a1c07a3e57ea6bb6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new Polynomial&lt; T&gt;:: <a class="el" href="classPolynomial.html" title="This file contains the header declaration and implementation of the class Polynomial.">Polynomial</a> object.  <a href="classPolynomial.html#ab28a11db1300f6f0a1c07a3e57ea6bb6">More...</a><br /></td></tr>
 <tr class="separator:ab28a11db1300f6f0a1c07a3e57ea6bb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a44513a8c1b9fdf411bc593011f12b362"><td class="memItemLeft" align="right" valign="top"><a id="a44513a8c1b9fdf411bc593011f12b362"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>append</b> (const T &amp;kElement)</td></tr>
+<tr class="separator:a44513a8c1b9fdf411bc593011f12b362"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:afaf090f3674b31f97fc21c100a18fbaa"><td class="memItemLeft" align="right" valign="top"><a id="afaf090f3674b31f97fc21c100a18fbaa"></a>
 int&#160;</td><td class="memItemRight" valign="bottom"><b>GetSize</b> () const</td></tr>
 <tr class="separator:afaf090f3674b31f97fc21c100a18fbaa"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a072aac4caae6ebfa0bae674b51e6e347"><td class="memItemLeft" align="right" valign="top"><a id="a072aac4caae6ebfa0bae674b51e6e347"></a>
+std::vector&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><b>GetCoefficients</b> () const</td></tr>
+<tr class="separator:a072aac4caae6ebfa0bae674b51e6e347"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae28d6def1c02c85b8566dbee81592631"><td class="memItemLeft" align="right" valign="top"><a id="ae28d6def1c02c85b8566dbee81592631"></a>
+void&#160;</td><td class="memItemRight" valign="bottom"><b>SetCoefficients</b> (const std::vector&lt; T &gt; &amp;kCoefficients)</td></tr>
+<tr class="separator:ae28d6def1c02c85b8566dbee81592631"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af3d243cdf6373cfd64cc97e5c4417765"><td class="memItemLeft" align="right" valign="top">const T &amp;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPolynomial.html#af3d243cdf6373cfd64cc97e5c4417765">operator[]</a> (int index) const</td></tr>
 <tr class="memdesc:af3d243cdf6373cfd64cc97e5c4417765"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method returns the element at the given index - A const version.  <a href="classPolynomial.html#af3d243cdf6373cfd64cc97e5c4417765">More...</a><br /></td></tr>
 <tr class="separator:af3d243cdf6373cfd64cc97e5c4417765"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -93,6 +102,12 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>GetSize</b> () const</
 <tr class="memitem:a8b9a213388d9f15d50f5c1324a5c66a1"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classPolynomial.html">Polynomial</a>&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPolynomial.html#a8b9a213388d9f15d50f5c1324a5c66a1">operator+</a> (const <a class="el" href="classPolynomial.html">Polynomial</a>&lt; T &gt; &amp;kPolynomial2) const</td></tr>
 <tr class="memdesc:a8b9a213388d9f15d50f5c1324a5c66a1"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method adds two polynomials.  <a href="classPolynomial.html#a8b9a213388d9f15d50f5c1324a5c66a1">More...</a><br /></td></tr>
 <tr class="separator:a8b9a213388d9f15d50f5c1324a5c66a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a62a844b040f2288341ea03ed9e80da88"><td class="memItemLeft" align="right" valign="top"><a class="el" href="classPolynomial.html">Polynomial</a>&lt; T &gt;&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPolynomial.html#a62a844b040f2288341ea03ed9e80da88">operator-</a> (const <a class="el" href="classPolynomial.html">Polynomial</a>&lt; T &gt; &amp;kPolynomial2) const</td></tr>
+<tr class="memdesc:a62a844b040f2288341ea03ed9e80da88"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method subtracts two polynomials.  <a href="classPolynomial.html#a62a844b040f2288341ea03ed9e80da88">More...</a><br /></td></tr>
+<tr class="separator:a62a844b040f2288341ea03ed9e80da88"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2d1ef4de0db47952a1428ac6b63b9d0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPolynomial.html#ad2d1ef4de0db47952a1428ac6b63b9d0">operator==</a> (const <a class="el" href="classPolynomial.html">Polynomial</a>&lt; T &gt; &amp;kPolynomial2) const</td></tr>
+<tr class="memdesc:ad2d1ef4de0db47952a1428ac6b63b9d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method checks if two polynomials are equal.  <a href="classPolynomial.html#ad2d1ef4de0db47952a1428ac6b63b9d0">More...</a><br /></td></tr>
+<tr class="separator:ad2d1ef4de0db47952a1428ac6b63b9d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
@@ -178,6 +193,76 @@ template&lt;typename T &gt; </div>
   </dd>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>Polynomial&lt;T&gt; </dd></dl>
+
+</div>
+</div>
+<a id="a62a844b040f2288341ea03ed9e80da88"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a62a844b040f2288341ea03ed9e80da88">&#9670;&nbsp;</a></span>operator-()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="classPolynomial.html">Polynomial</a>&lt; T &gt; <a class="el" href="classPolynomial.html">Polynomial</a>&lt; T &gt;::operator- </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classPolynomial.html">Polynomial</a>&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>kPolynomial2</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This method subtracts two polynomials. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>: Template type parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">kPolynomial2</td><td>: The polynomial to be subtracted </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>Polynomial&lt;T&gt; </dd></dl>
+
+</div>
+</div>
+<a id="ad2d1ef4de0db47952a1428ac6b63b9d0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2d1ef4de0db47952a1428ac6b63b9d0">&#9670;&nbsp;</a></span>operator==()</h2>
+
+<div class="memitem">
+<div class="memproto">
+<div class="memtemplate">
+template&lt;typename T &gt; </div>
+      <table class="memname">
+        <tr>
+          <td class="memname">bool <a class="el" href="classPolynomial.html">Polynomial</a>&lt; T &gt;::operator== </td>
+          <td>(</td>
+          <td class="paramtype">const <a class="el" href="classPolynomial.html">Polynomial</a>&lt; T &gt; &amp;&#160;</td>
+          <td class="paramname"><em>kPolynomial2</em></td><td>)</td>
+          <td> const</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>This method checks if two polynomials are equal. </p>
+<dl class="tparams"><dt>Template Parameters</dt><dd>
+  <table class="tparams">
+    <tr><td class="paramname">T</td><td>: Template type parameter </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">kPolynomial2</td><td>: The polynomial to be compared </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>bool </dd></dl>
 
 </div>
 </div>

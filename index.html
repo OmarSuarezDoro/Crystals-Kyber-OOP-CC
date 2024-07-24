@@ -81,7 +81,7 @@ $(function() {
 <li><a href="#5-components">5. Components</a><ul>
 <li><a href="#a-data-structures">a) Data Structures</a></li>
 <li><a href="#b-keccak">b) Keccak</a></li>
-<li>[c) ]()</li>
+<li><a href="#c-ntt-number-theoretic-transform">c)</a></li>
 </ul>
 </li>
 </ul>
@@ -99,8 +99,11 @@ $(function() {
 <tr class="markdownTableRowOdd">
 <td class="markdownTableBodyNone">Lattice   </td><td class="markdownTableBodyNone">A lattice is a mathematic structure, which is built by lineal combinations of a n -vectors, where n define the dimention of the lattice.    </td></tr>
 <tr class="markdownTableRowEven">
-<td class="markdownTableBodyNone">LWE problem   </td><td class="markdownTableBodyNone">The <b>learning with errors</b> problem consist in, having a vectorial base and a point (P) in the plane. Discover which lineal combination of the vectors should we use, in order to be in the closest point to P.   </td></tr>
+<td class="markdownTableBodyNone">LWE problem   </td><td class="markdownTableBodyNone">The <b>learning with errors</b> problem consist in, having a vectorial base and a point (P) in the plane. Discover which lineal combination of the vectors should we use, in order to be in the closest point to P.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">Big O notation (<b>O(n)</b>)   </td><td class="markdownTableBodyNone">Is a standard which function describe the time that an algorithm needs to be completed. This notation focussed in the <b>worst case</b> with a sample of n elements.   </td></tr>
 </table>
+<p>|</p>
 <h1><a class="anchor" id="autotoc_md5"></a>
 5. Components</h1>
 <h2><a class="anchor" id="autotoc_md6"></a>
@@ -138,7 +141,7 @@ a) Data Structures</h2>
 <div class="line">    mat5_(0, 0) = p1;</div>
 <div class="line">Matrix&lt;Polynomial&lt;int&gt;&gt; result = mat4_ + mat5_;</div>
 </div><!-- fragment --><ol type="1">
-<li><b><a class="el" href="classBytes.html" title="This file contains the header declaration of the class Bytes.">Bytes</a></b>: This class implements a set of bytes. They are mapped as <code>std::string</code> object, due to its facility in char(which have a size of 1 Byte, as 8 bits). The main reason of using our own <b>Byte Structure</b> is to follow facade patterns, in order to simplify the management of some custom <b>data structures</b> that libraries like <a href="https://github.com/weidai11/cryptopp">Crypto++</a> use.</li>
+<li><b><a class="el" href="classBytes.html" title="This file contains the header declaration of the class Bytes.">Bytes</a></b>: This class implements a set of bytes. They are mapped as <code>std::string</code> object, due to its facility in char(which have a size of 1 Byte, as 8 bits). The main reason of using our own <b>Byte Structure</b> is to follow facade patterns, in order to simplify the management of some custom <b>data structures</b> that libraries like <a href="https://github.com/weidai11/cryptopp">Cryptopp</a> use.</li>
 </ol>
 <p>The bytes structure work with each bytes as <b>Little Endian</b> way, that means that the left Byte is the less significant. However, bits are interpreted from right to left (the common way to read binary).</p>
 <p>The bytes structure allow us to make operations with <a class="el" href="classBytes.html" title="This file contains the header declaration of the class Bytes.">Bytes</a> in a simple way. Hereis a list of some methods that are included in this class:</p><ul>
@@ -155,8 +158,8 @@ a) Data Structures</h2>
 </ul>
 <h2><a class="anchor" id="autotoc_md7"></a>
 b) Keccak</h2>
-<p>The <a class="el" href="classKeccak.html" title="This file contains the header declaration of the class Keccak, which give us some cryptographic funct...">Keccak</a> component consists in a set of <b>Cryptographic functions</b> which are provided by the <a href="https://github.com/weidai11/cryptopp">Crypto++</a> library. <a class="el" href="classKeccak.html" title="This file contains the header declaration of the class Keccak, which give us some cryptographic funct...">Keccak</a> is structured by static methods (this is because, in our opinion, it is easy to understand the kyber as boxes that implements a set of functions that we will need), that we will call **"Logic Gates"**.</p>
-<p>This Logic Gates operates with privates methods which use the functions of the library Cryto++ and return our custom byte structure. This logic gates are:</p>
+<p>The <a class="el" href="classKeccak.html" title="This file contains the header declaration of the class Keccak, which give us some cryptographic funct...">Keccak</a> component consists in a set of <b>Cryptographic functions</b> which are provided by the <a href="https://github.com/weidai11/cryptopp">Cryptopp</a> library, also known as Crypto++. <a class="el" href="classKeccak.html" title="This file contains the header declaration of the class Keccak, which give us some cryptographic funct...">Keccak</a> is structured by static methods (this is because, in our opinion, it is easy to understand the kyber as boxes that implements a set of functions that we will need), that we will call **"Logic Gates"**.</p>
+<p>This Logic Gates operates with privates methods which use the functions of the library Crytopp and return our custom byte structure. This logic gates are:</p>
 <table class="markdownTable">
 <tr class="markdownTableHead">
 <th class="markdownTableHeadNone">Gate   </th><th class="markdownTableHeadNone">Description    </th></tr>
@@ -165,14 +168,24 @@ b) Keccak</h2>
 <tr class="markdownTableRowEven">
 <td class="markdownTableBodyNone">Pseudorandom function family(<b>PRF</b>)   </td><td class="markdownTableBodyNone">Is a collection of efficiently-computable functions which emulate a random oracle in the following way: no efficient algorithm can distinguish (with significant advantage) between a function chosen randomly from the PRF family and a random oracle (a function whose outputs are fixed completely at random).    </td></tr>
 <tr class="markdownTableRowOdd">
-<td class="markdownTableBodyNone">Key derivation function (<b>KDF</b>)   </td><td class="markdownTableBodyNone">Is a cryptographic algorithm that derives one or more secret keys from a secret value such as a master key, a password, or a passphrase using a pseudorandom function   </td></tr>
+<td class="markdownTableBodyNone">Key derivation function (<b>KDF</b>)   </td><td class="markdownTableBodyNone">Is a cryptographic algorithm that derives one or more secret keys from a secret value such as a master key, a password, or a passphrase using a pseudorandom function    </td></tr>
+<tr class="markdownTableRowEven">
+<td class="markdownTableBodyNone">(<b>H</b>)   </td><td class="markdownTableBodyNone">Hash function used to derive cryptographic material (seed for public matrix A, coins, shared keys) from arbitrary-length byte strings. Output is a 32-byte string.    </td></tr>
+<tr class="markdownTableRowOdd">
+<td class="markdownTableBodyNone">(<b>G</b>)   </td><td class="markdownTableBodyNone">Hash function used to generate noise polynomials for the secret key. Output is a concatenation of two 32-byte strings.   </td></tr>
 </table>
-<ul>
-<li>G : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO</li>
-<li>H : TODO - FALTA PONER QUE PROPÓSITO REAL TIENEN Y ACRÓNIMO</li>
-</ul>
 <h2><a class="anchor" id="autotoc_md8"></a>
-c) Bytes</h2>
+c) NTT (Number Theoretic Transform)</h2>
+<p>The <a class="el" href="classNTT.html" title="This file contains the header declaration of the class NTT, which give us The Number Theorical Transf...">NTT</a> is a variant of the Discrete Fourier Transform (DFT), but it operates in a finite field instead of complex numbers. This allows for efficient computations with integers, which is crucial for cryptographic applications.</p>
+<p>The primary reason for using <a class="el" href="classNTT.html" title="This file contains the header declaration of the class NTT, which give us The Number Theorical Transf...">NTT</a> in cryptographic schemes like Kyber is to <b>efficiently perform polynomial multiplication</b>. <br  />
+</p>
+<blockquote class="doxtable">
+<p>[!INFO]</p>
+<p>The computational complexity is highly increased due to this algorithm:</p>
+<p>$$ O(n^2) \rightarrow O(n~\cdot ~log(n)) $$ This happens because the following domain transformation is performed: $$ R_q^{k~\cdot~k} \rightarrow R_q^k \ $$ Where <b>q</b> is the prime that we are using in the algorithm and <b>k</b> the dimension. $$ \begin{pmatrix} \begin{bmatrix}1 &amp; 2 &amp; 3\end{bmatrix} &amp; \begin{bmatrix}1 &amp; 2 &amp; 3\end{bmatrix} &amp; \begin{bmatrix}1 &amp; 2 &amp; 3\end{bmatrix}\ \begin{bmatrix}1 &amp; 2 &amp; 3\end{bmatrix} &amp; \begin{bmatrix}1 &amp; 2 &amp; 3\end{bmatrix} &amp; \begin{bmatrix}1 &amp; 2 &amp; 3\end{bmatrix} \end{pmatrix} \longrightarrow \begin{pmatrix} \begin{bmatrix}165\end{bmatrix} \ \begin{bmatrix}125\end{bmatrix} \ \end{pmatrix} $$</p>
+<p></p>
+</blockquote>
+<p>s </p>
 </div></div><!-- PageDoc -->
 </div><!-- contents -->
 <!-- start footer part -->
