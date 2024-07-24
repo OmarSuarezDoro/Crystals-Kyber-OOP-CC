@@ -11,12 +11,13 @@ Authors:
 - [5. Components](#5-components)
   - [a) Data Structures](#a-data-structures)
   - [b) Keccak](#b-keccak)
-  - [c) ]()
+  - [c) ](#c-ntt-number-theoretic-transform)
 
 
 
 ## 2. Abstract
 This repository contains a C++ implementation of **Crystals Kyber Algorithm**(CKA). The CKA is a standard in **Post Quantum Cryptography**(PQC), which development is driven by National Institute of Standards and Technology ([NIST](https://www.nist.gov/)).
+
 
 ## 3. Why C++?
 The main purpouse of this repository is to document the CKA in a **didactic way**. Despite the fact that C++ is a language which learning curve is really steep, it provides a lot of features that may help by the time you are learning how Kyber works. One of this features is the **Object Oriented Programming**(POO), that allow us to understand kyber as some pieces or components that work together to bring us Well Developed cryptographyc scheme.
@@ -27,6 +28,8 @@ The main purpouse of this repository is to document the CKA in a **didactic way*
 | ------- | ----------------- |
 | Lattice | A lattice is a mathematic structure, which is built by lineal combinations of a n -vectors, where n define the dimention of the lattice. |
 |LWE problem | The **learning with errors** problem consist in, having a vectorial base and a point (P) in the plane. Discover which lineal combination of the vectors should we use, in order to be in the closest point to P.
+|Big O notation (**O(n)**)| Is a standard which function describe the time that an algorithm needs to be completed. This notation focussed in the **worst case** with a sample of n elements.
+|
  
 
 ## 5. Components
@@ -105,29 +108,29 @@ The NTT is a variant of the Discrete Fourier Transform (DFT), but it operates in
 
 The primary reason for using NTT in cryptographic schemes like Kyber is to **efficiently perform polynomial multiplication**.  
 
-> [!info]
+> [!INFO]
 >
 > The computational complexity is highly increased due to this algorithm:
 >
 > $$
-O(n^2) \rightarrow O(n~\cdot~log(n)) 
+> O(n^2) \rightarrow O(n~\cdot ~log(n)) 
 > $$
 > This happens because the following domain transformation is performed:
 > $$
-R_q^{k~\cdot~k} \rightarrow R_q^k \\
+> R_q^{k~\cdot~k} \rightarrow R_q^k \\
 > $$
 > Where **q** is the prime that we are using in the algorithm and **k** the dimension.
 >  $$
 >   \begin{pmatrix}
-\begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix}\\
-\begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix}
-\end{pmatrix}	
-\longrightarrow
-\begin{pmatrix}
-\begin{bmatrix}165\end{bmatrix} \\
-\begin{bmatrix}125\end{bmatrix} \\
-\end{pmatrix}
-$$
+> \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix}\\
+> \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix}
+> \end{pmatrix}	
+> \longrightarrow
+> \begin{pmatrix}
+> \begin{bmatrix}165\end{bmatrix} \\
+> \begin{bmatrix}125\end{bmatrix} \\
+> \end{pmatrix}
+> $$
 >
 >
 

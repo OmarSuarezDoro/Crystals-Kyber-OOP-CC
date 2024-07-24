@@ -20,10 +20,11 @@ template <typename T>
 class Polynomial {
  public:
   Polynomial(const unsigned int& kSize);
-  
+  void append(const T& kElement) { vector_.push_back(kElement); }
   // Getters
   int GetSize() const { return vector_.size(); }
-
+  // Setters
+  void SetCoefficients(const std::vector<T>& kCoefficients) { vector_ = kCoefficients; }
   // Operator overload
   const T& operator[](int index) const;
   T& operator[](int index);
