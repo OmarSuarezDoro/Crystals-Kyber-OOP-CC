@@ -27,6 +27,7 @@ class NTT {
   int GetN() { return n_; }
   int GetQ() { return q_; }
   Polynomial<int> _NTT(const Polynomial<int>& kPolynomial);
+  Polynomial<int> _INTT(const Polynomial<int>& kPolynomial);
   
 
  private:
@@ -36,6 +37,5 @@ class NTT {
   int _FirstPrimitiveRoot(int n);
   int _PowerWithMod(int base, int exp, int mod);
   int _BitReverse(int n, int bits);
-  unsigned long long BigPow(int base, int exp);
   // Polynomial<int> _InverseNTT(const Polynomial<int>& kPolynomial);
 };
