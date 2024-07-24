@@ -47,8 +47,11 @@ add_executable(
   test/Matrix.cc
   test/Polynomial.cc
   test/Keccak.cc
+  test/NTT.cc
   ./src/DataStructures/Bytes.cc
   ./src/Components/Keccak.cc
+  ./src/Components/NTT.cc
+  ./src/Components/NTT.h
   )
 
 # Adds an executable target called "client_main" to be built from the source files listed in the command invocation.

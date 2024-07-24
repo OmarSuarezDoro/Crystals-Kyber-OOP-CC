@@ -66,7 +66,7 @@ int NTT::_PowerWithMod(int base, int exp, int mod) {
     exp = exp >> 1;
     base = (base * base) % mod;
     while (base < 0) {
-      base += mod;  // Hacer positivo el valor de base si es negativo
+      base += mod;
     }
   }
   return result;
@@ -102,7 +102,7 @@ Polynomial<int> NTT::_NTT(const Polynomial<int>& kPolynomial) {
   int phi = _FirstPrimitiveRoot(2 * n);
   int counter = 1;
   int mid_index = n / 2;
-  std::cout << "Mid index: " << mid_index << std::endl;
+  // std::cout << "Mid index: " << mid_index << std::endl;
   Polynomial<int> result = kPolynomial;
   // Iterating over the polynomial - First we chunk the polynomial in sizes of 2 * i
   for (int i = 1; i < n; i *= 2) {
@@ -120,15 +120,15 @@ Polynomial<int> NTT::_NTT(const Polynomial<int>& kPolynomial) {
         result[k + mid_index] = (temp_element - temp_mirror_element * S) % q_;
         while (result[k] < 0) { result[k] += q_; }
         while (result[k + mid_index] < 0) { result[k + mid_index] += q_; }
-        std::cout << "k: " << k << " k + mid_index: " << k + mid_index << " S: " << S << " temp_element: " << temp_element << " temp_mirror_element: " << temp_mirror_element << std::endl;
+        // std::cout << "k: " << k << " k + mid_index: " << k + mid_index << " S: " << S << " temp_element: " << temp_element << " temp_mirror_element: " << temp_mirror_element << std::endl;
       }
     }
     mid_index /= 2;
   }
-  for (int i = 0; i < n; ++i) {
-    std::cout << result[i] << " ";
-  }
-  std::cout << std::endl;
+  // for (int i = 0; i < n; ++i) {
+  //   std::cout << result[i] << " ";
+  // }
+  // std::cout << std::endl;
   exit(0);
   return result;
   }
@@ -153,14 +153,3 @@ int NTT::_BitReverse(int element, int length_of_sequence) {
   return out[element];
 }
 
-unsigned long long NTT::BigPow(int base, int exp) {
-  long long result = 1;
-  while (exp > 0) {
-    if (exp % 2 == 1) {
-      result *= base;
-    }
-    exp = exp >> 1;
-    base *= base;
-  }
-  return result;
-}

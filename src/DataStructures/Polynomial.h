@@ -23,12 +23,15 @@ class Polynomial {
   void append(const T& kElement) { vector_.push_back(kElement); }
   // Getters
   int GetSize() const { return vector_.size(); }
+  std::vector<T> GetCoefficients() const { return vector_; }
   // Setters
   void SetCoefficients(const std::vector<T>& kCoefficients) { vector_ = kCoefficients; }
   // Operator overload
   const T& operator[](int index) const;
   T& operator[](int index);
   Polynomial<T> operator+(const Polynomial<T>& kPolynomial2) const;
+  Polynomial<T> operator-(const Polynomial<T>& kPolynomial2) const;
+  bool operator==(const Polynomial<T>& kPolynomial2) const;
   
   template <typename B> friend std::ostream& operator<<(std::ostream& os, const Polynomial<B> kPolynomial);
  private:
@@ -107,4 +110,39 @@ Polynomial<T> Polynomial<T>::operator+(const Polynomial<T>& kPolynomial2) const 
     result[i] = vector_[i] + kPolynomial2[i];
   }
   return result;
+}
+
+/**
+ * @brief This method subtracts two polynomials
+ * 
+ * @tparam T : Template type parameter
+ * @param kPolynomial2 : The polynomial to be subtracted
+ * @return Polynomial<T> 
+ */
+template <typename T>
+Polynomial<T> Polynomial<T>::operator-(const Polynomial<T>& kPolynomial2) const {
+  assert(GetSize() == kPolynomial2.GetSize());
+  Polynomial<T> result(GetSize());
+  for (int i = 0; i < GetSize(); i++) {
+    result[i] = vector_[i] - kPolynomial2[i];
+  }
+  return result;
+}
+
+/**
+ * @brief This method checks if two polynomials are equal
+ * 
+ * @tparam T : Template type parameter
+ * @param kPolynomial2 : The polynomial to be compared
+ * @return bool
+ */
+template <typename T>
+bool Polynomial<T>::operator==(const Polynomial<T>& kPolynomial2) const {
+  assert(GetSize() == kPolynomial2.GetSize());
+  for (int i = 0; i < GetSize(); i++) {
+    if (vector_[i] != kPolynomial2[i]) {
+      return false;
+    }
+  }
+  return true;
 }
