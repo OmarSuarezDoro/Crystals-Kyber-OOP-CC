@@ -13,6 +13,39 @@
 
 #include "NTT.h"
 
+
+/**
+ * @brief This method applies the Number Theorical Transformation to a polynomial.
+ * 
+ * @param kPolynomial : The polynomial to apply the NTT.
+ * @return Polynomial<int> 
+ */
+Polynomial<int> NTT::NTT_Kyber(const Polynomial<int>& kPolynomial, bool is_ntt) {
+  Polynomial<int> polynomial_copy = kPolynomial;
+  if (kPolynomial.GetSize() != n_) {
+    Polynomial<int> auxiliar(n_ - kPolynomial.GetSize());
+    for (const auto& element : auxiliar.GetCoefficients()) {
+      polynomial_copy.append(element);
+    }
+  }
+  // Initialize polynomials
+  Polynomial<int> even_coefficients = Polynomial<int>(0);
+  Polynomial<int> odd_coefficients = Polynomial<int>(0);
+  
+  for (int i = 0; i < polynomial_copy.GetSize(); ++i) {
+    (i % 2 == 0) ? even_coefficients.append(polynomial_copy[i]) : odd_coefficients.append(polynomial_copy[i]);
+  }
+
+  Polynomial<int> even_coefficients_ntt = is_ntt ? _NTT(even_coefficients) : _INTT(even_coefficients);
+  Polynomial<int> odd_coefficients_ntt = is_ntt ? _NTT(odd_coefficients) : _INTT(odd_coefficients);
+  // Merging results
+  Polynomial<int> result = Polynomial<int>(0);
+  for (int i = 0; i < n_; ++i) {
+    (i % 2 == 0) ? result.append(even_coefficients_ntt[i / 2]) : result.append(odd_coefficients_ntt[(i - 1) / 2]);
+  }
+  return result;
+}
+
 /**
  * @brief This method applies the Number Theorical Transformation to a polynomial.
  * 
@@ -50,7 +83,6 @@ Polynomial<int> NTT::_NTT(const Polynomial<int>& kPolynomial) {
   //   std::cout << result[i] << " ";
   // }
   // std::cout << std::endl;
-  exit(0);
   return result;
 }
 
@@ -79,7 +111,6 @@ Polynomial<int> NTT::_INTT(const Polynomial<int>& kPolynomial) {
         result[j + k] = ((temp_element - temp_mirror_element) * S) % q_;
         while (result[j] < 0) { result[j] += q_; }
         while (result[j + k] < 0) { result[j + k] += q_; }
-
       }      
     }
     mid_index /= 2;
@@ -90,19 +121,22 @@ Polynomial<int> NTT::_INTT(const Polynomial<int>& kPolynomial) {
   for (int i = 0; i < n; ++i) {
     result[i] = (result[i] * n_inverse) % q_; 
   }
-  std::cout << result << std::endl;
-  exit(0);
   return result;
 }
 
-
+/**
+ * @brief This method applies the BitReverse algorithm to a number.
+ * 
+ * @param element : The element to apply the BitReverse.
+ * @param length_of_sequence : The length of the sequence.
+ * @return int 
+ */
 int NTT::_BitReverse(int element, int length_of_sequence) {
-  // Generar la secuencia inicial
   std::vector<int> seq(length_of_sequence);
   for (int i = 0; i < length_of_sequence; ++i) {
     seq[i] = i;
   }
-  
+
   int m = std::log2(length_of_sequence);
   std::vector<int> out(length_of_sequence, 0);
 

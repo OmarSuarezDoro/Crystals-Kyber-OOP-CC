@@ -28,6 +28,7 @@ class NTT {
   int GetQ() { return q_; }
   Polynomial<int> _NTT(const Polynomial<int>& kPolynomial);
   Polynomial<int> _INTT(const Polynomial<int>& kPolynomial);
+  Polynomial<int> NTT_Kyber(const Polynomial<int>& kPolynomial, bool is_ntt);
   
 
  private:
