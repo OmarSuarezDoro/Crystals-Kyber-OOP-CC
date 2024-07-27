@@ -46,7 +46,7 @@ class Polynomial {
  */
 template <typename T>
 Polynomial<T>::Polynomial(const unsigned int& kSize) {
-  vector_ = std::vector<T>(kSize, 0);
+  vector_ = std::vector<T>(int(kSize), 0);
 }
 
 

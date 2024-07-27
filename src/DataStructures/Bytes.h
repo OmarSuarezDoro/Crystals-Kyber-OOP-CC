@@ -14,6 +14,7 @@
 #include <string>
 #include <iostream>
 #include <algorithm>
+#include <vector>
 
 #pragma once
 
@@ -23,15 +24,17 @@ class Bytes {
   Bytes(const std::string& kBytes);
   Bytes(const Bytes& kBytes);
   Bytes(const uint8_t& kByte);
-  // Bytes(const int& kByte);
+  Bytes(const std::vector<int>& kBytes);
+  Bytes(const std::vector<unsigned char>& kBytes);
+
   ~Bytes();
 
   // Getters
-  std::string GetBytes() const { return bytes_; }
+  std::vector<unsigned char> GetBytes() const { return bytes_; }
   int GetBytesSize() const { return bytes_.size(); }
 
   // Setters
-  void SetBytes(const std::string& kBytes) { bytes_ = kBytes; }
+  void SetBytes(const std::string& kBytes);
 
   // Operator overload
   Bytes operator+(const Bytes& kBytes) const;
@@ -47,23 +50,24 @@ class Bytes {
   Bytes operator&=(const Bytes& kBytes);
   Bytes operator<<=(const int& kShift);
   Bytes operator>>=(const int& kShift);
-  char operator[](const Bytes& kBytes);
+  unsigned char operator[](const Bytes& kBytes);
   bool operator==(const Bytes& kBytes) const;
   bool operator!=(const Bytes& kBytes) const;
 
 
   // Methods
-  std::string toBigEndian() const;
+  Bytes toBigEndian() const;
   std::string FromBytesToBits() const;
   std::string FromBytesToHex() const;
   long FromBytesToNumbers() const;
   Bytes BitReverse(int length) const;
-  Bytes GetNBytes(const int& start_index, const int& kN) const { return Bytes(bytes_.substr(start_index, kN)); }
+  Bytes GetNBytes(const int& start_index, const int& kN) const;
   std::vector<int> GetBytesAsNumbersVector() const;
-  
+  Bytes ChangeByteDirection() const;
 
-  static std::string FromBitsToBytes(const std::string& kBits);
+  static Bytes FromBitsToBytes(const std::string& kBits);
   
  private:
-  std::string bytes_;  
+  std::vector<unsigned char> bytes_ = {};  
+
 };

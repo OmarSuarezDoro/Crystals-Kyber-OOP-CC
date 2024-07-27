@@ -22,7 +22,7 @@ project(
 )
 
 # Debug and release flags
-set(CMAKE_CXX_FLAGS_DEBUG "-g -Wall -pedantic -O0")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 
@@ -48,10 +48,13 @@ add_executable(
   test/Polynomial.cc
   test/Keccak.cc
   test/NTT.cc
+  test/SamplingUnit.cc
   ./src/DataStructures/Bytes.cc
   ./src/Components/Keccak.cc
   ./src/Components/NTT.cc
   ./src/Components/NTT.h
+  ./src/Components/SamplingUnit.cc
+  ./src/Components/SamplingUnit.h
   )
 
 # Adds an executable target called "client_main" to be built from the source files listed in the command invocation.
@@ -66,6 +69,8 @@ add_executable(
   ./src/Components/Keccak.h
   ./src/Components/NTT.cc
   ./src/Components/NTT.h
+  ./src/Components/SamplingUnit.cc
+  ./src/Components/SamplingUnit.h
   )
 
 

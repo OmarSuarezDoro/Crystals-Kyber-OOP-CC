@@ -17,7 +17,7 @@
  * 
  */
 Bytes::Bytes() {
-  bytes_ = "" + 0;
+  bytes_ = {};
 }
 
 /**
@@ -25,8 +25,8 @@ Bytes::Bytes() {
  * 
  * @param kBytes : The bytes to be stored
  */
-Bytes::Bytes(const std::string& kBytes) {
-  bytes_ = kBytes;
+Bytes::Bytes(const std::string& kBytes): bytes_(kBytes.begin(), kBytes.end()) {
+
 }
 
 /**
@@ -44,7 +44,36 @@ Bytes::Bytes(const Bytes& kBytes) {
  * @param kByte : The byte to be stored
  */
 Bytes::Bytes(const uint8_t& kByte) {
-  bytes_ = char(kByte);
+  bytes_ = {static_cast<unsigned char>(kByte)};
+}
+
+/**
+ * @brief Construct a new Bytes:: Bytes object
+ * 
+ * @param kBytes : The bytes to be stored
+ */
+Bytes::Bytes(const std::vector<int>& kBytes) {
+  bytes_ = std::vector<unsigned char>(kBytes.size());
+  for (size_t i = 0; i < kBytes.size(); ++i) {
+    if (kBytes[i] < 0 || kBytes[i] > 255) {
+      throw std::invalid_argument("Byte value out of range.");
+    }
+    bytes_[i] = static_cast<unsigned char>(kBytes[i]);
+  }
+}
+
+/**
+ * @brief Construct a new Bytes:: Bytes object
+ * 
+ * @param kBytes : The bytes to be stored
+ */
+Bytes::Bytes(const std::vector<unsigned char>& kBytes) {
+  for (size_t i = 0; i < kBytes.size(); ++i) {
+    if (kBytes[i] < 0 || kBytes[i] > 255) {
+      throw std::invalid_argument("Byte value out of range.");
+    }
+  }
+  bytes_ = kBytes;
 }
 
 /**
@@ -52,7 +81,7 @@ Bytes::Bytes(const uint8_t& kByte) {
  * 
  */
 Bytes::~Bytes() {
-  bytes_ = "";
+  bytes_ = {};
 }
 
 /**
@@ -62,7 +91,11 @@ Bytes::~Bytes() {
  * @return Bytes : The concatenated Bytes object
  */
 Bytes Bytes::operator+(const Bytes& kBytes) const {
-  return Bytes(bytes_ + kBytes.GetBytes());
+  std::vector<unsigned char> result = bytes_;
+  for (const auto& element : kBytes.GetBytes()) {
+    result.push_back(element);
+  }
+  return Bytes(result);
 }
 
 /**
@@ -72,17 +105,17 @@ Bytes Bytes::operator+(const Bytes& kBytes) const {
  * @return Bytes : The xored Bytes object
  */
 Bytes Bytes::operator^(const Bytes& kBytes) const {
-  std::string result = "";
-  std::string copy_bytes = bytes_;
-  std::string copy_kBytes = kBytes.GetBytes();
-  if (bytes_.size() < kBytes.GetBytesSize()) {
-    while (copy_bytes.length() < kBytes.GetBytesSize()) { copy_bytes += "0"; }
+  std::vector<unsigned char> result = {};
+  std::vector<unsigned char> copy_bytes = bytes_;
+  std::vector<unsigned char> copy_kBytes = kBytes.GetBytes();
+  if (int(bytes_.size()) < kBytes.GetBytesSize()) {
+    while (int(int(copy_bytes.size())) < kBytes.GetBytesSize()) { copy_bytes.push_back(0); }
   } else {
-    while (copy_kBytes.length() < bytes_.size()) { copy_kBytes += "0"; }
+    while (int(copy_kBytes.size()) < int(bytes_.size())) { copy_kBytes.push_back(0); }
   }
   
   for (int i = 0; i < bytes_.size(); i++) {
-    result += bytes_[i] ^ kBytes.GetBytes()[i];
+    result.push_back(bytes_[i] ^ kBytes.GetBytes()[i]);
   }
   return Bytes(result);
 }
@@ -95,12 +128,12 @@ Bytes Bytes::operator^(const Bytes& kBytes) const {
  */
 Bytes Bytes::operator|(const Bytes& kBytes) const {
   std::string result = "";
-  std::string copy_bytes = bytes_;
-  std::string copy_kBytes = kBytes.GetBytes();
-  if (bytes_.size() < kBytes.GetBytesSize()) {
-    while (copy_bytes.length() < kBytes.GetBytesSize()) { copy_bytes += "0"; }
+  std::vector<unsigned char> copy_bytes = bytes_;
+  std::vector<unsigned char> copy_kBytes = kBytes.GetBytes();
+  if (int(bytes_.size()) < kBytes.GetBytesSize()) {
+    while (int(int(copy_bytes.size())) < kBytes.GetBytesSize()) { copy_bytes.push_back(0); }
   } else {
-    while (copy_kBytes.length() < bytes_.size()) { copy_kBytes += "0"; }
+    while (int(copy_kBytes.size()) < bytes_.size()) { copy_kBytes.push_back(0); }
   }
 
   for (int i = 0; i < bytes_.size(); ++i) {
@@ -116,17 +149,17 @@ Bytes Bytes::operator|(const Bytes& kBytes) const {
  * @return Bytes : The and'ed Bytes object
  */
 Bytes Bytes::operator&(const Bytes& kBytes) const {
-  std::string result = "";
-  std::string copy_bytes = bytes_;
-  std::string copy_kBytes = kBytes.GetBytes();
+  std::vector<unsigned char> result = {};
+  std::vector<unsigned char> copy_bytes = bytes_;
+  std::vector<unsigned char> copy_kBytes = kBytes.GetBytes();
   if (bytes_.size() < kBytes.GetBytesSize()) {
-    while (copy_bytes.length() < kBytes.GetBytesSize()) { copy_bytes += "0"; }
+    while (int(copy_bytes.size()) < kBytes.GetBytesSize()) { copy_bytes.push_back(0); }
   } else {
-    while (copy_kBytes.length() < bytes_.size()) { copy_kBytes += "0"; }
+    while (copy_kBytes.size() < bytes_.size()) { copy_kBytes.push_back(0); }
   }
 
   for (int i = 0; i < bytes_.size(); ++i) {
-    result += bytes_[i] & kBytes.GetBytes()[i];
+    result.push_back(bytes_[i] & kBytes.GetBytes()[i]);
   }
   return Bytes(result);
 }
@@ -138,9 +171,9 @@ Bytes Bytes::operator&(const Bytes& kBytes) const {
  * @return Bytes : The shifted Bytes object
  */
 Bytes Bytes::operator<<(const int& kShift) const {
-  std::string result = "";
+  std::vector<unsigned char> result = {};
   for (int i = 0; i < bytes_.size(); ++i) {
-    result += bytes_[i] << kShift;
+    result.push_back(bytes_[i] << kShift);
   }
   return Bytes(result);
 }
@@ -152,11 +185,11 @@ Bytes Bytes::operator<<(const int& kShift) const {
  * @return Bytes : The shifted Bytes object
  */
 Bytes Bytes::operator>>(const int& kShift) const {
-  std::string result = "";
-  for (const auto& element : bytes_) {
-    result += element >> kShift;
+  std::vector<unsigned char> result = {};
+  for (int i = 0; i < bytes_.size(); ++i) {
+    result.push_back(bytes_[i] >> kShift);
   }
-  return result;
+  return Bytes(result);
 }
 
 /**
@@ -165,9 +198,9 @@ Bytes Bytes::operator>>(const int& kShift) const {
  * @return Bytes : The negated Bytes object
  */
 Bytes Bytes::operator~() const {
-  std::string result = "";
+  std::vector<unsigned char> result = {};
   for (int i = 0; i < bytes_.size(); ++i) {
-    result += ~bytes_[i];
+    result.push_back(~bytes_[i]);
   }
   return Bytes(result);
 }
@@ -179,7 +212,9 @@ Bytes Bytes::operator~() const {
  * @return Bytes : The added Bytes object
  */
 Bytes Bytes::operator+=(const Bytes& kBytes) {
-  bytes_ += kBytes.GetBytes();
+  for (const auto& element : kBytes.GetBytes()) {
+    bytes_.push_back(element);
+  }
   return *this;
 }
 
@@ -190,17 +225,17 @@ Bytes Bytes::operator+=(const Bytes& kBytes) {
  * @return Bytes : The xored Bytes object
  */
 Bytes Bytes::operator^=(const Bytes& kBytes) {
-  std::string result = "";
-  std::string copy_bytes = bytes_;
-  std::string copy_kBytes = kBytes.GetBytes();
+  std::vector<unsigned char> result = {};
+  std::vector<unsigned char> copy_bytes = bytes_;
+  std::vector<unsigned char> copy_kBytes = kBytes.GetBytes();
   if (bytes_.size() < kBytes.GetBytesSize()) {
-    while (copy_bytes.length() < kBytes.GetBytesSize()) { copy_bytes += "0"; }
+    while (int(copy_bytes.size()) < kBytes.GetBytesSize()) { copy_bytes.push_back(0); }
   } else {
-    while (copy_kBytes.length() < bytes_.size()) { copy_kBytes += "0"; }
+    while (copy_kBytes.size() < bytes_.size()) { copy_kBytes.push_back(0); }
   }
 
-  for (int i = 0; i < bytes_.size(); i++) {
-    result += bytes_[i] ^ kBytes.GetBytes()[i];
+  for (int i = 0; i < int(bytes_.size()); i++) {
+    result.push_back(bytes_[i] ^ kBytes.GetBytes()[i]);
   }
   bytes_ = result;
   return *this;
@@ -213,17 +248,17 @@ Bytes Bytes::operator^=(const Bytes& kBytes) {
  * @return Bytes : The or'ed Bytes object
  */
 Bytes Bytes::operator|=(const Bytes& kBytes) {
-  std::string result = "";
-  std::string copy_bytes = bytes_;
-  std::string copy_kBytes = kBytes.GetBytes();
-  if (bytes_.size() < kBytes.GetBytesSize()) {
-    while (copy_bytes.length() < kBytes.GetBytesSize()) { copy_bytes += "0"; }
+  std::vector<unsigned char> result = {};
+  std::vector<unsigned char> copy_bytes = bytes_;
+  std::vector<unsigned char> copy_kBytes = kBytes.GetBytes();
+  if (int(bytes_.size()) < kBytes.GetBytesSize()) {
+    while (int(copy_bytes.size()) < kBytes.GetBytesSize()) { copy_bytes.push_back(0); }
   } else {
-    while (copy_kBytes.length() < bytes_.size()) { copy_kBytes += "0"; }
+    while (copy_kBytes.size() < bytes_.size()) { copy_kBytes.push_back(0); }
   }
 
-  for (int i = 0; i < bytes_.size(); ++i) {
-    result += bytes_[i] | kBytes.GetBytes()[i];
+  for (int i = 0; i < int(bytes_.size()); ++i) {
+    result.push_back(bytes_[i] | kBytes.GetBytes()[i]);
   }
   bytes_ = result;
   return *this;
@@ -236,17 +271,16 @@ Bytes Bytes::operator|=(const Bytes& kBytes) {
  * @return Bytes : The and'ed Bytes object
  */
 Bytes Bytes::operator&=(const Bytes& kBytes) {
-  std::string result = "";
-  std::string copy_bytes = bytes_;
-  std::string copy_kBytes = kBytes.GetBytes();
-  if (bytes_.size() < kBytes.GetBytesSize()) {
-    while (copy_bytes.length() < kBytes.GetBytesSize()) { copy_bytes += "0"; }
+  std::vector<unsigned char> result = {};
+  std::vector<unsigned char> copy_bytes = bytes_;
+  std::vector<unsigned char> copy_kBytes = kBytes.GetBytes();
+  if (int(bytes_.size()) < kBytes.GetBytesSize()) {
+    while (int(copy_bytes.size()) < kBytes.GetBytesSize()) { copy_bytes.push_back(0); }
   } else {
-    while (copy_kBytes.length() < bytes_.size()) { copy_kBytes += "0"; }
+    while (int(copy_kBytes.size()) < int(bytes_.size())) { copy_kBytes.push_back(0); }
   }
-
-  for (int i = 0; i < bytes_.size(); ++i) {
-    result += bytes_[i] & kBytes.GetBytes()[i];
+  for (int i = 0; i < int(bytes_.size()); ++i) {
+    result.push_back(bytes_[i] & kBytes.GetBytes()[i]);
   }
   bytes_ = result;
   return *this;
@@ -259,9 +293,9 @@ Bytes Bytes::operator&=(const Bytes& kBytes) {
  * @return Bytes : The shifted Bytes object
  */
 Bytes Bytes::operator<<=(const int& kShift) {
-  std::string result = "";
-  for (int i = 0; i < bytes_.size(); ++i) {
-    result += bytes_[i] << kShift;
+  std::vector<unsigned char> result = {};
+  for (int i = 0; i < int(bytes_.size()); ++i) {
+    result.push_back(bytes_[i] << kShift);
   }
   bytes_ = result;
   return *this;
@@ -302,7 +336,7 @@ bool Bytes::operator!=(const Bytes& kBytes) const {
   return bytes_ != kBytes.GetBytes();
 }
 
-char Bytes::operator[](const Bytes& kBytes) {
+unsigned char Bytes::operator[](const Bytes& kBytes) {
   return bytes_[kBytes.GetBytes()[0]];
 }
 
@@ -311,12 +345,12 @@ char Bytes::operator[](const Bytes& kBytes) {
  * 
  * @return std::string : The Bytes object in Big Endian format
  */
-std::string Bytes::toBigEndian() const {
-  std::string result = "";
+Bytes Bytes::toBigEndian() const {
+  std::vector<unsigned char> result = {};
   for (int i = bytes_.size() - 1; i >= 0; --i) {
-    result += bytes_[i];
+    result.push_back(bytes_[i]);
   }
-  return result;
+  return Bytes(result);
 }
 
 /**
@@ -326,9 +360,10 @@ std::string Bytes::toBigEndian() const {
  */
 std::string Bytes::FromBytesToBits() const {
   std::string result = "";
-  for (int i = 0; i < bytes_.size(); ++i) {
+  for (int i = 0; i < int(bytes_.size()); ++i) {
     result += std::bitset<8>(bytes_[i]).to_string();
   }
+
   return result;
 }
 
@@ -338,10 +373,10 @@ std::string Bytes::FromBytesToBits() const {
  * @param kBits : The string of bits
  * @return std::string : The Bytes object
  */
-std::string Bytes::FromBitsToBytes(const std::string& kBits) {
-  std::string result = "";
-  for (int i = 0; i < kBits.size(); i += 8) {
-    result += std::bitset<8>(kBits.substr(i, 8)).to_ulong();
+Bytes Bytes::FromBitsToBytes(const std::string& kBits) {
+  std::vector<unsigned char> result = {};
+  for (int i = 0; i < int(kBits.size()); i += 8) {
+    result.push_back(std::bitset<8>(kBits.substr(i, 8)).to_ulong());
   }
   return result;
 }
@@ -365,11 +400,11 @@ std::string Bytes::FromBytesToHex() const {
 /**
  * @brief Convert the Bytes object to a string of numbers
  * 
- * @return std::string : The string of numbers
+ * @return long : The number
  */
 long Bytes::FromBytesToNumbers() const {
   long result = 0;
-  for (int i = 0; i < bytes_.size(); ++i) {
+  for (int i = 0; i < int(bytes_.size()); ++i) {
     // Iterate through the bytes
     for (int j = 0; j < bytes_[i]; ++j) {
       if (((bytes_[i] >> j) & 1) == 1) {
@@ -386,17 +421,14 @@ long Bytes::FromBytesToNumbers() const {
  * @return std::string : The reversed Bytes object
  */
 Bytes Bytes::BitReverse(int length) const {
-  std::string result = "";
-  for (int i = GetBytesSize() - 1; i >= 0; --i) {
-    for (int j = 0; j < 8; ++j) {
-      result += ((bytes_[i] >> j) & 1) + '0';
-    }
+  std::vector<unsigned char> result = {};
+  for (int i = int(bytes_.size()) - 1; i >= 0; --i) {
+    std::bitset<8> bits(bytes_[i]);
+    std::string bits_string = bits.to_string();
+    std::reverse(bits_string.begin(), bits_string.end());
+    result.push_back(std::bitset<8>(bits_string).to_ulong());
   }
-  std::string result_in_bytes = "";
-  for (int i = 0; i < result.size(); i += 8) {
-    result_in_bytes += std::bitset<8>(result.substr(i, 8)).to_ulong();
-  }
-  return Bytes(result_in_bytes);
+  return Bytes(result);
 }
 
 
@@ -407,8 +439,52 @@ Bytes Bytes::BitReverse(int length) const {
  */
 std::vector<int> Bytes::GetBytesAsNumbersVector() const {
   std::vector<int> result;
-  for (int i = 0; i < bytes_.size(); ++i) {
-    result.push_back(bytes_[i]);
+  for (const auto& c : bytes_) {
+    result.push_back(int(c));
   }
   return result;
+}
+
+/**
+ * @brief Get the first n bytes of the Bytes object
+ * 
+ * @param start_index : The index to start the extraction
+ * @param kN : The number of bytes to extract
+ * @return Bytes : The extracted Bytes object
+ */
+Bytes Bytes::GetNBytes(const int& start_index, const int& kN) const {
+  std::vector<unsigned char> result = {};
+  for (int i = start_index; i < (start_index + kN); ++i) {
+    result.push_back(bytes_[i]);
+  }
+  return Bytes(result);
+}
+
+/**
+ * @brief Set the Bytes object
+ * 
+ * @param kBytes : The Bytes object to be set
+ */
+void Bytes::SetBytes(const std::string& kBytes) {
+  bytes_ = {};
+  for (const auto& element : kBytes) {
+    bytes_.push_back(static_cast<int>(static_cast<unsigned char>(element)));
+  }
+}
+
+
+/**
+ * @brief Change the direction of the Bytes object
+ * 
+ * @return Bytes : The Bytes object with the direction changed
+ */
+Bytes Bytes::ChangeByteDirection() const {
+  std::vector<unsigned char> result = {};
+  for (size_t i = 0; i < bytes_.size(); ++i) {
+    std::bitset<8> bits(bytes_[i]);
+    std::string bits_string = bits.to_string();
+    std::reverse(bits_string.begin(), bits_string.end());
+    result.push_back(std::bitset<8>(bits_string).to_ulong());
+  }
+  return Bytes(result);
 }

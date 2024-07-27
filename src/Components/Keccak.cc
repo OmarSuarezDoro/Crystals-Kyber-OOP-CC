@@ -75,7 +75,7 @@ Bytes Keccak::KDF(const Bytes& input_bytes, int length) {
 std::vector<Bytes> Keccak::G(const Bytes& input_bytes) {
   Bytes result_hash = _sha3_512(input_bytes);
   Bytes output1 = result_hash.GetNBytes(0, 32);
-  Bytes output2 = result_hash.GetNBytes(32, 64);
+  Bytes output2 = result_hash.GetNBytes(32, 32);
   return std::vector{output1, output2};
 }
 
@@ -89,7 +89,7 @@ std::vector<Bytes> Keccak::G(const Bytes& input_bytes) {
 Bytes Keccak::_shake128(const Bytes& input_data, int output_length) {
   CryptoPP::SHAKE128 shake;
   // Get the bytes from the input data
-  const std::string& input = input_data.GetBytes();
+  const std::vector<unsigned char>& input = input_data.GetBytes();
   // Create the buffer to store the output & update the hash with the input data
   std::vector<CryptoPP::byte> output(output_length);
   shake.Update(reinterpret_cast<const CryptoPP::byte*>(input.data()), input_data.GetBytesSize());  
@@ -110,7 +110,7 @@ Bytes Keccak::_shake128(const Bytes& input_data, int output_length) {
 Bytes Keccak::_shake256(const Bytes& input_data, int output_length) {
   CryptoPP::SHAKE256 shake;
   // Get the bytes from the input data
-  const std::string& input = input_data.GetBytes();
+  const std::vector<unsigned char>& input = input_data.GetBytes();
   // Create the buffer to store the output & update the hash with the input data
   std::vector<CryptoPP::byte> output(output_length);
   shake.Update(reinterpret_cast<const CryptoPP::byte*>(input.data()), input_data.GetBytesSize());  
@@ -130,13 +130,13 @@ Bytes Keccak::_shake256(const Bytes& input_data, int output_length) {
 Bytes Keccak::_sha3_512(const Bytes& input_data) {
   CryptoPP::SHA3_512 sha3;
   // Get the bytes from the input data
-  const std::string& input = input_data.GetBytes();
+  const std::vector<unsigned char>& input = input_data.GetBytes();
   // Create the buffer to store the output & update the hash with the input data
   std::vector<CryptoPP::byte> output(CryptoPP::SHA3_512::DIGESTSIZE);
-  sha3.Update(reinterpret_cast<const CryptoPP::byte*>(input.data()), input_data.GetBytesSize());  
+  sha3.Update(reinterpret_cast<const CryptoPP::byte*>(input.data()), input_data.GetBytesSize());
   // Get the output from the hash
   sha3.Final(output.data());
-
+  // Convert the output to a string and return it as a Bytes object
   std::string result(output.begin(), output.end());
   return Bytes(result);
 }

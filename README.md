@@ -28,8 +28,7 @@ The main purpouse of this repository is to document the CKA in a **didactic way*
 | ------- | ----------------- |
 | Lattice | A lattice is a mathematic structure, which is built by lineal combinations of a n -vectors, where n define the dimention of the lattice. |
 |LWE problem | The **learning with errors** problem consist in, having a vectorial base and a point (P) in the plane. Discover which lineal combination of the vectors should we use, in order to be in the closest point to P.
-|Big O notation (**O(n)**)| Is a standard which function describe the time that an algorithm needs to be completed. This notation focussed in the **worst case** with a sample of n elements.
-|
+|Big O notation (**O(n)**)| Is a standard which function describe the time that an algorithm needs to be completed. This notation focussed in the **worst case** with a sample of n elements.|
  
 
 ## 5. Components
@@ -135,7 +134,12 @@ The primary reason for using NTT in cryptographic schemes like Kyber is to **eff
 >
 
 
- 
-s
+The NTT class allow us to apply NTT transformations to our polynomials. The main method that we need to use is the **NTT_kyber** which second parameter determinate if we are going to use **inverse NTT** or the **average one**.
 
 
+An example of use is:
+```C++
+Polynomial<int> result = ntt.NTT_Kyber([10,...,30], true);
+```
+
+### d) 

@@ -38,5 +38,4 @@ class NTT {
   int _FirstPrimitiveRoot(int n);
   int _PowerWithMod(int base, int exp, int mod);
   int _BitReverse(int n, int bits);
-  // Polynomial<int> _InverseNTT(const Polynomial<int>& kPolynomial);
 };
