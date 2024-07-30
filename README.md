@@ -1,4 +1,3 @@
-# Implementation of Crystals Kyber Algorithm
 Authors:
 - **Omar Suárez Doro** (alu0101483474@ull.edu.es)
 - **Edgar Pérez Ramos** (alu0101207667@ull.edu.es)
@@ -8,6 +7,9 @@ Authors:
 - [2. Abstract](#2-abstract)
 - [3. Why C++?](#3-why-c)
 - [4. Main Concepts](#4-main-concepts)
+  - [a) Lattices](#a-lattices)
+  - [b) Learning With Errors Problem](#b-learning-with-errors-problem)
+
 - [5. Components](#5-components)
   - [a) Data Structures](#a-data-structures)
   - [b) Keccak](#b-keccak)
@@ -24,7 +26,19 @@ The main purpouse of this repository is to document the CKA in a **didactic way*
 
 ## 4. Main Concepts
 
-The first thing we need to do, in order to understand Kyber is learning about **Mathematical fundamentals** that Kyber is based.
+The first thing we need to do, in order to understand Kyber is learning about **Mathematical fundamentals** that Kyber is based (don't be afraid, I am bad at Maths too). In cryptography, we need problems that are easy to solve for the device we are communication with, and hard for others, for example, attackers that are sniffing the traffic over the network where messages are being sent. Crystals Kyber Algorithm uses mathematical structures known as **lattices**, and the problem that we are going to use is the Learning With Errors Problem
+
+### a) Lattices
+A lattice is a mathematical structure which is created using lineal combinations  **vectorial base**. This means that having two vectors $\vec{a}$ and $\vec{u}$ and making some lineal combinations like ($2 \cdot \vec{a} + 1 \cdot \vec{u}$) or ($2 \cdot \vec{u}$) we can generate a lattice. Here is a visual way:
+
+<div align="center"> <img src="https://www.redhat.com/rhdc/managed-files/styles/wysiwyg_full_width/private/lattice-based-cryptography.png?itok=IQVzd4YD" height=200px /> </div>
+
+> [!note]
+> It is important to keep in mind that **different vectors** can generate the **same** lattice
+
+### b) Learning With Errors Problem
+Suppose that somehow we can represent messages in the points of the lattice that we are going to use.
+
 
 | Concept | Short Description |
 | ------- | ----------------- |
@@ -73,9 +87,10 @@ Matrix<Polynomial<int>> mat5_ = Matrix<Polynomial<int>>(2, 2, 3);
 Matrix<Polynomial<int>> result = mat4_ + mat5_;
 ```
 
-3. **Bytes**: This class implements a set of bytes. They are mapped as `std::string` object, due to its facility in char(which have a size of 1 Byte, as 8 bits). The main reason of using our own **Byte Structure** is to follow facade patterns, in order to simplify the management of some custom **data structures** that libraries like [Cryptopp](https://github.com/weidai11/cryptopp) use.
+3. **Bytes**: This class implements a set of bytes. They are mapped as `std::vector<unsigned char>` object, this is because we have the entire **8 bits** range representation. If we have used normal char 1 bit is used for sign representation, this is not a real problem in representation operations, but it is **highly** important in arithmethic operations. If we want to operate in a signed way, we can use the signed version of methods. The main reason of using our own **Byte Structure** is to follow facade patterns, in order to simplify the management of some custom **data structures** that libraries like [Cryptopp](https://github.com/weidai11/cryptopp) use.
 
 The bytes structure work with each bytes as **Little Endian** way, that means that the left Byte is the less significant. However, bits are interpreted from right to left (the common way to read binary).
+
 
 
 The bytes structure allow us to make operations with Bytes in a simple way. Hereis a list of some methods that are included in this class:
