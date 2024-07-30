@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['tobigendian_76',['toBigEndian',['../classBytes.html#a28c33abba8f263b86b70516cf0439c2a',1,'Bytes']]]
+  ['ntt_5fkyber_71',['NTT_Kyber',['../classNTT.html#a59c587b402037436d6bad041c84ffc85',1,'NTT']]]
 ];
