@@ -32,12 +32,29 @@ The first thing we need to do, in order to understand Kyber is learning about **
 A lattice is a mathematical structure which is created using lineal combinations  **vectorial base**. This means that having two vectors $\vec{a}$ and $\vec{u}$ and making some lineal combinations like ($2 \cdot \vec{a} + 1 \cdot \vec{u}$) or ($2 \cdot \vec{u}$) we can generate a lattice. Here is a visual way:
 
 <div align="center"> <img src="https://www.redhat.com/rhdc/managed-files/styles/wysiwyg_full_width/private/lattice-based-cryptography.png?itok=IQVzd4YD" height=200px /> </div>
+<br>
 
 > [!note]
 > It is important to keep in mind that **different vectors** can generate the **same** lattice
 
 ### b) Learning With Errors Problem
-Suppose that somehow we can represent messages in the points of the lattice that we are going to use.
+Suppose that somehow we can represent messages in the points of the lattice that we are going to use and we have a *equations system* that we need to solve, in order to get the key, and therefore, decypher the encrypted message. The solution of this system is the exact lineal combination to get the point that represent the message. This sounds weird, because seems like bruteforce mixed with Gauss Method, substitution could break this scheme.
+<br>
+
+<div align="center"> <img src="https://latex.codecogs.com/svg.image?\inline&space;\LARGE&space;\bg{white}{\color{White}\begin{eqnarray}2x&plus;y=1\\x&plus;y=4\\x&plus;y&plus;z=6\end{eqnarray}}" title="{\color{White}\begin{eqnarray}2x+y=1\\x+y=4\\x+y+z=6\end{eqnarray}}" /> </div>
+
+<br>
+
+The answer is **YES**. That is the reason that we are going to introduce a little "noise" or "error" in the system:
+
+<br>
+
+<div align="center"> <img src="https://latex.codecogs.com/svg.image?\inline&space;\LARGE&space;\bg{white}{\color{White}\begin{eqnarray}2x&plus;y=1-{\color{red}1}\\x&plus;y=4-{\color{red}3}\\x&plus;y&plus;z=6-{\color{red}2}\end{eqnarray}}" title="{\color{White}\begin{eqnarray}2x+y=1-{\color{red}1}\\x+y=4-{\color{red}3}\\x+y+z=6-{\color{red}2}\end{eqnarray}}" /> </div>
+
+<br>
+
+Now 
+
 
 
 | Concept | Short Description |
