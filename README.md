@@ -109,7 +109,7 @@ The NTT is a variant of the Discrete Fourier Transform (DFT), but it operates in
 
 The primary reason for using NTT in cryptographic schemes like Kyber is to **efficiently perform polynomial multiplication**.  
 
-> [!INFO]
+> [!NOTE]
 >
 >The computational complexity is highly decreased due to this algorithm:
 > <div align="center"> <img src="https://latex.codecogs.com/svg.image?\inline&space;\LARGE&space;\bg{white}{\color{White}O(n^2)\rightarrow&space;O(n\cdot&space;log(n))}" title="{\color{White}O(n^2)\rightarrow O(n\cdot log(n))}" /> </div>
