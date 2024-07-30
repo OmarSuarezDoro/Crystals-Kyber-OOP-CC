@@ -24,6 +24,8 @@ The main purpouse of this repository is to document the CKA in a **didactic way*
 
 ## 4. Main Concepts
 
+The first thing we need to do, in order to understand Kyber is learning about **Mathematical fundamentals** that Kyber is based.
+
 | Concept | Short Description |
 | ------- | ----------------- |
 | Lattice | A lattice is a mathematic structure, which is built by lineal combinations of a n -vectors, where n define the dimention of the lattice. |
@@ -119,6 +121,8 @@ The primary reason for using NTT in cryptographic schemes like Kyber is to **eff
 > R_q^{k~\cdot~k} \rightarrow R_q^k \\
 > $$
 > Where **q** is the prime that we are using in the algorithm and **k** the dimension.
+- <img src="https://latex.codecogs.com/svg.image?\begin{pmatrix}\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\\\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\end{pmatrix}\longrightarrow\begin{pmatrix}\begin{bmatrix}165\end{bmatrix}\\\begin{bmatrix}125\end{bmatrix}\\\end{pmatrix}" /> 
+
 >  $$
 >   \begin{pmatrix}
 > \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix}\\

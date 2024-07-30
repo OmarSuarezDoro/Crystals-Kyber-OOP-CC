@@ -12,6 +12,26 @@
 
 #include "SamplingUnit.h"
 
+/**
+ * @brief This methods generates the distribution matrix for the given parameters.
+ * 
+ * @param sigma : The input bytes stream.
+ * @param eta : The eta value is the size of the noise that is going to be generated.
+ * @param N : The counter value.
+ * @return Matrix<Polynomial<int>> 
+ */
+Matrix<Polynomial<int>> SamplingUnit::GenerateDistribuitionMatrix(const Bytes& sigma, int eta, int N) {
+  std::vector<int> pepe = sigma.GetBytesAsNumbersVector();
+  Matrix<Polynomial<int>> result_matrix(k_, 1, n_);
+  for (int i = 0; i < k_; i++) {
+    Bytes bytes_post_prf = Keccak::PRF(sigma, N, 64 * eta);  
+    Polynomial<int> result_poly = _CBD(bytes_post_prf, eta);
+    result_matrix(i, 0) = result_poly;
+    N += 1;
+  }
+  exit(0);
+}
+
 
 /**
  * @brief This method implements the Centralized Binomial Distribution (CBD) function.
@@ -40,4 +60,6 @@ Polynomial<int> SamplingUnit::_CBD(const Bytes& input_bytes, int eta) {
   }
   return coefficients;
 }
+
+
 

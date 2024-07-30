@@ -35,6 +35,8 @@ class Matrix {
   const T& operator()(unsigned int index_rows, unsigned int index_cols) const;
   T& operator()(unsigned int index_rows, unsigned int index_cols);
   Matrix<T> operator+(const Matrix<T>& kMatrix2) const;
+  bool operator==(const Matrix<T>& kMatrix2) const;
+  bool operator!=(const Matrix<T>& kMatrix2) const { return !(*this == kMatrix2); }
   template <typename B> friend std::ostream& operator<<(std::ostream& os, const Matrix<B>& kMatrix);
 
  private:
@@ -151,3 +153,27 @@ Matrix<T> Matrix<T>::GetTranspose() const {
   }
   return result;
 }
+
+/**
+ * @brief This method checks if two matrices are equal
+ * 
+ * @tparam T : Template type parameter
+ * @param kMatrix2 : The matrix to be compared
+ * @return true 
+ * @return false 
+ */
+template <typename T>
+bool Matrix<T>::operator==(const Matrix<T>& kMatrix2) const {
+  if (GetColumnsSize() != kMatrix2.GetColumnsSize() || GetRowsSize() != kMatrix2.GetRowsSize()) {
+    return false;
+  }
+  for (unsigned int i = 0; i < GetRowsSize(); i++) {
+    for (unsigned int j = 0; j < GetColumnsSize(); j++) {
+      if (vector_[i * GetColumnsSize() + j] != kMatrix2(i, j)) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+

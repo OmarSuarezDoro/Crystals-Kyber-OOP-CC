@@ -19,7 +19,7 @@
 template <typename T>
 class Polynomial {
  public:
-  Polynomial(const unsigned int& kSize);
+  Polynomial(const unsigned int& kSize, const int& module = 3389);
   void append(const T& kElement) { vector_.push_back(kElement); }
   // Getters
   int GetSize() const { return vector_.size(); }
@@ -32,10 +32,12 @@ class Polynomial {
   Polynomial<T> operator+(const Polynomial<T>& kPolynomial2) const;
   Polynomial<T> operator-(const Polynomial<T>& kPolynomial2) const;
   bool operator==(const Polynomial<T>& kPolynomial2) const;
+  bool operator!=(const Polynomial<T>& kPolynomial2) const { return !(*this == kPolynomial2); }
   
   template <typename B> friend std::ostream& operator<<(std::ostream& os, const Polynomial<B> kPolynomial);
  private:
   std::vector<T> vector_;
+  int module_;
 };
 
 /**
@@ -45,7 +47,8 @@ class Polynomial {
  * @param kSize : The size of the polynomial
  */
 template <typename T>
-Polynomial<T>::Polynomial(const unsigned int& kSize) {
+Polynomial<T>::Polynomial(const unsigned int& kSize, const int& module) {
+  module_ = module;
   vector_ = std::vector<T>(int(kSize), 0);
 }
 
@@ -107,7 +110,7 @@ Polynomial<T> Polynomial<T>::operator+(const Polynomial<T>& kPolynomial2) const 
   assert(GetSize() == kPolynomial2.GetSize());
   Polynomial<T> result(GetSize());
   for (int i = 0; i < GetSize(); i++) {
-    result[i] = vector_[i] + kPolynomial2[i];
+    result[i] = (vector_[i] + kPolynomial2[i]) % module_;
   }
   return result;
 }

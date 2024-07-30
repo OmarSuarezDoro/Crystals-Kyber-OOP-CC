@@ -13,12 +13,14 @@
 #include "../Components/Keccak.h"
 #include "../DataStructures/Bytes.h"
 #include "../DataStructures/Polynomial.h"
+#include "../DataStructures/Matrix.h"
 
 class SamplingUnit {
  public:
   SamplingUnit(int k, int n) { k_ = k; n_ = n; };
   Polynomial<int> _CBD(const Bytes& input_bytes, int eta);
-  
+  Matrix<Polynomial<int>> GenerateDistribuitionMatrix(const Bytes& input_bytes, int eta, int N);
+
  private:
   int k_;
   int n_;
