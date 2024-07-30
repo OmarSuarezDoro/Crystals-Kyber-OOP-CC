@@ -78,9 +78,9 @@ $(function() {
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ab28a11db1300f6f0a1c07a3e57ea6bb6"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPolynomial.html#ab28a11db1300f6f0a1c07a3e57ea6bb6">Polynomial</a> (const unsigned int &amp;kSize)</td></tr>
-<tr class="memdesc:ab28a11db1300f6f0a1c07a3e57ea6bb6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new Polynomial&lt; T&gt;:: <a class="el" href="classPolynomial.html" title="This file contains the header declaration and implementation of the class Polynomial.">Polynomial</a> object.  <a href="classPolynomial.html#ab28a11db1300f6f0a1c07a3e57ea6bb6">More...</a><br /></td></tr>
-<tr class="separator:ab28a11db1300f6f0a1c07a3e57ea6bb6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a2e46ce27ace37ab71340147e71c8ba6a"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPolynomial.html#a2e46ce27ace37ab71340147e71c8ba6a">Polynomial</a> (const unsigned int &amp;kSize, const int &amp;module=3389)</td></tr>
+<tr class="memdesc:a2e46ce27ace37ab71340147e71c8ba6a"><td class="mdescLeft">&#160;</td><td class="mdescRight">Construct a new Polynomial&lt; T&gt;:: <a class="el" href="classPolynomial.html" title="This file contains the header declaration and implementation of the class Polynomial.">Polynomial</a> object.  <a href="classPolynomial.html#a2e46ce27ace37ab71340147e71c8ba6a">More...</a><br /></td></tr>
+<tr class="separator:a2e46ce27ace37ab71340147e71c8ba6a"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a44513a8c1b9fdf411bc593011f12b362"><td class="memItemLeft" align="right" valign="top"><a id="a44513a8c1b9fdf411bc593011f12b362"></a>
 void&#160;</td><td class="memItemRight" valign="bottom"><b>append</b> (const T &amp;kElement)</td></tr>
 <tr class="separator:a44513a8c1b9fdf411bc593011f12b362"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -108,6 +108,9 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>SetCoefficients</b> (
 <tr class="memitem:ad2d1ef4de0db47952a1428ac6b63b9d0"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classPolynomial.html#ad2d1ef4de0db47952a1428ac6b63b9d0">operator==</a> (const <a class="el" href="classPolynomial.html">Polynomial</a>&lt; T &gt; &amp;kPolynomial2) const</td></tr>
 <tr class="memdesc:ad2d1ef4de0db47952a1428ac6b63b9d0"><td class="mdescLeft">&#160;</td><td class="mdescRight">This method checks if two polynomials are equal.  <a href="classPolynomial.html#ad2d1ef4de0db47952a1428ac6b63b9d0">More...</a><br /></td></tr>
 <tr class="separator:ad2d1ef4de0db47952a1428ac6b63b9d0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a0e5d61ff6f451e7e5e19f61d05c27ed1"><td class="memItemLeft" align="right" valign="top"><a id="a0e5d61ff6f451e7e5e19f61d05c27ed1"></a>
+bool&#160;</td><td class="memItemRight" valign="bottom"><b>operator!=</b> (const <a class="el" href="classPolynomial.html">Polynomial</a>&lt; T &gt; &amp;kPolynomial2) const</td></tr>
+<tr class="separator:a0e5d61ff6f451e7e5e19f61d05c27ed1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="friends"></a>
 Friends</h2></td></tr>
@@ -126,8 +129,8 @@ class Polynomial&lt; T &gt;</h3>
 <dl class="section date"><dt>Date</dt><dd>July 18 2024 </dd></dl>
 <dl class="section version"><dt>Version</dt><dd>v0.1.0 </dd></dl>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a id="ab28a11db1300f6f0a1c07a3e57ea6bb6"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#ab28a11db1300f6f0a1c07a3e57ea6bb6">&#9670;&nbsp;</a></span>Polynomial()</h2>
+<a id="a2e46ce27ace37ab71340147e71c8ba6a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a2e46ce27ace37ab71340147e71c8ba6a">&#9670;&nbsp;</a></span>Polynomial()</h2>
 
 <div class="memitem">
 <div class="memproto">
@@ -138,8 +141,18 @@ template&lt;typename T &gt; </div>
           <td class="memname"><a class="el" href="classPolynomial.html">Polynomial</a>&lt; T &gt;::<a class="el" href="classPolynomial.html">Polynomial</a> </td>
           <td>(</td>
           <td class="paramtype">const unsigned int &amp;&#160;</td>
-          <td class="paramname"><em>kSize</em></td><td>)</td>
+          <td class="paramname"><em>kSize</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
           <td></td>
+          <td class="paramtype">const int &amp;&#160;</td>
+          <td class="paramname"><em>module</em> = <code>3389</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
         </tr>
       </table>
 </div><div class="memdoc">
@@ -337,7 +350,7 @@ template&lt;typename T &gt; </div>
 </div>
 </div>
 <hr/>The documentation for this class was generated from the following file:<ul>
-<li>/home/noex/Crystal-Kyber-C-/src/DataStructures/<a class="el" href="Polynomial_8h_source.html">Polynomial.h</a></li>
+<li>/home/noex/projects/Crystal-Kyber-C-/src/DataStructures/<a class="el" href="Polynomial_8h_source.html">Polynomial.h</a></li>
 </ul>
 </div><!-- contents -->
 <!-- start footer part -->

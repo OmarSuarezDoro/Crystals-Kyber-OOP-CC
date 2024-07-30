@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['_7ebytes_37',['~Bytes',['../classBytes.html#a5861879e91bad95c447ce95105a2b62a',1,'Bytes']]]
+  ['tobigendian_43',['toBigEndian',['../classBytes.html#a4279d4beb9710f9e564fd50784fe0ee9',1,'Bytes']]]
 ];

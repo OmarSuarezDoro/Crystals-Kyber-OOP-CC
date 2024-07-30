@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['ntt_14',['NTT',['../classNTT.html',1,'']]]
+  ['matrix_18',['Matrix',['../classMatrix.html',1,'Matrix&lt; T &gt;'],['../classMatrix.html#ab963b61483bb77fe7cc5b5cdd151fc03',1,'Matrix::Matrix()']]]
 ];
