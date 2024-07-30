@@ -53,7 +53,7 @@ The answer is **YES**. That is the reason that we are going to introduce a littl
 
 <br>
 
-Now 
+The change is simple, but the problem is a way **different**. The problem now consists in guessing the closest point to the solution that 
 
 
 
@@ -76,12 +76,8 @@ Example of use:
 Polynomial<int> poly1_ = Polynomial<int>(3);
 Polynomial<int> poly2_ = Polynomial<int>(3);
     poly1_[0] = 1;
-    poly1_[1] = 2;
-    poly1_[2] = 3;
-    poly2_[0] = 4;
     poly2_[1] = 5;
-    poly2_[2] = 6;
-Polynomial<int> result = poly1_ + poly2_;
+Polynomial<int> result = poly1_ + poly2_; // [6, 0, 0]
 ```
 
 2. **Matrix**: This class represents a matrix of T type, which T is the template parameter, as the previous one. This class follows a desing pattern called **Facade** in order to make easy to work with a 3 dimensional vectors structure.
@@ -91,14 +87,9 @@ Example of use:
 Matrix<Polynomial<int>> mat4_ = Matrix<Polynomial<int>>(2, 2, 3);
 Matrix<Polynomial<int>> mat5_ = Matrix<Polynomial<int>>(2, 2, 3);
     Polynomial<int> p1 = Polynomial<int>(3);
-    p1[0] = 3;
-    p1[1] = 2;
-    p1[2] = 1;
+    // Initialize the values
     Polynomial<int> p2 = Polynomial<int>(3);
-    p2[0] = 4;
-    p2[1] = 3;
-    p2[2] = 2;
-    mat4_(0, 0) = p1;
+    // Initialize the values
     mat4_(0, 1) = p2;
     mat5_(0, 0) = p1;
 Matrix<Polynomial<int>> result = mat4_ + mat5_;
