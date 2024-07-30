@@ -113,27 +113,11 @@ The primary reason for using NTT in cryptographic schemes like Kyber is to **eff
 >
 > The computational complexity is highly increased due to this algorithm:
 >
-> $$
-> O(n^2) \rightarrow O(n~\cdot ~log(n)) 
-> $$
+> <img src="https://latex.codecogs.com/svg.image?{\color{Orchid}O(n^2)\rightarrow&space;O(n\cdot&space;log(n))}"/>
 > This happens because the following domain transformation is performed:
-> $$
-> R_q^{k~\cdot~k} \rightarrow R_q^k \\
-> $$
+> <img src="https://latex.codecogs.com/svg.image?{\color{Orchid}R_q^{k\cdot&space;k}\rightarrow&space;R_q^k}"/>
 > Where **q** is the prime that we are using in the algorithm and **k** the dimension.
-- <img src="https://latex.codecogs.com/svg.image?\begin{pmatrix}\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\\\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\end{pmatrix}\longrightarrow\begin{pmatrix}\begin{bmatrix}165\end{bmatrix}\\\begin{bmatrix}125\end{bmatrix}\\\end{pmatrix}" /> 
-
->  $$
->   \begin{pmatrix}
-> \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix}\\
-> \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix} & \begin{bmatrix}1 & 2 & 3\end{bmatrix}
-> \end{pmatrix}	
-> \longrightarrow
-> \begin{pmatrix}
-> \begin{bmatrix}165\end{bmatrix} \\
-> \begin{bmatrix}125\end{bmatrix} \\
-> \end{pmatrix}
-> $$
+> <img src="https://latex.codecogs.com/svg.image?{\color{Orchid}\begin{pmatrix}\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\\\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\end{pmatrix}_{R{^{k\cdot&space;k}_q}}\\\longrightarrow\begin{pmatrix}\begin{bmatrix}165\end{bmatrix}\\\begin{bmatrix}125\end{bmatrix}\\\end{pmatrix}_{R_q^k}}"/>
 >
 >
 
