@@ -9,8 +9,8 @@ Authors:
 - [4. Main Concepts](#4-main-concepts)
   - [a) Lattices](#a-lattices)
   - [b) Learning With Errors Problem](#b-learning-with-errors-problem)
-
-- [5. Components](#5-components)
+- [5. Parameters & Specifications](#5-parameters-&-specifications)
+- [6. Components](#6-components)
   - [a) Data Structures](#a-data-structures)
   - [b) Keccak](#b-keccak)
   - [c) ](#c-ntt-number-theoretic-transform)
@@ -53,9 +53,17 @@ The answer is **YES**. That is the reason that we are going to introduce a littl
 
 <br>
 
-The change is simple, but the problem is a way **different**. The problem now consists in guessing the closest point to the solution that 
+The change is simple, but the problem is a way **different**. The problem now consists in guessing the closest point to the solution. The thing here is that if we know the secret key, that could be compared to having a good vectorial base, solve this problem is a way easier than didn't have it, which means having a bad base.
 
 
+### c) Polynomial ring
+Crystals Kyber Algorithm use numbers contained in a polynomial ring, which allow us to work with modular operations, enhancing memory space needed and working in a finite field:
+
+<div align="center"> <img src="https://latex.codecogs.com/svg.image?\inline&space;\LARGE&space;\bg{white}{\color{White}\{\mathbb{Z}_q[x]/(x^n&plus;1)\}}" title="{\color{White}\{\mathbb{Z}_q[x]/(x^n+1)\}}" /> </div>
+<br>
+
+Which basically means numbers contained in the interval of module operation.
+Here it's a table that resume the main concepts that you should keep in mind:
 
 | Concept | Short Description |
 | ------- | ----------------- |
@@ -63,13 +71,38 @@ The change is simple, but the problem is a way **different**. The problem now co
 |LWE problem | The **learning with errors** problem consist in, having a vectorial base and a point (P) in the plane. Discover which lineal combination of the vectors should we use, in order to be in the closest point to P.
 |Big O notation (**O(n)**)| Is a standard which function describe the time that an algorithm needs to be completed. This notation focussed in the **worst case** with a sample of n elements.|
  
+ <br>
 
-## 5. Components
+## 5. Parameters & Specifications
+
+Crystals Kyber Algorithm needs a set of parameters, here it is an explanation of each one:
+| Parameter | In code | Description |
+| --- | --- | --- |
+| n | n | The grade of the polynomials that we will use (the size).|
+| q | q | The prime that we will use to make the module.|
+| k | k | The size of the matrix.|
+| $\eta_1$, $\eta_2$ | n1, n2 | The parameters that we will use to generate the random distribution. |
+| du, dv | du, dv | The parameters of compressions, in order to reduce the size of the keys and cyphered|
+
+Once we know about the parameters, we can talk about the differents specifications of Crystals Kyber:
+
+| Specification | NIST Security Level | Compared to | n | k | q | Size secret-key(bytes) | Size public-key(bytes) | Size cyphered-text(bytes) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Kyber512 | 1 |  RSA-2048 o AES-128 | 256 | 2 | 3329 | 1632 | 800 | 768 |
+| Kyber768 | 3 |  RSA-3072 o AES-192 | 256 | 3 | 3329 | 2400 | 1184 | 1088 |
+| Kyber1024 | 4 |  RSA-4096 o AES-256 | 256 | 4 | 3329 | 3168 | 1568 | 1568 |
+
+
+### Why do we select this numbers?
+- The **n(256)** and **q(3329)** numbers are selected in order to equilibrate between security and efficiency. Notice that the prime is close to a power of 2. being easier the calculations.
+- The $\eta$ value (2) keeps the value low, because we want to have a little error, and recuperate the original point.
+
+## 6. Components
 
 ### a) Data Structures
 Our implementation of CKA is based in two **primitive** structures, which hold the main data.
 
-1. **Polynomial**: This class represents a polynomial and provide us with some useful functionalities such as the *addition*, *print_operation*, etc.. It is mapped using a **vector structure** of T, where T is a template parameter.
+- **Polynomial**: This class represents a polynomial and provide us with some useful functionalities such as the *addition*, *print_operation*, etc.. It is mapped using a **vector structure** of T, where T is a template parameter.
 
 Example of use:
 ```c++
@@ -79,8 +112,10 @@ Polynomial<int> poly2_ = Polynomial<int>(3);
     poly2_[1] = 5;
 Polynomial<int> result = poly1_ + poly2_; // [6, 0, 0]
 ```
+<br>
+<br>
 
-2. **Matrix**: This class represents a matrix of T type, which T is the template parameter, as the previous one. This class follows a desing pattern called **Facade** in order to make easy to work with a 3 dimensional vectors structure.
+- **Matrix**: This class represents a matrix of T type, which T is the template parameter, as the previous one. This class follows a desing pattern called **Facade** in order to make easy to work with a 3 dimensional vectors structure.
 
 Example of use:
 ```c++
@@ -95,7 +130,11 @@ Matrix<Polynomial<int>> mat5_ = Matrix<Polynomial<int>>(2, 2, 3);
 Matrix<Polynomial<int>> result = mat4_ + mat5_;
 ```
 
-3. **Bytes**: This class implements a set of bytes. They are mapped as `std::vector<unsigned char>` object, this is because we have the entire **8 bits** range representation. If we have used normal char 1 bit is used for sign representation, this is not a real problem in representation operations, but it is **highly** important in arithmethic operations. If we want to operate in a signed way, we can use the signed version of methods. The main reason of using our own **Byte Structure** is to follow facade patterns, in order to simplify the management of some custom **data structures** that libraries like [Cryptopp](https://github.com/weidai11/cryptopp) use.
+<br>
+<br>
+
+
+- **Bytes**: This class implements a set of bytes. They are mapped as `std::vector<unsigned char>` object, this is because we have the entire **8 bits** range representation. If we have used normal char 1 bit is used for sign representation, this is not a real problem in representation operations, but it is **highly** important in arithmethic operations. If we want to operate in a signed way, we can use the signed version of methods. The main reason of using our own **Byte Structure** is to follow facade patterns, in order to simplify the management of some custom **data structures** that libraries like [Cryptopp](https://github.com/weidai11/cryptopp) use.
 
 The bytes structure work with each bytes as **Little Endian** way, that means that the left Byte is the less significant. However, bits are interpreted from right to left (the common way to read binary).
 
@@ -111,7 +150,7 @@ The bytes structure allow us to make operations with Bytes in a simple way. Here
   - FromBytesToNumbers: Return a long with the value of the bytes, It iterates, adding each bit * 2^n to the result.
   - GetBytesAsNumbersVector: Return an int vector that contains each separated int value of the bytes.
  
-
+<br>
 ### b) Keccak
 The Keccak component consists in a set of **Cryptographic functions** which are provided by the [Cryptopp](https://github.com/weidai11/cryptopp) library, also known as Crypto++. Keccak is structured by static methods (this is because, in our opinion, it is easy to understand the kyber as boxes that implements a set of functions that we will need), that we will call **"Logic Gates"**.
 
@@ -125,6 +164,7 @@ This Logic Gates operates with privates methods which use the functions of the l
 |(**H**) |Hash function used to derive cryptographic material (seed for public matrix A, coins, shared keys) from arbitrary-length byte strings. Output is a 32-byte string.|
 |(**G**)|Hash function used to generate noise polynomials for the secret key. Output is a concatenation of two 32-byte strings.|
 
+<br>
 
 ### c) NTT (Number Theoretic Transform)
 
