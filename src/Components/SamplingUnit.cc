@@ -20,16 +20,15 @@
  * @param N : The counter value.
  * @return Matrix<Polynomial<int>> 
  */
-Matrix<Polynomial<int>> SamplingUnit::GenerateDistribuitionMatrix(const Bytes& sigma, int eta, int N) {
-  std::vector<int> pepe = sigma.GetBytesAsNumbersVector();
+std::tuple<Matrix<Polynomial<int>>, int> SamplingUnit::GenerateDistribuitionMatrix(const Bytes& sigma, int eta, int N) {
   Matrix<Polynomial<int>> result_matrix(k_, 1, n_);
   for (int i = 0; i < k_; i++) {
-    Bytes bytes_post_prf = Keccak::PRF(sigma, N, 64 * eta);  
+    Bytes bytes_post_prf = Keccak::PRF(sigma, N, 64 * eta);
     Polynomial<int> result_poly = _CBD(bytes_post_prf, eta);
     result_matrix(i, 0) = result_poly;
     N += 1;
   }
-  exit(0);
+  return {result_matrix, N};
 }
 
 

@@ -38,7 +38,6 @@ include_directories(${GTEST_INCLUDE_DIRS})
 # Set the location of *.h files
 include_directories(${PROJECT_SOURCE_DIR}/src)
 
-
 # Adds an executable target called "runTests" to be built from the source files listed in the command invocation.
 add_executable(
   runTests
@@ -48,13 +47,17 @@ add_executable(
   test/Polynomial.cc
   test/Keccak.cc
   test/NTT.cc
+  test/PWMUnit.cc
   test/SamplingUnit.cc
   ./src/DataStructures/Bytes.cc
   ./src/Components/Keccak.cc
   ./src/Components/NTT.cc
   ./src/Components/NTT.h
+  ./src/Components/PWMUnit.cc
+  ./src/Components/PWMUnit.h
   ./src/Components/SamplingUnit.cc
   ./src/Components/SamplingUnit.h
+
   )
 
 # Adds an executable target called "client_main" to be built from the source files listed in the command invocation.
@@ -71,6 +74,8 @@ add_executable(
   ./src/Components/NTT.h
   ./src/Components/SamplingUnit.cc
   ./src/Components/SamplingUnit.h
+  ./src/Components/PWMUnit.cc
+  ./src/Components/PWMUnit.h
   )
 
 

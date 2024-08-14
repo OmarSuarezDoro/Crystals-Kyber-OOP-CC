@@ -21,6 +21,8 @@ class Polynomial {
  public:
   Polynomial(const unsigned int& kSize, const int& module = 3389);
   void append(const T& kElement) { vector_.push_back(kElement); }
+  Polynomial<T> ReturnAppend(const Polynomial<T>& kElements); 
+
   // Getters
   int GetSize() const { return vector_.size(); }
   std::vector<T> GetCoefficients() const { return vector_; }
@@ -148,4 +150,26 @@ bool Polynomial<T>::operator==(const Polynomial<T>& kPolynomial2) const {
     }
   }
   return true;
+}
+
+
+
+/**
+ * @brief This method appends a polynomial to another
+ * 
+ * @tparam T : Template type parameter
+ * @param kElements : The polynomial to be appended
+ * @return Polynomial<T> 
+ */
+template <typename T>
+Polynomial<T> Polynomial<T>::ReturnAppend(const Polynomial<T>& kElements) {
+  Polynomial<T> result(GetSize() + kElements.GetSize());
+  int limit = GetSize() + kElements.GetSize();
+  for (int i = 0 ; i < GetSize(); i++) {
+    result[i] = vector_[i];
+  }
+  for (int i = GetSize(); i < limit; i++) {
+    result[i] = kElements[i - GetSize()];
+  }
+  return result;
 }

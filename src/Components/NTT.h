@@ -29,13 +29,14 @@ class NTT {
   Polynomial<int> _NTT(const Polynomial<int>& kPolynomial);
   Polynomial<int> _INTT(const Polynomial<int>& kPolynomial);
   Polynomial<int> NTT_Kyber(const Polynomial<int>& kPolynomial, bool is_ntt);
+  int _FirstPrimitiveRoot(int n);
+  int _BitReverse(int n, int bits);
+  int _PowerWithMod(int base, int exp, int mod);
   
 
  private:
   int  n_ = 256;
   int  q_ = 3389;
   bool _IsPrime(int n);
-  int _FirstPrimitiveRoot(int n);
-  int _PowerWithMod(int base, int exp, int mod);
-  int _BitReverse(int n, int bits);
+  // Polynomial<int> _InverseNTT(const Polynomial<int>& kPolynomial);
 };
