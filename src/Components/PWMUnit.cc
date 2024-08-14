@@ -1,6 +1,24 @@
+/**
+ * Universidad de La Laguna
+ * Escuela Superior de Ingeniería y Tecnología
+ * Grado en Ingeniería Informática
+ * Trabajo de Fin de Grado - Kleptographic Attacks on Lattice-Based CryptoSystems
+ *
+ * @author Omar Suárez Doro
+ * @date August 14 2024
+ * @version v0.1.0
+ * @brief This file contains the definitions of methods of the class PWMUnit.
+ */
+
 #include "PWMUnit.h"
 
-
+/**
+ * @brief This function performs the pointwise multiplication of two polynomials
+ * 
+ * @param p : polynomial p
+ * @param g : polynomial g
+ * @return Polynomial<int> 
+ */
 Polynomial<int> PWMUnit::pointwise_(const Polynomial<int>& p, const Polynomial<int>& g) {
   int phi = ntt_._FirstPrimitiveRoot(n_);
   // If the degree of any polynomial is less than 256 we apply NTT 
@@ -49,6 +67,30 @@ Polynomial<int> PWMUnit::pointwise_(const Polynomial<int>& p, const Polynomial<i
   Polynomial<int> result = Polynomial<int>(n_);
   for (int i = 0; i < n_; i++) {
     result[i] = (i % 2 == 0) ? p_wise_mult_even[i / 2] : p_wise_mult_odd[(i - 1) / 2];
+  }
+  return result;
+}
+
+/**
+ * @brief This method multiplies two matrices using pointwise multiplication in NTT
+ * 
+ * @param A The first matrix
+ * @param B The second matrix
+ * @return Matrix<Polynomial<int>> 
+ */
+Matrix<Polynomial<int>> PWMUnit::multMatrixViaNTT(const Matrix<Polynomial<int>>& A, const Matrix<Polynomial<int>>& B) {
+  int rowsA = A.GetRowsSize();
+  int columnsA = A.GetColumnsSize();
+  int columnsB = B.GetColumnsSize();
+  Matrix<Polynomial<int>> result(rowsA, columnsB);
+  for (int i = 0; i < rowsA; ++i) {
+    for (int j = 0; j < columnsB; ++j) {
+      Polynomial<int> sum_polynomial = Polynomial<int>(n_);
+        for (int k = 0; k < columnsA; ++k) {
+          sum_polynomial = sum_polynomial + pointwise_(A(i, k), B(k, j));
+        }
+      result(i, j) = sum_polynomial;
+    }
   }
   return result;
 }

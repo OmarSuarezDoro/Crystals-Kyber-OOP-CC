@@ -19,7 +19,7 @@
 template <typename T>
 class Polynomial {
  public:
-  Polynomial(const unsigned int& kSize, const int& module = 3389);
+  Polynomial(const unsigned int& kSize, const int& module = 3329);
   void append(const T& kElement) { vector_.push_back(kElement); }
   Polynomial<T> ReturnAppend(const Polynomial<T>& kElements); 
 

@@ -12,7 +12,7 @@
  */
 
 
-#include "../DataStructures/Polynomial.h"
+#include "../DataStructures/Matrix.h"
 #include "NTT.h"
 
 
@@ -20,7 +20,7 @@ class PWMUnit {
  public:
   PWMUnit(int n, int q) : n_{n}, q_{q} {}
   Polynomial<int> pointwise_(const Polynomial<int>& p, const Polynomial<int>& g);
-
+  Matrix<Polynomial<int>> multMatrixViaNTT(const Matrix<Polynomial<int>>& A, const Matrix<Polynomial<int>>& B);
  private:
   int n_;
   int q_;

@@ -30,6 +30,8 @@ class Matrix {
   unsigned int GetColumnsSize() const { return columns_; }
   unsigned int GetRowsSize() const { return rows_; }
   Matrix<T> GetTranspose() const;
+  // Setter
+  void SetRow(int indexRow, const Polynomial<int>& kRow);
 
   // Operator overload
   const T& operator()(unsigned int index_rows, unsigned int index_cols) const;
@@ -177,3 +179,20 @@ bool Matrix<T>::operator==(const Matrix<T>& kMatrix2) const {
   return true;
 }
 
+
+
+/**
+ * @brief This method sets a row of the matrix
+ * 
+ * @tparam T : Template type parameter
+ * @param indexRow : The index of the row to be set
+ * @param kRow : The row to be set
+ */
+template <typename T>
+void Matrix<T>::SetRow(int indexRow, const Polynomial<int>& kRow) {
+  assert(indexRow < GetRowsSize());
+  assert(kRow.GetSize() == GetColumnsSize());
+  for (unsigned int i = 0; i < GetColumnsSize(); i++) {
+    vector_[indexRow * GetColumnsSize() + i] = kRow[i];
+  }
+}
