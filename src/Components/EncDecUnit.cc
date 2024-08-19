@@ -45,7 +45,34 @@ Bytes EncDecUnit::encode_(const Polynomial<int>& polynomial, int bits_per_coeffi
   return result;
 }
 
-Polynomial<int> EncDecUnit::decode_(Bytes input_bytes, int bits_per_coefficient) const {
+
+
+Matrix<Polynomial<int>> EncDecUnit::DecodeBytesToMatrix(const Bytes& input_bytes, const int rows, const int cols, int length) const {
+  if (length < 1) {
+    int denominator = n_ * rows * cols;
+    length = (8 * input_bytes.GetBytesSize()) / denominator;
+    int reminder = (8 * input_bytes.GetBytesSize()) % denominator;
+    if (reminder != 0) {
+      throw std::invalid_argument("The input byte list must have a length multiple of 32.");
+    }
+    if (n_ * length * rows * cols > 8 * input_bytes.GetBytesSize()) {
+      throw std::invalid_argument("The length of the bytes must be smaller for the length that was indicated.");
+    }
+  }
+  int chunk_length = 32 * length;
+  std::cout << chunk_length << std::endl;
+  exit(0);
+}
+
+
+/**
+ * @brief This method decodes a bytes sequence into a polynomial. This method is used in deserialization process.
+ * 
+ * @param input_bytes : The bytes sequence that is going to be decoded
+ * @param bits_per_coefficient : The bits per coefficient that is going to be used for representation
+ * @return Polynomial<int> 
+ */
+Polynomial<int> EncDecUnit::decode_(const Bytes& input_bytes, int bits_per_coefficient) const {
   if (bits_per_coefficient < 1) {
     bits_per_coefficient = (8 * input_bytes.GetBytesSize()) / n_;
     int reminder = (8 * input_bytes.GetBytesSize()) % n_;
@@ -57,7 +84,7 @@ Polynomial<int> EncDecUnit::decode_(Bytes input_bytes, int bits_per_coefficient)
     throw std::invalid_argument("The input byte list must have a length multiple of 32.");
   }
   Polynomial<int> coefficients = Polynomial<int>(n_);
-  input_bytes = input_bytes.toBigEndian();
+  Bytes copy_bytes = input_bytes.toBigEndian();
   std::string binary_string = input_bytes.FromBytesToBits();
   for (int i = 0; i < n_; i++) {
     coefficients[i] = 0;
@@ -68,4 +95,3 @@ Polynomial<int> EncDecUnit::decode_(Bytes input_bytes, int bits_per_coefficient)
   return coefficients;
 }
 
-  

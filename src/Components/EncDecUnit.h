@@ -13,12 +13,15 @@
 
 #include "../DataStructures/Bytes.h"
 #include "../DataStructures/Polynomial.h"
+#include "../DataStructures/Matrix.h"
 
 class EncDecUnit {
  public:
   EncDecUnit(int n) : n_{n} {}
   Bytes encode_(const Polynomial<int>& polynomial, int bits_per_coefficient = 0) const;  
-  Polynomial<int> decode_(Bytes input_bytes, int bits_per_coefficient = 0) const;
+  Polynomial<int> decode_(const Bytes& input_bytes, int bits_per_coefficient = 0) const;
+  Matrix<Polynomial<int>> EncDecUnit::DecodeBytesToMatrix(const Bytes& input_bytes, const int rows, const int cols, const int length = 0) const;;
+
  private:
   int n_;
 };
