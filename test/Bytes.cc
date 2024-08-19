@@ -252,7 +252,7 @@ TEST_F(BytesTest, FromBytesToBitsTest) {
  */
 TEST_F(BytesTest, FromBitsToBytesTest) {
   std::string bits = "01000001";
-  EXPECT_EQ(Bytes::FromBitsToBytes(bits).GetBytes(), std::vector<unsigned char>({'A'}));
+  EXPECT_EQ(Bytes::FromBitsToBytes(bits).GetBytes(), std::vector<unsigned char>{130});
 }
 
 /**

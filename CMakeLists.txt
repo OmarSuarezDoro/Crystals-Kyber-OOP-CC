@@ -49,6 +49,7 @@ add_executable(
   test/NTT.cc
   test/PWMUnit.cc
   test/SamplingUnit.cc
+  test/EncDecUnit.cc
   ./src/DataStructures/Bytes.cc
   ./src/Components/Keccak.cc
   ./src/Components/NTT.cc
@@ -57,7 +58,8 @@ add_executable(
   ./src/Components/PWMUnit.h
   ./src/Components/SamplingUnit.cc
   ./src/Components/SamplingUnit.h
-
+  ./src/Components/EncDecUnit.cc
+  ./src/Components/EncDecUnit.h
   )
 
 # Adds an executable target called "client_main" to be built from the source files listed in the command invocation.

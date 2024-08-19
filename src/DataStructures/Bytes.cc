@@ -376,7 +376,10 @@ std::string Bytes::FromBytesToBits() const {
 Bytes Bytes::FromBitsToBytes(const std::string& kBits) {
   std::vector<unsigned char> result = {};
   for (int i = 0; i < int(kBits.size()); i += 8) {
-    result.push_back(std::bitset<8>(kBits.substr(i, 8)).to_ulong());
+    std::string byte = kBits.substr(i, 8);
+    // reverse the string order
+    std::reverse(byte.begin(), byte.end());
+    result.push_back(std::bitset<8>(byte).to_ulong());
   }
   return result;
 }
