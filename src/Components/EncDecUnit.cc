@@ -13,7 +13,13 @@
 
 #include "EncDecUnit.h"
 
-
+/**
+ * @brief This method encodes a polynomial into a bytes sequence. This method is used in serialization process.
+ * 
+ * @param polynomial : The polynomial that is going to be encoded
+ * @param bits_per_coefficient : The bits per coefficient that is going to be used for representation
+ * @return Bytes 
+ */
 Bytes EncDecUnit::encode_(const Polynomial<int>& polynomial, int bits_per_coefficient) const {
   if (bits_per_coefficient < 1) {
     // iterate through the vector and see the number of bits needed to represent the biggest coefficient
@@ -37,4 +43,8 @@ Bytes EncDecUnit::encode_(const Polynomial<int>& polynomial, int bits_per_coeffi
   while (result_string.length() % 8 != 0) { result_string += "0"; }
   Bytes result = Bytes::FromBitsToBytes(result_string);
   return result;
+}
+
+Polynomial<int> EncDecUnit::decode_(Bytes input_bytes, int bits_per_coefficient = 0) const {
+
 }

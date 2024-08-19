@@ -18,6 +18,7 @@ class EncDecUnit {
  public:
   EncDecUnit(int n) : n_{n} {}
   Bytes encode_(const Polynomial<int>& polynomial, int bits_per_coefficient = 0) const;  
+  Polynomial<int> decode_(Bytes input_bytes, int bits_per_coefficient = 0) const;
  private:
   int n_;
 };
