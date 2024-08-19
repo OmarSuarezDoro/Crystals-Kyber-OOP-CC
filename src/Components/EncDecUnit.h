@@ -20,8 +20,8 @@ class EncDecUnit {
   EncDecUnit(int n) : n_{n} {}
   Bytes encode_(const Polynomial<int>& polynomial, int bits_per_coefficient = 0) const;  
   Polynomial<int> decode_(const Bytes& input_bytes, int bits_per_coefficient = 0) const;
-  Matrix<Polynomial<int>> EncDecUnit::DecodeBytesToMatrix(const Bytes& input_bytes, const int rows, const int cols, const int length = 0) const;;
-
+  Matrix<Polynomial<int>> DecodeBytesToMatrix(const Bytes& input_bytes, const int rows, const int cols, const int length = 0) const;;
+  Bytes EncodeMatrixToBytes(const Matrix<Polynomial<int>>& input_matrix, const int bits_per_coefficient = 0) const;
  private:
   int n_;
 };

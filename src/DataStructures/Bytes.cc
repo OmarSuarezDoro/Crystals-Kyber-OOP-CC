@@ -460,6 +460,9 @@ std::vector<int> Bytes::GetBytesAsNumbersVector() const {
  */
 Bytes Bytes::GetNBytes(const int& start_index, const int& kN) const {
   std::vector<unsigned char> result = {};
+  if (start_index + kN > int(bytes_.size())) {
+    throw std::invalid_argument("The number of bytes to extract is bigger than the number of bytes in the Bytes object.");
+  }
   for (int i = start_index; i < (start_index + kN); ++i) {
     result.push_back(bytes_[i]);
   }

@@ -14,6 +14,26 @@
 #include "EncDecUnit.h"
 
 /**
+ * @brief This method encodes a matrix of polynomials into a bytes sequence. This method is used in serialization process.
+ * 
+ * @param input_matrix : The matrix that is going to be encoded
+ * @param bits_per_coefficient : The bits per coefficient that is going to be used for representation
+ * @return Bytes 
+ */
+Bytes EncDecUnit::EncodeMatrixToBytes(const Matrix<Polynomial<int>>& input_matrix, const int bits_per_coefficient) const {
+  Bytes result = Bytes();
+  for (int i = 0; i < input_matrix.GetRowsSize(); i++) {
+    for (int j = 0; j < input_matrix.GetColumnsSize(); j++) {
+      Bytes current_bytes = encode_(input_matrix(i, j), bits_per_coefficient);
+      result += current_bytes;
+    }
+  }
+  return result;
+}
+
+
+
+/**
  * @brief This method encodes a polynomial into a bytes sequence. This method is used in serialization process.
  * 
  * @param polynomial : The polynomial that is going to be encoded
@@ -47,6 +67,15 @@ Bytes EncDecUnit::encode_(const Polynomial<int>& polynomial, int bits_per_coeffi
 
 
 
+/**
+ * @brief This method encodes a matrix of polynomials into a bytes sequence. This method is used in serialization process.
+ * 
+ * @param input_bytes The bytes sequence that is going to be decoded
+ * @param rows The number of rows of the matrix
+ * @param cols The number of columns of the matrix
+ * @param length The length of the bytes sequence
+ * @return Matrix<Polynomial<int>> 
+ */
 Matrix<Polynomial<int>> EncDecUnit::DecodeBytesToMatrix(const Bytes& input_bytes, const int rows, const int cols, int length) const {
   if (length < 1) {
     int denominator = n_ * rows * cols;
@@ -60,8 +89,28 @@ Matrix<Polynomial<int>> EncDecUnit::DecodeBytesToMatrix(const Bytes& input_bytes
     }
   }
   int chunk_length = 32 * length;
-  std::cout << chunk_length << std::endl;
-  exit(0);
+
+  std::vector<Bytes> coefficients = {};
+  int i = 0;
+  for (i; (i + chunk_length) < input_bytes.GetBytesSize(); i += chunk_length) {
+    Bytes chunk = input_bytes.GetNBytes(i, chunk_length);
+    coefficients.push_back(chunk); 
+  }
+  // Take the last chunk, if it is needed
+  if (i < input_bytes.GetBytesSize()) {
+    Bytes chunk = input_bytes.GetNBytes(i, input_bytes.GetBytesSize() - i);
+    coefficients.push_back(chunk);
+  }
+  
+  Matrix<Polynomial<int>> result = Matrix<Polynomial<int>>(rows, cols);
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols; j++) {
+      Bytes current_bytes = coefficients[i * cols + j];
+      Polynomial<int> current_polynomial = decode_(current_bytes, length);
+      result(i, j) = current_polynomial;
+    }
+  }
+  return result;
 }
 
 
@@ -85,7 +134,7 @@ Polynomial<int> EncDecUnit::decode_(const Bytes& input_bytes, int bits_per_coeff
   }
   Polynomial<int> coefficients = Polynomial<int>(n_);
   Bytes copy_bytes = input_bytes.toBigEndian();
-  std::string binary_string = input_bytes.FromBytesToBits();
+  std::string binary_string = copy_bytes.FromBytesToBits();
   for (int i = 0; i < n_; i++) {
     coefficients[i] = 0;
     for (int j = 0; j < bits_per_coefficient; j++) {
