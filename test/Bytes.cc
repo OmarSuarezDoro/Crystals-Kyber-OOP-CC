@@ -236,7 +236,7 @@ TEST_F(BytesTest, SubscriptOperatorTest) {
  */
 TEST_F(BytesTest, ToBigEndianTest) {
   Bytes bytes("test");
-  EXPECT_EQ(bytes.toBigEndian().GetBytes(), std::vector<unsigned char>({'t', 's', 'e', 't'}));
+  EXPECT_EQ(bytes.toBigEndian().GetBytes(), std::vector<unsigned char>({46, 166, 206, 46}));
 }
 
 /**

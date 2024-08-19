@@ -347,8 +347,11 @@ unsigned char Bytes::operator[](const Bytes& kBytes) {
  */
 Bytes Bytes::toBigEndian() const {
   std::vector<unsigned char> result = {};
-  for (int i = bytes_.size() - 1; i >= 0; --i) {
-    result.push_back(bytes_[i]);
+  for (int i = 0; i < int(bytes_.size()); ++i) {
+    //reverse the string order
+    std::string byte = std::bitset<8>(bytes_[i]).to_string();
+    std::reverse(byte.begin(), byte.end());
+    result.push_back(std::bitset<8>(byte).to_ulong());
   }
   return Bytes(result);
 }

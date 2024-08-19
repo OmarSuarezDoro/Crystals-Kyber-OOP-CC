@@ -45,6 +45,27 @@ Bytes EncDecUnit::encode_(const Polynomial<int>& polynomial, int bits_per_coeffi
   return result;
 }
 
-Polynomial<int> EncDecUnit::decode_(Bytes input_bytes, int bits_per_coefficient = 0) const {
-
+Polynomial<int> EncDecUnit::decode_(Bytes input_bytes, int bits_per_coefficient) const {
+  if (bits_per_coefficient < 1) {
+    bits_per_coefficient = (8 * input_bytes.GetBytesSize()) / n_;
+    int reminder = (8 * input_bytes.GetBytesSize()) % n_;
+    if (reminder != 0) {
+      throw std::invalid_argument("The input byte list must have a length multiple of 32.");
+    }
+  }
+  if (n_ * bits_per_coefficient != 8 * input_bytes.GetBytesSize()) {
+    throw std::invalid_argument("The input byte list must have a length multiple of 32.");
+  }
+  Polynomial<int> coefficients = Polynomial<int>(n_);
+  input_bytes = input_bytes.toBigEndian();
+  std::string binary_string = input_bytes.FromBytesToBits();
+  for (int i = 0; i < n_; i++) {
+    coefficients[i] = 0;
+    for (int j = 0; j < bits_per_coefficient; j++) {
+      coefficients[i] += (binary_string[i * bits_per_coefficient + j] - '0') << j;
+    }
+  }
+  return coefficients;
 }
+
+  
