@@ -11,9 +11,12 @@
  * will encode and decode the messages in the lattice-based cryptosystem.
  */
 
+# pragma once
+
 #include "../DataStructures/Bytes.h"
 #include "../DataStructures/Polynomial.h"
 #include "../DataStructures/Matrix.h"
+
 
 class EncDecUnit {
  public:

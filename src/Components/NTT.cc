@@ -13,7 +13,6 @@
 
 #include "NTT.h"
 
-
 /**
  * @brief This method applies the Number Theorical Transformation to a polynomial.
  * 

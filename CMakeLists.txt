@@ -50,6 +50,7 @@ add_executable(
   test/PWMUnit.cc
   test/SamplingUnit.cc
   test/EncDecUnit.cc
+  test/CompressorUnit.cc
   ./src/DataStructures/Bytes.cc
   ./src/Components/Keccak.cc
   ./src/Components/NTT.cc
@@ -60,6 +61,8 @@ add_executable(
   ./src/Components/SamplingUnit.h
   ./src/Components/EncDecUnit.cc
   ./src/Components/EncDecUnit.h
+  ./src/Components/CompressorUnit.cc
+  ./src/Components/CompressorUnit.h
   )
 
 # Adds an executable target called "client_main" to be built from the source files listed in the command invocation.
@@ -78,10 +81,14 @@ add_executable(
   ./src/Components/SamplingUnit.h
   ./src/Components/PWMUnit.cc
   ./src/Components/PWMUnit.h
+  ./src/Components/EncDecUnit.cc
+  ./src/Components/EncDecUnit.h
+  ./src/Components/CompressorUnit.cc
+  ./src/Components/CompressorUnit.h
   )
 
 
-# Añadir la biblioteca Crypto++
+# Add Crypto++ library
 link_directories(/usr/include/cryptopp/lib)
 target_link_libraries(client_main cryptopp)
 target_link_libraries(runTests cryptopp)

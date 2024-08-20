@@ -11,10 +11,10 @@
  * will perform the pointwise multiplication in NTT.
  */
 
+#pragma once
 
 #include "../DataStructures/Matrix.h"
 #include "NTT.h"
-
 
 class PWMUnit {
  public:

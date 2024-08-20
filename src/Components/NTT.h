@@ -11,14 +11,14 @@
  * The Number Theorical Transformation.
  */
 
+#pragma once
+
 #include <stdexcept>
 #include <cmath>
 
 #include "../DataStructures/Matrix.h"
 #include "../DataStructures/Bytes.h"
 
-
-#pragma once
 
 class NTT {
  public:

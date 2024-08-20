@@ -10,6 +10,8 @@
  * @brief This file contains the header declaration of the class SamplingUnit, which generates the samples using CBC distribution
  */
 
+#pragma once
+
 #include "../Components/Keccak.h"
 #include "../DataStructures/Bytes.h"
 #include "../DataStructures/Polynomial.h"
