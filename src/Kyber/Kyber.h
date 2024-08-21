@@ -26,14 +26,15 @@ class Kyber {
  public:
   Kyber(int option, const std::vector<int>& seed = {});
   std::pair<Bytes, Bytes> KeyGen();
-  
+  Bytes Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed, int k, int n1, int n2, int du, int dv);  
+  Bytes Decryption(const Bytes& sk, const Bytes& ciphertext, int k, int du, int dv);
   
   
   
  private:
   Bytes GenerateSeed_(int seed_size) const;
   std::vector<Bytes> GenerateRhoSigma_(const Bytes& seed) const;
-  Matrix<Polynomial<int>> applyNTTMatrix_(const Matrix<Polynomial<int>>& matrix, int k) const;
+  Matrix<Polynomial<int>> applyNTTMatrix_(const Matrix<Polynomial<int>>& matrix, int k, bool is_ntt = true) const;
 
   int n_;
   int q_;

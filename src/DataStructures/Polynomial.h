@@ -113,6 +113,9 @@ Polynomial<T> Polynomial<T>::operator+(const Polynomial<T>& kPolynomial2) const 
   Polynomial<T> result(GetSize());
   for (int i = 0; i < GetSize(); i++) {
     result[i] = (vector_[i] + kPolynomial2[i]) % module_;
+    if (result[i] < 0) {
+      result[i] += module_;
+    }
   }
   return result;
 }

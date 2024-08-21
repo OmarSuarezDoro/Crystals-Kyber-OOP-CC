@@ -30,7 +30,7 @@ Kyber::Kyber(int option, const std::vector<int>& seed) {
   ntt_ = std::make_unique<NTT>(NTT(n_, q_));
   keccak_ = std::make_unique<Keccak>(Keccak());
   pwm_unit_ = std::make_unique<PWMUnit>(PWMUnit(n_, q_));
-  encdec_unit_ = std::make_unique<EncDecUnit>(EncDecUnit(q_));
+  encdec_unit_ = std::make_unique<EncDecUnit>(EncDecUnit(n_));
   sampling_unit_ = std::make_unique<SamplingUnit>(SamplingUnit(k_, n_));
   compressor_unit_ = std::make_unique<CompressorUnit>(CompressorUnit(q_));
   seed_ = seed;
@@ -77,6 +77,68 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
   return std::make_pair(t_encoded, s_encoded);
 }
 
+/**
+ * @brief Encrypt a message
+ * 
+ * @param pk : The public key
+ * @param message : The message to encrypt
+ * @param seed : The seed to generate the rho and sigma values
+ * @param n1 : The n1 value
+ * @param n2 : The n2 value
+ * @param du : The du value
+ * @param dv : The dv value
+ * @return Bytes : The encrypted message
+ */
+Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed, int k, int n1, int n2, int du, int dv) {
+  Bytes rho = pk.GetNBytes(pk.GetBytesSize() - 32, 32);
+  Matrix<Polynomial<int>> t_matrix = encdec_unit_->DecodeBytesToMatrix(pk, 1, k_, 12);
+  Polynomial<int> m_pol = compressor_unit_->Decompress_(encdec_unit_->decode_(message, 1), 1);
+  
+  int N = 0;  
+  Matrix<Polynomial<int>> At = ntt_->GenerateMatrix_(k_, rho, false);
+  std::pair<Matrix<Polynomial<int>>, int> pair_r = sampling_unit_->GenerateDistribuitionMatrix(seed, n1, N);
+  Matrix<Polynomial<int>> r = pair_r.first;
+  Matrix<Polynomial<int>> r_ntt = applyNTTMatrix_(r, k_);
+  std::pair<Matrix<Polynomial<int>>, int> pair_error1 = sampling_unit_->GenerateDistribuitionMatrix(seed, n2, pair_r.second);
+  Matrix<Polynomial<int>> e1 = pair_error1.first;
+  Polynomial<int> e2 = sampling_unit_->_CBD(keccak_->PRF(seed, pair_error1.second, 64 * n2), n2);
+
+  Matrix<Polynomial<int>> A_r = pwm_unit_->multMatrixViaNTT(At, r_ntt);
+  Matrix<Polynomial<int>> A_r_ntt = applyNTTMatrix_(A_r, k_, false);
+  Matrix<Polynomial<int>> u = A_r_ntt + e1;
+
+  Polynomial<int> v = pwm_unit_->multMatrixViaNTT(t_matrix, r_ntt)(0, 0);
+  Polynomial<int> v_ntt = ntt_->NTT_Kyber(v, false);
+  v_ntt = v_ntt + e2;
+  v_ntt = v_ntt + m_pol;
+  Bytes c1 = encdec_unit_->EncodeMatrixToBytes(compressor_unit_->CompressMatrix(u, du), du);
+  Bytes c2 = encdec_unit_->encode_(compressor_unit_->Compress_(v_ntt, dv), dv);
+  Bytes c_encoded = c1 + c2;
+  return c_encoded;
+}
+
+/**
+ * @brief Decrypt a message
+ * 
+ * @param sk : The secret key
+ * @param ciphertext : The ciphertext to decrypt
+ * @param k : The k value
+ * @param du : The du value
+ * @param dv : The dv value
+ * @return Bytes : The decrypted message
+ */
+Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext, int k, int du, int dv) {
+  Bytes c2 = ciphertext.GetNBytes(du * k * int(n_ / 8), ciphertext.GetBytesSize() - du * k * int(n_ / 8));
+  Matrix<Polynomial<int>> u = compressor_unit_->DecompressMatrix(encdec_unit_->DecodeBytesToMatrix(ciphertext, k, 1, du), du);
+  Matrix<Polynomial<int>> u_ntt = applyNTTMatrix_(u, k, true);
+
+  Polynomial<int> v = compressor_unit_->Decompress_(encdec_unit_->decode_(c2, dv), dv);
+  Matrix<Polynomial<int>> st = encdec_unit_->DecodeBytesToMatrix(sk, 1, k, 12); 
+  Polynomial<int> st_u = pwm_unit_->multMatrixViaNTT(st, u_ntt)(0, 0);
+  Polynomial<int> st_u_ntt = ntt_->NTT_Kyber(st_u, false);
+  Polynomial<int> m = v - st_u_ntt;
+  return encdec_unit_->encode_(compressor_unit_->Compress_(m, 1), 1);
+}
 
 /**
  * @brief Apply the NTT to a matrix
@@ -85,10 +147,10 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
  * @param k : The number of rows of the matrix
  * @return Matrix<Polynomial<int>> : The matrix with the NTT applied
  */
-Matrix<Polynomial<int>> Kyber::applyNTTMatrix_(const Matrix<Polynomial<int>>& matrix, int k) const {
+Matrix<Polynomial<int>> Kyber::applyNTTMatrix_(const Matrix<Polynomial<int>>& matrix, int k, bool is_ntt) const {
   Matrix<Polynomial<int>> matrix_ntt = Matrix<Polynomial<int>>(k, 1, n_);
   for (int i = 0; i < k; ++i) {
-    matrix_ntt(i, 0) = ntt_->NTT_Kyber(matrix(i, 0), true);
+    matrix_ntt(i, 0) = ntt_->NTT_Kyber(matrix(i, 0), is_ntt);
   }
   return matrix_ntt;
 }
