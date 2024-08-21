@@ -29,6 +29,9 @@ class Kyber {
   Bytes Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed, int k, int n1, int n2, int du, int dv);  
   Bytes Decryption(const Bytes& sk, const Bytes& ciphertext, int k, int du, int dv);
   
+  std::pair<Bytes, Bytes> KEMKeyGen();
+  std::pair<Bytes, Bytes> KEMEncapsulation(const Bytes& pk, const Bytes& seed, int k, int n1, int n2, int du, int dv);
+  
   
   
  private:

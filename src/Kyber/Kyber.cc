@@ -141,6 +141,45 @@ Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext, int k, int du,
 }
 
 /**
+ * @brief Generate a key pair for the KEM
+ * 
+ * @return std::pair<Bytes, Bytes> : The generated key pair
+ */
+std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
+  Bytes seed = GenerateSeed_(KyberConstants::SeedSize);
+  std::pair<Bytes, Bytes> key_pair = KeyGen();
+  Bytes pk = key_pair.first;
+  Bytes sk = key_pair.second + pk + keccak_->H(pk, 32) + seed;
+  return std::pair<Bytes, Bytes>{pk, sk};
+}
+
+
+/**
+ * @brief Encapsulate a key
+ * 
+ * @param pk : The public key
+ * @param seed : The seed to generate the rho and sigma values
+ * @param k : The k value
+ * @param n1 : The n1 value
+ * @param n2 : The n2 value
+ * @param du : The du value
+ * @param dv : The dv value
+ * @return std::pair<Bytes, Bytes> : The encapsulated key
+ */
+std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk, const Bytes& seed, int k, int n1, int n2, int du, int dv) {
+  Bytes message = Keccak::H(GenerateSeed_(KyberConstants::SeedSize), 32);
+  std::vector<Bytes> pair = keccak_->G(message + keccak_->H(pk, 32));
+  Bytes K_prime = pair[0];
+  Bytes r = pair[1];
+  Bytes c = Encryption(pk, message, r, k, n1, n2, du, dv);
+  Bytes K = keccak_->KDF(K_prime + keccak_->H(c, 32), 32);
+  return std::pair<Bytes, Bytes>{c, K};
+}
+
+
+
+
+/**
  * @brief Apply the NTT to a matrix
  * 
  * @param matrix : The matrix to apply the NTT
