@@ -51,6 +51,7 @@ add_executable(
   test/SamplingUnit.cc
   test/EncDecUnit.cc
   test/CompressorUnit.cc
+  test/Kyber.cc
   ./src/DataStructures/Bytes.cc
   ./src/Components/Keccak.cc
   ./src/Components/NTT.cc
@@ -63,6 +64,8 @@ add_executable(
   ./src/Components/EncDecUnit.h
   ./src/Components/CompressorUnit.cc
   ./src/Components/CompressorUnit.h
+  ./src/Kyber/Kyber.cc  
+  ./src/Kyber/Kyber.h
   )
 
 # Adds an executable target called "client_main" to be built from the source files listed in the command invocation.
@@ -85,6 +88,8 @@ add_executable(
   ./src/Components/EncDecUnit.h
   ./src/Components/CompressorUnit.cc
   ./src/Components/CompressorUnit.h
+  ./src/Kyber/Kyber.cc  
+  ./src/Kyber/Kyber.h
   )
 
 

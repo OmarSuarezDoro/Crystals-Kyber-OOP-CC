@@ -10,22 +10,36 @@
  * @brief This file contains the value and the initialization of the constants of the Kyber cryptosystem
  */
 
+#ifndef KYBERCONSTANTS_VALUES_H
+#define KYBERCONSTANTS_VALUES_H
+
 namespace KyberConstants {
-  int N = 256;
-  int Q = 3329;
-  int K = 2;
-  int N1 = 3;
-  int N2 = 2;
-  int Du = 10;
-  int Dv = 4;
-  int PkSize = 800;
-  int SkSize = 1632;
-  int CtSize = 768;
-  int SeedSize = 32;
+  inline int N = 256;
+  inline int Q = 3329;
+  inline int K = 2;
+  inline int N1 = 3;
+  inline int N2 = 2;
+  inline int Du = 10;
+  inline int Dv = 4;
+  inline int PkSize = 800;
+  inline int SkSize = 1632;
+  inline int CtSize = 768;
+  inline int SeedSize = 32;
 
   void InitializeConstants(int option) {
     switch (option) {
       case 512:
+        N = 256;
+        Q = 3329;
+        K = 2;
+        N1 = 3;
+        N2 = 2;
+        Du = 10;
+        Dv = 4;
+        PkSize = 800;
+        SkSize = 1632;
+        CtSize = 768;
+        SeedSize = 32;
         break;
       case 768:
         N = 256;
@@ -56,3 +70,5 @@ namespace KyberConstants {
     }
   }
 }
+
+#endif

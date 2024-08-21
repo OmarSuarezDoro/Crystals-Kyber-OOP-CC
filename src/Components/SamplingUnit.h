@@ -21,7 +21,7 @@ class SamplingUnit {
  public:
   SamplingUnit(int k, int n) { k_ = k; n_ = n; };
   Polynomial<int> _CBD(const Bytes& input_bytes, int eta);
-  std::tuple<Matrix<Polynomial<int>>, int> GenerateDistribuitionMatrix(const Bytes& input_bytes, int eta, int N);
+  std::pair<Matrix<Polynomial<int>>, int> GenerateDistribuitionMatrix(const Bytes& input_bytes, int eta, int N);
 
  private:
   int k_;

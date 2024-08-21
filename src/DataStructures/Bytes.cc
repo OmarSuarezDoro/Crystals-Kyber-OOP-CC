@@ -336,8 +336,24 @@ bool Bytes::operator!=(const Bytes& kBytes) const {
   return bytes_ != kBytes.GetBytes();
 }
 
-unsigned char Bytes::operator[](const Bytes& kBytes) {
-  return bytes_[kBytes.GetBytes()[0]];
+/**
+ * @brief Overload the [] operator to get the byte at the index
+ * 
+ * @param index : The index of the byte
+ * @return unsigned char& : The byte
+ */
+unsigned char& Bytes::operator[](int index) {
+  return bytes_[index];
+}
+
+/**
+ * @brief Overload the [] operator to get the byte at the index
+ * 
+ * @param index : The index of the byte
+ * @return const unsigned char& : The byte
+ */
+const unsigned char& Bytes::operator[](int index) const {
+  return bytes_[index];
 }
 
 /**

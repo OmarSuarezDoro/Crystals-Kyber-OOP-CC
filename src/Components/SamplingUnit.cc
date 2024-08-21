@@ -20,7 +20,7 @@
  * @param N : The counter value.
  * @return Matrix<Polynomial<int>> 
  */
-std::tuple<Matrix<Polynomial<int>>, int> SamplingUnit::GenerateDistribuitionMatrix(const Bytes& sigma, int eta, int N) {
+std::pair<Matrix<Polynomial<int>>, int> SamplingUnit::GenerateDistribuitionMatrix(const Bytes& sigma, int eta, int N) {
   Matrix<Polynomial<int>> result_matrix(k_, 1, n_);
   for (int i = 0; i < k_; i++) {
     Bytes bytes_post_prf = Keccak::PRF(sigma, N, 64 * eta);

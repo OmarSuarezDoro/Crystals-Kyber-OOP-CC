@@ -50,7 +50,8 @@ class Bytes {
   Bytes operator&=(const Bytes& kBytes);
   Bytes operator<<=(const int& kShift);
   Bytes operator>>=(const int& kShift);
-  unsigned char operator[](const Bytes& kBytes);
+  unsigned char& operator[](int index);
+  const unsigned char& operator[](int index) const;
   bool operator==(const Bytes& kBytes) const;
   bool operator!=(const Bytes& kBytes) const;
 

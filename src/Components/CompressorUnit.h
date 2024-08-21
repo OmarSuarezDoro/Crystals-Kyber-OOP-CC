@@ -17,7 +17,6 @@
 
 #include "../DataStructures/Matrix.h"
 #include "../DataStructures/Polynomial.h"
-#include "../../.conf/constants_values.h"
 
 
 class CompressorUnit {

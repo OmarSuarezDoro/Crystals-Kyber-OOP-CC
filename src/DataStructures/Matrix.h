@@ -29,6 +29,7 @@ class Matrix {
   // Getters
   unsigned int GetColumnsSize() const { return columns_; }
   unsigned int GetRowsSize() const { return rows_; }
+  unsigned int GetSizeElements() const { return sizeElements_; }
   Matrix<T> GetTranspose() const;
   // Setter
   void SetRow(int indexRow, const Polynomial<int>& kRow);
@@ -46,6 +47,7 @@ class Matrix {
   unsigned int rows_;
   unsigned int columns_;
   std::vector<T> vector_;
+  unsigned int sizeElements_;
 };
 
 /**
@@ -66,6 +68,7 @@ Matrix<T>::Matrix(const unsigned int& kRows, const unsigned int& kColumns, const
     return;
   }
   isPolynomial_ = true;
+  sizeElements_ = kSizeElements;
   vector_ = std::vector<T>(kRows * kColumns, T(kSizeElements));
   return;
 }

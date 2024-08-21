@@ -71,7 +71,7 @@ Matrix<Polynomial<int>> CompressorUnit::CompressMatrix(const Matrix<Polynomial<i
  * @return Matrix<Polynomial<int>> 
  */
 Matrix<Polynomial<int>> CompressorUnit::DecompressMatrix(const Matrix<Polynomial<int>>& matrix, int bits_per_coefficient) const {
-  Matrix<Polynomial<int>> decompressed_matrix = Matrix<Polynomial<int>>(matrix.GetRowsSize(), matrix.GetColumnsSize(), GRADE_POLYNOMIAL);
+  Matrix<Polynomial<int>> decompressed_matrix = Matrix<Polynomial<int>>(matrix.GetRowsSize(), matrix.GetColumnsSize(), matrix.GetSizeElements());
   for (int i = 0; i < matrix.GetRowsSize(); i++) {
     for (int j = 0; j < matrix.GetColumnsSize(); j++) {
       decompressed_matrix(i, j) = Decompress_(matrix(i, j), bits_per_coefficient);

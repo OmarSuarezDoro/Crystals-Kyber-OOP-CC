@@ -12,6 +12,7 @@
  */
 
 #include "NTT.h"
+#include "Keccak.h"
 
 /**
  * @brief This method applies the Number Theorical Transformation to a polynomial.
@@ -19,7 +20,7 @@
  * @param kPolynomial : The polynomial to apply the NTT.
  * @return Polynomial<int> 
  */
-Polynomial<int> NTT::NTT_Kyber(const Polynomial<int>& kPolynomial, bool is_ntt) {
+Polynomial<int> NTT::NTT_Kyber(const Polynomial<int>& kPolynomial, bool is_ntt) const{
   Polynomial<int> polynomial_copy = kPolynomial;
   if (kPolynomial.GetSize() != n_) {
     Polynomial<int> auxiliar(n_ - kPolynomial.GetSize());
@@ -51,7 +52,7 @@ Polynomial<int> NTT::NTT_Kyber(const Polynomial<int>& kPolynomial, bool is_ntt) 
  * @param kPolynomial : The polynomial to apply the NTT.
  * @return Polynomial<int> 
  */
-Polynomial<int> NTT::_NTT(const Polynomial<int>& kPolynomial) {
+Polynomial<int> NTT::_NTT(const Polynomial<int>& kPolynomial) const {
   int n = kPolynomial.GetSize();
   int phi = _FirstPrimitiveRoot(2 * n);
   int mid_index = n / 2;
@@ -91,7 +92,7 @@ Polynomial<int> NTT::_NTT(const Polynomial<int>& kPolynomial) {
  * @param kPolynomial : The polynomial to apply the INTT.
  * @return Polynomial<int> 
  */
-Polynomial<int> NTT::_INTT(const Polynomial<int>& kPolynomial) {
+Polynomial<int> NTT::_INTT(const Polynomial<int>& kPolynomial) const {
   int n = kPolynomial.GetSize();
   int phi = _FirstPrimitiveRoot(2 * n);
   int phi_inverse = _PowerWithMod(phi, 2 * n - 1, q_);
@@ -130,7 +131,7 @@ Polynomial<int> NTT::_INTT(const Polynomial<int>& kPolynomial) {
  * @param length_of_sequence : The length of the sequence.
  * @return int 
  */
-int NTT::_BitReverse(int element, int length_of_sequence) {
+int NTT::_BitReverse(int element, int length_of_sequence) const {
   std::vector<int> seq(length_of_sequence);
   for (int i = 0; i < length_of_sequence; ++i) {
     seq[i] = i;
@@ -156,7 +157,7 @@ int NTT::_BitReverse(int element, int length_of_sequence) {
    * @param n The number to find the primitive root.
    * @return The first primitive root of n.
    */
-int NTT::_FirstPrimitiveRoot(int n) { // 256
+int NTT::_FirstPrimitiveRoot(int n) const { // 256
   // Checking conditions
   if (!_IsPrime(q_)) {
     throw std::invalid_argument("Q must be a prime number.");
@@ -191,7 +192,7 @@ int NTT::_FirstPrimitiveRoot(int n) { // 256
  * @param mod The module.
  * @return The result of the power with module.
  */
-int NTT::_PowerWithMod(int base, int exp, int mod) {
+int NTT::_PowerWithMod(int base, int exp, int mod) const {
   int result = 1;
   base = base % mod;
   while (exp > 0) {
@@ -214,7 +215,7 @@ int NTT::_PowerWithMod(int base, int exp, int mod) {
  * @param n The number to check.
  * @return True if the number is prime, false otherwise.
  */
-bool NTT::_IsPrime(int n) {
+bool NTT::_IsPrime(int n) const {
   if (n <= 1) {
     return false;
   }
@@ -230,4 +231,50 @@ bool NTT::_IsPrime(int n) {
     }
   }
   return true;
+}
+
+/**
+ * This method generates the matrix for the NTT.
+ * 
+ * @param k_size The size of the matrix.
+ * @param rho The rho value.
+ * @param traspose
+ * @return The generated matrix.
+ */
+Matrix<Polynomial<int>> NTT::GenerateMatrix_(int k_size, Bytes rho, bool traspose) const {
+  Matrix<Polynomial<int>> matrix(k_size, k_size, n_);
+  for (int i = 0; i < k_size; ++i) {
+    for (int j = 0; j < k_size; ++j) {
+      Bytes generated_bytes = Keccak::XOF(rho, Bytes(traspose ? j : i), Bytes(traspose ? i : j), 3 * n_);
+      matrix(i, j) = ParsePolynomial_(generated_bytes);
+    }
+  }
+  return matrix;
+}
+
+/**
+ * This method parses a byte array into a polynomial.
+ * 
+ * @param kBytes The byte array.
+ * @return The parsed polynomial.
+ */
+Polynomial<int> NTT::ParsePolynomial_(const Bytes& kBytes) const {
+  Polynomial<int> polynomial(n_);
+  int byte_index = 0;
+  int list_index = 0;
+  int size_bytes = kBytes.GetBytesSize();
+  while ((list_index < n_) && (byte_index + 3 < size_bytes)) {
+    int byte1 = kBytes[byte_index] + n_ * (kBytes[byte_index + 1] % 16);
+    int byte2 = int(kBytes[byte_index + 1] / 16) + 16 * kBytes[byte_index + 2];
+    if (byte1 < q_) {
+      polynomial[list_index] = byte1;
+      list_index++;
+    }
+    if (byte2 < q_ && list_index < n_) {
+      polynomial[list_index] = byte2;
+      list_index++;
+    }
+    byte_index += 3;
+  }
+  return polynomial;
 }

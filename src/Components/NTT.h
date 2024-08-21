@@ -26,17 +26,21 @@ class NTT {
   // Getters
   int GetN() { return n_; }
   int GetQ() { return q_; }
-  Polynomial<int> _NTT(const Polynomial<int>& kPolynomial);
-  Polynomial<int> _INTT(const Polynomial<int>& kPolynomial);
-  Polynomial<int> NTT_Kyber(const Polynomial<int>& kPolynomial, bool is_ntt);
-  int _FirstPrimitiveRoot(int n);
-  int _BitReverse(int n, int bits);
-  int _PowerWithMod(int base, int exp, int mod);
+  Polynomial<int> NTT_Kyber(const Polynomial<int>& kPolynomial, bool is_ntt) const;
+  Polynomial<int> _NTT(const Polynomial<int>& kPolynomial) const;
+  Polynomial<int> _INTT(const Polynomial<int>& kPolynomial) const;
+  Polynomial<int> ParsePolynomial_(const Bytes& kBytes) const;
+
+  
+  int _FirstPrimitiveRoot(int n) const;
+  int _BitReverse(int n, int bits) const;
+  int _PowerWithMod(int base, int exp, int mod) const;
+
+  Matrix<Polynomial<int>> GenerateMatrix_(int k_size, Bytes rho, bool traspose = false) const;
   
 
  private:
   int  n_ = 256;
   int  q_ = 3389;
-  bool _IsPrime(int n);
-  // Polynomial<int> _InverseNTT(const Polynomial<int>& kPolynomial);
+  bool _IsPrime(int n) const;
 };
