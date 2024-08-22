@@ -3,8 +3,6 @@
 
 #include "./Kyber/Kyber.h"
 
-// Bits interpretados de derecha izquierda (como normalmente sería)
-// Mientras que los bytes se interpretan de izquierda a derecha
 int main(int argc, char const *argv[]) {
   int option = 512;
   std::string input_message = "";
