@@ -166,7 +166,7 @@ std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
  * @param dv : The dv value
  * @return std::pair<Bytes, Bytes> : The encapsulated key
  */
-std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk, const Bytes& seed, int k, int n1, int n2, int du, int dv) {
+std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk, int k, int n1, int n2, int du, int dv) {
   Bytes message = Keccak::H(GenerateSeed_(KyberConstants::SeedSize), 32);
   std::vector<Bytes> pair = keccak_->G(message + keccak_->H(pk, 32));
   Bytes K_prime = pair[0];
@@ -177,6 +177,40 @@ std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk, const Bytes& se
 }
 
 
+/**
+ * @brief Decapsulate a key
+ * 
+ * @param sk : The secret key
+ * @param ciphertext : The ciphertext to decapsulate
+ * @param k : The k value
+ * @param n1 : The n1 value
+ * @param n2 : The n2 value
+ * @param du : The du value
+ * @param dv : The dv value
+ * @return Bytes : The decapsulated key
+ */
+Bytes Kyber::KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext, int k, int n1, int n2, int du, int dv) {
+  if (sk.GetBytesSize() != (24 * k * int(n_ / 8) + 96)) {
+    throw std::invalid_argument("The secret key is not the correct size");
+  }
+  if (ciphertext.GetBytesSize() != (du * k * int(n_ / 8) + dv * int(n_ / 8))) {
+    throw std::invalid_argument("The cyphered text is not the correct size");
+  }
+  int entry_index = 12 * k * int(n_ / 8);
+  int following_index = 24 * k * int(n_ / 8);
+  Bytes pk = sk.GetNBytes(entry_index, KyberConstants::PkSize);
+  Bytes h = sk.GetNBytes(following_index + 32, 32);
+  Bytes z = sk.GetNBytes(following_index + 64, 32);
+  // Decrypting the message
+  Bytes m_prime = Decryption(sk, ciphertext, k, du, dv);
+  // Generating the K' and r' values
+  std::vector<Bytes> pair = keccak_->G(m_prime + h);
+  Bytes K_prime = pair[0];
+  Bytes r_prime = pair[1];
+  // Encrypting the message again
+  Bytes c_prime = Encryption(pk, m_prime, r_prime, k, n1, n2, du, dv);
+  return keccak_->KDF((c_prime == ciphertext ? K_prime : z) + keccak_->H(c_prime, 32), 32);
+}
 
 
 /**
