@@ -65,6 +65,7 @@ class Bytes {
   Bytes GetNBytes(const int& start_index, const int& kN) const;
   std::vector<int> GetBytesAsNumbersVector() const;
   Bytes ChangeByteDirection() const;
+  std::string FromBytesToAscii() const;
 
   static Bytes FromBitsToBytes(const std::string& kBits);
   

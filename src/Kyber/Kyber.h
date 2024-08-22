@@ -17,6 +17,7 @@
 #include "../Components/PWMUnit.h"
 #include "../Components/EncDecUnit.h"
 #include "../Components/SamplingUnit.h"
+#include "../Components/MessageParser.h"
 #include "../Components/CompressorUnit.h"
 
 #include "../DataStructures/Bytes.h"
@@ -26,12 +27,12 @@ class Kyber {
  public:
   Kyber(int option, const std::vector<int>& seed = {});
   std::pair<Bytes, Bytes> KeyGen();
-  Bytes Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed, int k, int n1, int n2, int du, int dv);  
-  Bytes Decryption(const Bytes& sk, const Bytes& ciphertext, int k, int du, int dv);
+  Bytes Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed);  
+  Bytes Decryption(const Bytes& sk, const Bytes& ciphertext);
   
   std::pair<Bytes, Bytes> KEMKeyGen();
-  std::pair<Bytes, Bytes> KEMEncapsulation(const Bytes& pk, int k, int n1, int n2, int du, int dv);
-  Bytes KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext, int k, int n1, int n2, int du, int dv);
+  std::pair<Bytes, Bytes> KEMEncapsulation(const Bytes& pk);
+  Bytes KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext);
   
   
   

@@ -46,7 +46,6 @@ Polynomial<int> PWMUnit::pointwise_(const Polynomial<int>& p, const Polynomial<i
   }
   Polynomial<int> p_wise_mult_even = Polynomial<int>(0);
   Polynomial<int> p_wise_mult_odd = Polynomial<int>(0);
-  bool pepe = false;
   for (int i = 0; i < n_; ++i) {
     int left = 0;
     int right = 0;

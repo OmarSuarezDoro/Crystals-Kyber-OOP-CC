@@ -1,18 +1,49 @@
 #include <iostream>
+#include <string>
 
-#include "./DataStructures/Polynomial.h"
-#include "./DataStructures/Matrix.h"
-#include "./Components/Keccak.h"
-#include "./Components/NTT.h"
-#include "./Components/SamplingUnit.h"
+#include "./Kyber/Kyber.h"
 
 // Bits interpretados de derecha izquierda (como normalmente sería)
 // Mientras que los bytes se interpretan de izquierda a derecha
-int main() {
-  std::vector<int> input_vector_;
-  SamplingUnit sampling_unit = SamplingUnit(2, 256);
-  input_vector_ = std::vector<int>{176 ,216 ,234 ,235 ,78 ,216 ,233 ,120 ,200 ,68 ,123 ,63 ,178 ,112 ,49 ,17 ,28 ,49 ,51 ,213 ,3 ,17 ,219 ,92 ,223 ,193 ,6 ,184 ,167 ,217 ,201 ,241};
-  Bytes input_bytes = Bytes(input_vector_);
-  // Matrix<Polynomial<int>> result_poly = sampling_unit.GenerateDistribuitionMatrix(input_bytes, 3, 0);
+int main(int argc, char const *argv[]) {
+  int option = 512;
+  std::string input_message = "";
+  if (argc == 1) {
+    std::cout << "Introduce the message to be hashed: ";
+    std::cin >> input_message;
+  } else {
+    option = std::stoi(argv[1]);
+    input_message = argv[2];
+  }
+  std::pair<std::string, int> message_padlength = MessageParser::PadMessage(input_message);
+  std::vector<std::string> message_chunks = MessageParser::SplitMessageInChunks(message_padlength.first, 32);
+  std::cout << "Kyber cryptosystem with option " << option << std::endl;
+  Kyber kyber(option);
+  std::pair<Bytes, Bytes> key_pair = kyber.KeyGen();
+  std::cout << "Puclic key: " << key_pair.first.FromBytesToHex() << std::endl;
+  std::cout << "Secret key: " << key_pair.second.FromBytesToHex() << std::endl;
+  std::vector<Bytes> ciphertexts;
+  // Encrypt the message
+  for (const std::string& chunk : message_chunks) {
+    std::cout << "Chunk: " << chunk << std::endl;
+    Bytes message = Bytes(chunk);
+    Bytes ciphertext = kyber.Encryption(key_pair.first, message, key_pair.first);
+    std::cout << "Ciphertext: " << ciphertext.FromBytesToHex() << std::endl;
+    ciphertexts.push_back(ciphertext);
+  }
+  std::cout << "Ciphertexts generated" << std::endl;
+  Bytes decrypted_message_concatenated;
+  // Decrypt the message
+  for (const Bytes& ciphertext : ciphertexts) {
+    Bytes decrypted_message = kyber.Decryption(key_pair.second, ciphertext);
+    std::cout << "Decrypted message: " << decrypted_message.FromBytesToHex() << std::endl;
+    decrypted_message_concatenated += decrypted_message;
+  }
+  // Concatenate the decrypted messages
+  std::string decrypted_message = decrypted_message_concatenated.FromBytesToAscii();
+  if (message_padlength.second > 0) {
+    decrypted_message = MessageParser::unpad(decrypted_message);
+  }
+  std::cout << "Decrypted message: " << decrypted_message << std::endl;
   return 0;
 }

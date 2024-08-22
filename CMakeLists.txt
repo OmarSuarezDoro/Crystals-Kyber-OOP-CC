@@ -88,6 +88,8 @@ add_executable(
   ./src/Components/EncDecUnit.h
   ./src/Components/CompressorUnit.cc
   ./src/Components/CompressorUnit.h
+  ./src/Components/MessageParser.cc
+  ./src/Components/MessageParser.h
   ./src/Kyber/Kyber.cc  
   ./src/Kyber/Kyber.h
   )

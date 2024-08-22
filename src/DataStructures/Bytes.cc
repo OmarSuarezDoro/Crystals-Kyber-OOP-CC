@@ -513,3 +513,17 @@ Bytes Bytes::ChangeByteDirection() const {
   }
   return Bytes(result);
 }
+
+
+/**
+ * @brief Convert the Bytes object to a string of ASCII characters
+ * 
+ * @return std::string : The string of ASCII characters
+ */
+std::string Bytes::FromBytesToAscii() const {
+  std::string result = "";
+  for (const auto& byte : bytes_) {
+    result += static_cast<char>(byte);
+  }
+  return result;
+}

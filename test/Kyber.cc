@@ -44,7 +44,7 @@ TEST_F(KyberTest, TestOfEncryptionMethod) {
   std::pair<Bytes, Bytes> pair = kyber.KeyGen();
   // generate a random message of 32 bytes
   Bytes random_message(std::vector<int>{36, 123, 194, 102, 74, 56, 246, 254, 206, 145, 140, 220, 153, 176, 78, 188, 1, 28, 150, 38, 191, 17, 195, 215, 23, 222, 152, 81, 93, 29, 73, 129});
-  Bytes encryption = kyber.Encryption(pair.first, random_message, Bytes(test_vector1),2, 3, 2, 10, 4);
+  Bytes encryption = kyber.Encryption(pair.first, random_message, Bytes(test_vector1));
   std::string expected_result = "146697ccdb485c33a1525f6ed688c9a0fb61610a955cf7d13d58f99984c45a5bc2b64cff1ecf77c5a30a7c36be53df1fd85b6e2e428f3979b6907bda45b7dcbeb2cce92cd00c1d45fa61e05eb24c13f83991ced7ba35a26bbc81037db8e0f22f3506ac466a4443e66f01f467d9a09b4a9a9709fda424cd67b2279d9214c1926913b1b15e8278e49c299b356e33340220ba366f2f768f44b0b135b00618ee9f1820061208fcbbebf0240f5665156140e1720f50f3600a1f969fb0becde007cac9fed633fbc352b0e32cf8e47f72b4d4a2f1d35d27c3f985fe1f11d3ba018f2a6b3beb8ed2791bcd2e10d8a7c00ab4a4d80525296c9ee5b8f1657767b3438db0b3dad4737bf752f47a353f47afbba649183f5f5656fc3472734a8e49b1dc44b048bdf7ac0171bfbec790e7a5d8858ee25664a6817dc7a8bedb9180a19bd0b14701d9e55cbb28d4d81e73df9073bb63155e565837eb9731cc6fcf96a52fd388d80346d4725124554a9c4fb079e67cb470b156f9eeb7ea1e17d6fa8a6ac35dc73a0d6794287590786d6e2a23b27846e72c091f18665b78642f660509fcfdc79c279f181c82f823fcb55db667c8904af8f63697f3c0e320289aed121ce6ef884f4e1fd7529fd1d40100c882cb2c8730f20c6e77ac6132c8c436b5e14df94048fee92dc4c4ebddc28e7c12a651a22c125600f2eb72b3d1b41abcc1f07752a4ddb1e609924873abd5f7b5bfcdd6be3de16999930bc9258898aaee884e89ffae036cde5df8b8c44c5b42557ca543c4f49ef876dfb0031853e272352f41c59bc497ffe489c63b0f440e7aedc050b3d1a83e33a7ffc008df9f54117e9bf89064b2f1eab608c52647e8ac9ad10f07771c8b1969b29fdf0974cdfb803fd4d1135e72a03d0830d5e89f81175262368ee3305078b87d171594ef85c3bc36455be9e425378c5aee9170ff8deee2fbdd64f69ba4636119c30727d69cd0f6fc07b40264d5d5bb044e747fd77d54ae064175fbdcc9469f33cc9fc6995f8079c25a5e8cda848f0d3d66fd7c69d94b5d42f9c2dded9482da0930e2d39be3bc364537ae98b0bf9a763367";
   EXPECT_EQ(encryption.FromBytesToHex(), expected_result);
 }
@@ -55,16 +55,16 @@ TEST_F(KyberTest, TestOfDecryptionMethod) {
   std::pair<Bytes, Bytes> pair = kyber.KeyGen();
   // generate a random message of 32 bytes
   Bytes random_message(std::vector<int>{36, 123, 194, 102, 74, 56, 246, 254, 206, 145, 140, 220, 153, 176, 78, 188, 1, 28, 150, 38, 191, 17, 195, 215, 23, 222, 152, 81, 93, 29, 73, 129});
-  Bytes encryption = kyber.Encryption(pair.first, random_message, Bytes(test_vector1),2, 3, 2, 10, 4);
-  Bytes decryption = kyber.Decryption(pair.second, encryption, 2, 10, 4);
+  Bytes encryption = kyber.Encryption(pair.first, random_message, Bytes(test_vector1));
+  Bytes decryption = kyber.Decryption(pair.second, encryption);
   EXPECT_EQ(decryption, random_message);
 }
 
 TEST_F(KyberTest, TestOfKEM) {
   Kyber kyber = Kyber(512);
   std::pair<Bytes, Bytes> pair_keys = Kyber(512).KEMKeyGen();
-  std::pair<Bytes, Bytes> pair_encapsulation = Kyber(512).KEMEncapsulation(pair_keys.first, 2, 3, 2, 10, 4);
-  Bytes decapsulation = Kyber(512).KEMDecapsulation(pair_keys.second, pair_encapsulation.first, 2, 3, 2, 10, 4);
+  std::pair<Bytes, Bytes> pair_encapsulation = Kyber(512).KEMEncapsulation(pair_keys.first);
+  Bytes decapsulation = Kyber(512).KEMDecapsulation(pair_keys.second, pair_encapsulation.first);
   EXPECT_EQ(decapsulation, pair_encapsulation.second);
 
 }
