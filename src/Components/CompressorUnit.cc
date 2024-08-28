@@ -21,12 +21,14 @@
  * @return Polynomial<int> 
  */
 Polynomial<int> CompressorUnit::Compress_(const Polynomial<int>& polynomial, int bits_per_coefficient) const {
-  double compressed_coefficient = pow(2, bits_per_coefficient);
-  double number = compressed_coefficient / q_;
-  Polynomial<int> compressed_polynomial = Polynomial<int>(polynomial.GetSize());
-  for (int i = 0; i < polynomial.GetSize(); i++) {
-    compressed_polynomial[i] = int(_round_up(polynomial[i] * number)) % int(compressed_coefficient);
+  const double compressed_coefficient = pow(2, bits_per_coefficient);
+  const double factor = compressed_coefficient / q_;
+  Polynomial<int> compressed_polynomial(polynomial.GetSize());
+
+  for (int i = 0; i < polynomial.GetSize(); ++i) {
+    compressed_polynomial[i] = static_cast<int>(_round_up(polynomial[i] * factor)) % static_cast<int>(compressed_coefficient);
   }
+
   return compressed_polynomial;
 }
 
