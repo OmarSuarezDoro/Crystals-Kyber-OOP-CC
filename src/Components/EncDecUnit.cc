@@ -32,7 +32,6 @@ Bytes EncDecUnit::EncodeMatrixToBytes(const Matrix<Polynomial<int>>& input_matri
 }
 
 
-
 /**
  * @brief This method encodes a polynomial into a bytes sequence. This method is used in serialization process.
  * 
@@ -66,7 +65,6 @@ Bytes EncDecUnit::encode_(const Polynomial<int>& polynomial, int bits_per_coeffi
 }
 
 
-
 /**
  * @brief This method encodes a matrix of polynomials into a bytes sequence. This method is used in serialization process.
  * 
@@ -78,36 +76,33 @@ Bytes EncDecUnit::encode_(const Polynomial<int>& polynomial, int bits_per_coeffi
  */
 Matrix<Polynomial<int>> EncDecUnit::DecodeBytesToMatrix(const Bytes& input_bytes, const int rows, const int cols, int length) const {
   if (length < 1) {
-    int denominator = n_ * rows * cols;
-    length = (8 * input_bytes.GetBytesSize()) / denominator;
-    int reminder = (8 * input_bytes.GetBytesSize()) % denominator;
-    if (reminder != 0) {
-      throw std::invalid_argument("The input byte list must have a length multiple of 32.");
-    }
-    if (n_ * length * rows * cols > 8 * input_bytes.GetBytesSize()) {
-      throw std::invalid_argument("The length of the bytes must be smaller for the length that was indicated.");
+    const int denominator = n_ * rows * cols;
+    const int total_bits = 8 * input_bytes.GetBytesSize();
+    length = total_bits / denominator;
+    if (total_bits % denominator != 0 || n_ * length * rows * cols > total_bits) {
+      throw std::invalid_argument("The input byte list must have a valid length.");
     }
   }
-  int chunk_length = 32 * length;
-  std::vector<Bytes> coefficients = {};
-  int i = 0;
-  for (i; (i + chunk_length) < input_bytes.GetBytesSize(); i += chunk_length) {
-    Bytes chunk = input_bytes.GetNBytes(i, chunk_length);
-    coefficients.push_back(chunk); 
+
+  const int chunk_length = 32 * length;
+  const int total_chunks = input_bytes.GetBytesSize() / chunk_length;
+  std::vector<Bytes> coefficients(total_chunks + (input_bytes.GetBytesSize() % chunk_length != 0 ? 1 : 0));
+
+  for (int i = 0; i < total_chunks; ++i) {
+    coefficients[i] = input_bytes.GetNBytes(i * chunk_length, chunk_length);
   }
-  // Take the last chunk, if it is needed
-  if (i < input_bytes.GetBytesSize()) {
-    Bytes chunk = input_bytes.GetNBytes(i, input_bytes.GetBytesSize() - i);
-    coefficients.push_back(chunk);
+  
+  if (input_bytes.GetBytesSize() % chunk_length != 0) {
+    coefficients.back() = input_bytes.GetNBytes(total_chunks * chunk_length, input_bytes.GetBytesSize() % chunk_length);
   }
-  Matrix<Polynomial<int>> result = Matrix<Polynomial<int>>(rows, cols, n_);
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols; j++) {
-      Bytes current_bytes = coefficients[i * cols + j];
-      Polynomial<int> current_polynomial = decode_(current_bytes, length);
-      result(i, j) = current_polynomial;
+
+  Matrix<Polynomial<int>> result(rows, cols, n_);
+  for (int i = 0; i < rows; ++i) {
+    for (int j = 0; j < cols; ++j) {
+      result(i, j) = decode_(coefficients[i * cols + j], length);
     }
   }
+
   return result;
 }
 
@@ -122,24 +117,25 @@ Matrix<Polynomial<int>> EncDecUnit::DecodeBytesToMatrix(const Bytes& input_bytes
 Polynomial<int> EncDecUnit::decode_(const Bytes& input_bytes, int bits_per_coefficient) const {
   if (bits_per_coefficient < 1) {
     bits_per_coefficient = (8 * input_bytes.GetBytesSize()) / n_;
-    int reminder = (8 * input_bytes.GetBytesSize()) % n_;
-    if (reminder != 0) {
-      throw std::invalid_argument("The input byte list must have a length multiple of 32.");
+    if ((8 * input_bytes.GetBytesSize()) % n_ != 0) {
+      throw std::invalid_argument("The input byte list must have a length multiple of n_ * bits_per_coefficient.");
     }
   }
-  if ((n_ * bits_per_coefficient) != (8 * input_bytes.GetBytesSize())) {
-    throw std::invalid_argument("The input byte list must have a length multiple of 32.");
+  const int expected_size = n_ * bits_per_coefficient;
+  if (expected_size != 8 * input_bytes.GetBytesSize()) {
+    throw std::invalid_argument("The input byte list size does not match the expected size.");
   }
-  Polynomial<int> coefficients = Polynomial<int>(n_);
-  Bytes copy_bytes = input_bytes.toBigEndian();
-  std::string binary_string = copy_bytes.FromBytesToBits();
+  Polynomial<int> coefficients(n_);
+  const std::string binary_string = input_bytes.toBigEndian().FromBytesToBits();
 
-  for (int i = 0; i < n_; i++) {
-    coefficients[i] = 0;
-    for (int j = 0; j < bits_per_coefficient; j++) {
-      coefficients[i] += (binary_string[i * bits_per_coefficient + j] - '0') << j;
+  for (int i = 0; i < n_; ++i) {
+    int value = 0;
+    for (int j = 0; j < bits_per_coefficient; ++j) {
+      value |= (binary_string[i * bits_per_coefficient + j] - '0') << j;
     }
+    coefficients[i] = value;
   }
+
   return coefficients;
 }
 
