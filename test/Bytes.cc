@@ -264,15 +264,6 @@ TEST_F(BytesTest, FromBytesToHexTest) {
 }
 
 /**
- * @brief Test for the BitReverse() method.
- */
-TEST_F(BytesTest, BitReverseTest) {
-  Bytes bytes("12");
-  Bytes result = bytes.BitReverse(2);
-  EXPECT_EQ(result.FromBytesToHex(), "4c8c");
-}
-
-/**
  * @brief Test for the GetNBytes() method.
  */
 TEST_F(BytesTest, GetNBytesTest) {

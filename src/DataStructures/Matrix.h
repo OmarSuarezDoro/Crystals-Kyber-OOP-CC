@@ -12,6 +12,7 @@
 
 #include <vector>
 #include <iostream>
+#include <algorithm>
 #include <assert.h>
 
 #include "Polynomial.h"
@@ -84,13 +85,13 @@ Matrix<T>::Matrix(const unsigned int& kRows, const unsigned int& kColumns, const
  */
 template <typename T>
 std::ostream& operator<<(std::ostream& os, const Matrix<T>& kMatrix) {
-  for (unsigned int i = 0; i < kMatrix.rows_; i++) {
+  for (unsigned int i = 0; i < kMatrix.rows_; ++i) {
     os << "(";
-    for (unsigned int j = 0; j < kMatrix.columns_; j++) {
+    for (unsigned int j = 0; j < kMatrix.columns_; ++j) {
       os << kMatrix.vector_[i * kMatrix.columns_ + j];
-      os << ((kMatrix.columns_ == j + 1) ? ")" : ", ");
+      if (j < kMatrix.columns_ - 1) os << ", ";
     }
-    os << std::endl;
+    os << ")\n";
   }
   return os;
 }
@@ -132,13 +133,9 @@ T& Matrix<T>::operator()(unsigned int index_rows, unsigned int index_cols) {
  */
 template <typename T>
 Matrix<T> Matrix<T>::operator+(const Matrix<T>& kMatrix2) const {
-  assert(GetColumnsSize() == kMatrix2.GetColumnsSize() && GetRowsSize() == kMatrix2.GetRowsSize());
-  Matrix<T> result(GetRowsSize(), GetColumnsSize());
-  for (unsigned int i = 0; i < GetRowsSize(); i++) {
-    for (unsigned int j = 0; j < GetColumnsSize(); j++) {
-      result(i, j) = vector_[i * GetColumnsSize() + j] + kMatrix2(i, j);
-    }
-  }
+  assert(rows_ == kMatrix2.rows_ && columns_ == kMatrix2.columns_);
+  Matrix<T> result(rows_, columns_);
+  std::transform(vector_.begin(), vector_.end(), kMatrix2.vector_.begin(), result.vector_.begin(), std::plus<T>());
   return result;
 }
 
@@ -150,10 +147,10 @@ Matrix<T> Matrix<T>::operator+(const Matrix<T>& kMatrix2) const {
  */
 template <typename T>
 Matrix<T> Matrix<T>::GetTranspose() const {
-  Matrix<T> result(GetColumnsSize(), GetRowsSize());
-  for (unsigned int i = 0; i < GetRowsSize(); i++) {
-    for (unsigned int j = 0; j < GetColumnsSize(); j++) {
-      result(j, i) = vector_[i * GetColumnsSize() + j];
+  Matrix<T> result(columns_, rows_);
+  for (unsigned int i = 0; i < rows_; ++i) {
+    for (unsigned int j = 0; j < columns_; ++j) {
+      result(j, i) = vector_[i * columns_ + j];
     }
   }
   return result;
@@ -169,17 +166,7 @@ Matrix<T> Matrix<T>::GetTranspose() const {
  */
 template <typename T>
 bool Matrix<T>::operator==(const Matrix<T>& kMatrix2) const {
-  if (GetColumnsSize() != kMatrix2.GetColumnsSize() || GetRowsSize() != kMatrix2.GetRowsSize()) {
-    return false;
-  }
-  for (unsigned int i = 0; i < GetRowsSize(); i++) {
-    for (unsigned int j = 0; j < GetColumnsSize(); j++) {
-      if (vector_[i * GetColumnsSize() + j] != kMatrix2(i, j)) {
-        return false;
-      }
-    }
-  }
-  return true;
+  return (rows_ == kMatrix2.rows_) && (columns_ == kMatrix2.columns_) && (vector_ == kMatrix2.vector_);
 }
 
 
@@ -193,9 +180,9 @@ bool Matrix<T>::operator==(const Matrix<T>& kMatrix2) const {
  */
 template <typename T>
 void Matrix<T>::SetRow(int indexRow, const Polynomial<int>& kRow) {
-  assert(indexRow < GetRowsSize());
-  assert(kRow.GetSize() == GetColumnsSize());
-  for (unsigned int i = 0; i < GetColumnsSize(); i++) {
-    vector_[indexRow * GetColumnsSize() + i] = kRow[i];
+  assert(indexRow < rows_);
+  assert(kRow.GetSize() == columns_);
+  for (unsigned int i = 0; i < columns_; i++) {
+    vector_[indexRow * columns_ + i] = kRow[i];
   }
 }

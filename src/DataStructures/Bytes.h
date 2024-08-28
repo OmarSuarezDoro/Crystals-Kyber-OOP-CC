@@ -12,48 +12,50 @@
 #include <bitset>
 #include <cmath>
 #include <string>
-#include <iostream>
 #include <algorithm>
 #include <vector>
+#include <iostream>
 
 #pragma once
 
 class Bytes {
  public:
-  Bytes();
-  Bytes(const std::string& kBytes);
-  Bytes(const Bytes& kBytes);
-  Bytes(const uint8_t& kByte);
+  Bytes() = default;
+  Bytes(const std::string& kBytes) : bytes_(kBytes.begin(), kBytes.end()) {};
+  Bytes(const Bytes& kBytes) = default;
+  Bytes(const uint8_t& kByte) : bytes_({kByte}) {};
   Bytes(const std::vector<int>& kBytes);
   Bytes(const std::vector<unsigned char>& kBytes);
-
-  ~Bytes();
+  ~Bytes() = default;
 
   // Getters
-  std::vector<unsigned char> GetBytes() const { return bytes_; }
   int GetBytesSize() const { return bytes_.size(); }
+  std::vector<unsigned char> GetBytes() const { return bytes_; }
 
   // Setters
   void SetBytes(const std::string& kBytes);
 
   // Operator overload
-  Bytes operator+(const Bytes& kBytes) const;
-  Bytes operator^(const Bytes& kBytes) const;
-  Bytes operator|(const Bytes& kBytes) const;
-  Bytes operator&(const Bytes& kBytes) const;
+  // Selector
+  unsigned char& operator[](int index) { return bytes_[index]; }
+  const unsigned char& operator[](int index) const { return bytes_[index]; }
+  // Unary
+  Bytes operator~() const { return ApplyBitwiseOperation(std::bit_not<unsigned char>()); }
   Bytes operator<<(const int& kShift) const;
   Bytes operator>>(const int& kShift) const;
-  Bytes operator~() const;
-  Bytes operator+=(const Bytes& kBytes);
-  Bytes operator^=(const Bytes& kBytes);
-  Bytes operator|=(const Bytes& kBytes);
-  Bytes operator&=(const Bytes& kBytes);
-  Bytes operator<<=(const int& kShift);
-  Bytes operator>>=(const int& kShift);
-  unsigned char& operator[](int index);
-  const unsigned char& operator[](int index) const;
-  bool operator==(const Bytes& kBytes) const;
-  bool operator!=(const Bytes& kBytes) const;
+  Bytes operator<<=(const int& kShift) { return *this = *this << kShift; }
+  Bytes operator>>=(const int& kShift) { return *this = *this >> kShift; }
+  // Binary
+  Bytes operator+(const Bytes& kBytes) const;
+  Bytes operator^(const Bytes& kBytes) const { return ApplyBitwiseOperation(kBytes, std::bit_xor<unsigned char>()); }
+  Bytes operator|(const Bytes& kBytes) const { return ApplyBitwiseOperation(kBytes, std::bit_or<unsigned char>()); }
+  Bytes operator&(const Bytes& kBytes) const { return ApplyBitwiseOperation(kBytes, std::bit_and<unsigned char>()); }
+  Bytes operator+=(const Bytes& kBytes) { return *this = *this + kBytes; };
+  Bytes operator^=(const Bytes& kBytes) { return *this = *this ^ kBytes; }
+  Bytes operator|=(const Bytes& kBytes) { return *this = *this | kBytes; };
+  Bytes operator&=(const Bytes& kBytes) { return *this = *this & kBytes; };
+  bool operator==(const Bytes& kBytes) const { return bytes_ == kBytes.bytes_; }
+  bool operator!=(const Bytes& kBytes) const { return bytes_ != kBytes.bytes_; }
 
 
   // Methods
@@ -61,15 +63,15 @@ class Bytes {
   std::string FromBytesToBits() const;
   std::string FromBytesToHex() const;
   long FromBytesToNumbers() const;
-  Bytes BitReverse(int length) const;
   Bytes GetNBytes(const int& start_index, const int& kN) const;
   std::vector<int> GetBytesAsNumbersVector() const;
   Bytes ChangeByteDirection() const;
-  std::string FromBytesToAscii() const;
-
+  std::string FromBytesToAscii() const { return std::string(bytes_.begin(), bytes_.end()); }
+  
   static Bytes FromBitsToBytes(const std::string& kBits);
   
  private:
-  std::vector<unsigned char> bytes_ = {};  
-
+  std::vector<unsigned char> bytes_ = {};
+  Bytes ApplyBitwiseOperation(const Bytes& kBytes, const std::function<unsigned char(unsigned char, unsigned char)>& kOperation) const;
+  Bytes ApplyBitwiseOperation(const std::function<unsigned char(unsigned char)>& kOperation) const;
 };
