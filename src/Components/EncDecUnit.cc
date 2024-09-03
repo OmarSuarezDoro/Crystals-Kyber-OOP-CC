@@ -24,7 +24,7 @@ Bytes EncDecUnit::EncodeMatrixToBytes(const Matrix<Polynomial<int>>& input_matri
   Bytes result = Bytes();
   for (int i = 0; i < input_matrix.GetRowsSize(); i++) {
     for (int j = 0; j < input_matrix.GetColumnsSize(); j++) {
-      Bytes current_bytes = encode_(input_matrix(i, j), bits_per_coefficient);
+      Bytes current_bytes = Encode_(input_matrix(i, j), bits_per_coefficient);
       result += current_bytes;
     }
   }
@@ -39,7 +39,7 @@ Bytes EncDecUnit::EncodeMatrixToBytes(const Matrix<Polynomial<int>>& input_matri
  * @param bits_per_coefficient : The bits per coefficient that is going to be used for representation
  * @return Bytes 
  */
-Bytes EncDecUnit::encode_(const Polynomial<int>& polynomial, int bits_per_coefficient) const {
+Bytes EncDecUnit::Encode_(const Polynomial<int>& polynomial, int bits_per_coefficient) const {
   if (bits_per_coefficient < 1) {
     // iterate through the vector and see the number of bits needed to represent the biggest coefficient
     int max_coefficient = 0;
@@ -99,7 +99,7 @@ Matrix<Polynomial<int>> EncDecUnit::DecodeBytesToMatrix(const Bytes& input_bytes
   Matrix<Polynomial<int>> result(rows, cols, n_);
   for (int i = 0; i < rows; ++i) {
     for (int j = 0; j < cols; ++j) {
-      result(i, j) = decode_(coefficients[i * cols + j], length);
+      result(i, j) = Decode_(coefficients[i * cols + j], length);
     }
   }
 
@@ -114,7 +114,7 @@ Matrix<Polynomial<int>> EncDecUnit::DecodeBytesToMatrix(const Bytes& input_bytes
  * @param bits_per_coefficient : The bits per coefficient that is going to be used for representation
  * @return Polynomial<int> 
  */
-Polynomial<int> EncDecUnit::decode_(const Bytes& input_bytes, int bits_per_coefficient) const {
+Polynomial<int> EncDecUnit::Decode_(const Bytes& input_bytes, int bits_per_coefficient) const {
   if (bits_per_coefficient < 1) {
     bits_per_coefficient = (8 * input_bytes.GetBytesSize()) / n_;
     if ((8 * input_bytes.GetBytesSize()) % n_ != 0) {

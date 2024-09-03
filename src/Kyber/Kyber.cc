@@ -28,7 +28,6 @@ Kyber::Kyber(int option, const std::vector<int>& seed) {
   du_ = KyberConstants::Du;
   dv_ = KyberConstants::Dv;  
   ntt_ = std::make_unique<NTT>(NTT(n_, q_));
-  keccak_ = std::make_unique<Keccak>(Keccak());
   pwm_unit_ = std::make_unique<PWMUnit>(PWMUnit(n_, q_));
   encdec_unit_ = std::make_unique<EncDecUnit>(EncDecUnit(n_));
   sampling_unit_ = std::make_unique<SamplingUnit>(SamplingUnit(k_, n_));
@@ -47,9 +46,9 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
   if (seed_.size() > 0) {
     seed = Bytes(seed_);
   }
-  std::vector<Bytes> rho_sigma = GenerateRhoSigma_(seed);
-  Bytes rho = rho_sigma[0];
-  Bytes sigma = rho_sigma[1];
+  std::pair<Bytes, Bytes> rho_sigma = GenerateRhoSigma_(seed);
+  Bytes rho = rho_sigma.first;
+  Bytes sigma = rho_sigma.second;
   Matrix<Polynomial<int>> a = ntt_->GenerateMatrix_(k_, rho, true);
   int N = 0;
   std::pair<Matrix<Polynomial<int>>, int> pair_secret = sampling_unit_->GenerateDistribuitionMatrix(sigma, n1_, N);
@@ -88,7 +87,7 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
 Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed) {
   Bytes rho = pk.GetNBytes(pk.GetBytesSize() - 32, 32);
   Matrix<Polynomial<int>> t_matrix = encdec_unit_->DecodeBytesToMatrix(pk, 1, k_, 12);
-  Polynomial<int> m_pol = compressor_unit_->Decompress_(encdec_unit_->decode_(message, 1), 1);
+  Polynomial<int> m_pol = compressor_unit_->Decompress_(encdec_unit_->Decode_(message, 1), 1);
   
   int N = 0;  
   Matrix<Polynomial<int>> At = ntt_->GenerateMatrix_(k_, rho, false);
@@ -97,7 +96,7 @@ Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed
   Matrix<Polynomial<int>> r_ntt = applyNTTMatrix_(r, k_);
   std::pair<Matrix<Polynomial<int>>, int> pair_error1 = sampling_unit_->GenerateDistribuitionMatrix(seed, n2_, pair_r.second);
   Matrix<Polynomial<int>> e1 = pair_error1.first;
-  Polynomial<int> e2 = sampling_unit_->_CBD(keccak_->PRF(seed, pair_error1.second, 64 * n2_), n2_);
+  Polynomial<int> e2 = sampling_unit_->CBD_(Keccak::PRF(seed, pair_error1.second, 64 * n2_), n2_);
 
   Matrix<Polynomial<int>> A_r = pwm_unit_->multMatrixViaNTT(At, r_ntt);
   Matrix<Polynomial<int>> A_r_ntt = applyNTTMatrix_(A_r, k_, false);
@@ -108,7 +107,7 @@ Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed
   v_ntt = v_ntt + e2;
   v_ntt = v_ntt + m_pol;
   Bytes c1 = encdec_unit_->EncodeMatrixToBytes(compressor_unit_->CompressMatrix(u, du_), du_);
-  Bytes c2 = encdec_unit_->encode_(compressor_unit_->Compress_(v_ntt, dv_), dv_);
+  Bytes c2 = encdec_unit_->Encode_(compressor_unit_->Compress_(v_ntt, dv_), dv_);
   Bytes c_encoded = c1 + c2;
   return c_encoded;
 }
@@ -128,12 +127,12 @@ Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext) {
   Matrix<Polynomial<int>> u = compressor_unit_->DecompressMatrix(encdec_unit_->DecodeBytesToMatrix(ciphertext, k_, 1, du_), du_);
   Matrix<Polynomial<int>> u_ntt = applyNTTMatrix_(u, k_, true);
 
-  Polynomial<int> v = compressor_unit_->Decompress_(encdec_unit_->decode_(c2, dv_), dv_);
+  Polynomial<int> v = compressor_unit_->Decompress_(encdec_unit_->Decode_(c2, dv_), dv_);
   Matrix<Polynomial<int>> st = encdec_unit_->DecodeBytesToMatrix(sk, 1, k_, 12); 
   Polynomial<int> st_u = pwm_unit_->multMatrixViaNTT(st, u_ntt)(0, 0);
   Polynomial<int> st_u_ntt = ntt_->NTT_Kyber(st_u, false);
   Polynomial<int> m = v - st_u_ntt;
-  return encdec_unit_->encode_(compressor_unit_->Compress_(m, 1), 1);
+  return encdec_unit_->Encode_(compressor_unit_->Compress_(m, 1), 1);
 }
 
 /**
@@ -145,7 +144,7 @@ std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
   Bytes seed = GenerateSeed_(KyberConstants::SeedSize);
   std::pair<Bytes, Bytes> key_pair = KeyGen();
   Bytes pk = key_pair.first;
-  Bytes sk = key_pair.second + pk + keccak_->H(pk, 32) + seed;
+  Bytes sk = key_pair.second + pk + Keccak::H(pk, 32) + seed;
   return std::pair<Bytes, Bytes>{pk, sk};
 }
 
@@ -164,11 +163,11 @@ std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
  */
 std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk) {
   Bytes message = Keccak::H(GenerateSeed_(KyberConstants::SeedSize), 32);
-  std::vector<Bytes> pair = keccak_->G(message + keccak_->H(pk, 32));
-  Bytes K_prime = pair[0];
-  Bytes r = pair[1];
+  std::pair<Bytes, Bytes> pair = Keccak::G(message + Keccak::H(pk, 32));
+  Bytes K_prime = pair.first;
+  Bytes r = pair.second;
   Bytes c = Encryption(pk, message, r);
-  Bytes K = keccak_->KDF(K_prime + keccak_->H(c, 32), 32);
+  Bytes K = Keccak::KDF(K_prime + Keccak::H(c, 32), 32);
   return std::pair<Bytes, Bytes>{c, K};
 }
 
@@ -200,12 +199,12 @@ Bytes Kyber::KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext) {
   // Decrypting the message
   Bytes m_prime = Decryption(sk, ciphertext);
   // Generating the K' and r' values
-  std::vector<Bytes> pair = keccak_->G(m_prime + h);
-  Bytes K_prime = pair[0];
-  Bytes r_prime = pair[1];
+  std::pair<Bytes, Bytes> pair = Keccak::G(m_prime + h);
+  Bytes K_prime = pair.first;
+  Bytes r_prime = pair.second;
   // Encrypting the message again
   Bytes c_prime = Encryption(pk, m_prime, r_prime);
-  return keccak_->KDF((c_prime == ciphertext ? K_prime : z) + keccak_->H(c_prime, 32), 32);
+  return Keccak::KDF((c_prime == ciphertext ? K_prime : z) + Keccak::H(c_prime, 32), 32);
 }
 
 
@@ -245,8 +244,8 @@ Bytes Kyber::GenerateSeed_(int seed_size) const {
  * @brief Generate the rho and sigma values
  * 
  * @param seed : The seed to generate the rho and sigma values
- * @return std::vector<Bytes> : The generated rho and sigma values
+ * @return std::pair<Bytes, Bytes> : The generated rho and sigma values
  */
-std::vector<Bytes> Kyber::GenerateRhoSigma_(const Bytes& seed) const {
-  return keccak_->G(seed);
+std::pair<Bytes, Bytes> Kyber::GenerateRhoSigma_(const Bytes& seed) const {
+  return Keccak::G(seed);
 }

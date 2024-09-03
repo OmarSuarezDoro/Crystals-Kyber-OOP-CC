@@ -20,7 +20,7 @@
  * @return Polynomial<int> 
  */
 Polynomial<int> PWMUnit::pointwise_(const Polynomial<int>& p, const Polynomial<int>& g) {
-  int phi = ntt_._FirstPrimitiveRoot(n_);
+  int phi = ntt_.FirstPrimitiveRoot_(n_);
   // If the degree of any polynomial is less than 256 we apply NTT 
   // we fill with zeros since it does not change the polynomial.
   Polynomial<int> p_filled = p;
@@ -52,7 +52,7 @@ Polynomial<int> PWMUnit::pointwise_(const Polynomial<int>& p, const Polynomial<i
     if (i % 2 == 0) {
       int mid = i / 2;
       int left = (p_even[mid] * g_even[mid]) % q_;
-      int phi_power = ntt_._PowerWithMod(phi, 2 * ntt_._BitReverse(mid, n_ / 2) + 1, q_);
+      int phi_power = ntt_.PowerWithMod_(phi, 2 * ntt_.BitReverse_(mid, n_ / 2) + 1, q_);
       int right = (p_odd[mid] * g_odd[mid]) % q_;
       right = (right * phi_power) % q_;
       p_wise_mult_even.append((left + right) % q_);

@@ -38,7 +38,7 @@ class Kyber {
   
  private:
   Bytes GenerateSeed_(int seed_size) const;
-  std::vector<Bytes> GenerateRhoSigma_(const Bytes& seed) const;
+  std::pair<Bytes, Bytes> GenerateRhoSigma_(const Bytes& seed) const;
   Matrix<Polynomial<int>> applyNTTMatrix_(const Matrix<Polynomial<int>>& matrix, int k, bool is_ntt = true) const;
 
   int n_;
@@ -49,7 +49,6 @@ class Kyber {
   int du_;
   int dv_;
   std::unique_ptr<NTT> ntt_ = nullptr;
-  std::unique_ptr<Keccak> keccak_ = nullptr;
   std::unique_ptr<PWMUnit> pwm_unit_ = nullptr;
   std::unique_ptr<EncDecUnit> encdec_unit_ = nullptr;
   std::unique_ptr<SamplingUnit> sampling_unit_ = nullptr;
@@ -59,5 +58,4 @@ class Kyber {
   std::unique_ptr<Bytes> sk_ = nullptr;
   
   std::vector<int> seed_ = {};
-
 };

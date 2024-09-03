@@ -8,13 +8,12 @@
  * @return std::pair<std::string, int> : The resulting message and the padding length.
  */
 std::pair<std::string, int> MessageParser::PadMessage(const std::string& message, int sizeChunk) {
-    int paddingLength = sizeChunk - (message.length() % sizeChunk);
-    if (paddingLength == 0) {
-        return {message, 0};
-    }
-
-    std::string padding(paddingLength, static_cast<char>(paddingLength));
-    return {message + padding, paddingLength};
+  int paddingLength = sizeChunk - (message.length() % sizeChunk);
+  if (paddingLength == 0) {
+    return {message, 0};
+  }
+  std::string padding(paddingLength, static_cast<char>(paddingLength));
+  return {message + padding, paddingLength};
 }
 
 /**
@@ -24,8 +23,8 @@ std::pair<std::string, int> MessageParser::PadMessage(const std::string& message
  * @return std::string : The resulting message without padding.
  */
 std::string MessageParser::unpad(const std::string& padded_message) {
-    unsigned char paddingLength = padded_message.back();
-    return padded_message.substr(0, padded_message.length() - paddingLength);
+  unsigned char paddingLength = padded_message.back();
+  return padded_message.substr(0, padded_message.length() - paddingLength);
 }
 
 /**
@@ -36,9 +35,9 @@ std::string MessageParser::unpad(const std::string& padded_message) {
  * @return std::vector<std::string> : The resulting vector of strings.
  */
 std::vector<std::string> MessageParser::SplitMessageInChunks(const std::string& message, int sizeChunks) {
-    std::vector<std::string> blocks;
-    for (size_t i = 0; i < message.length(); i += sizeChunks) {
-        blocks.push_back(message.substr(i, sizeChunks));
-    }
-    return blocks;
+  std::vector<std::string> blocks;
+  for (size_t i = 0; i < message.length(); i += sizeChunks) {
+    blocks.push_back(message.substr(i, sizeChunks));
+  }
+  return blocks;
 }

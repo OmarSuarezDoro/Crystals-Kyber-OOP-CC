@@ -24,13 +24,12 @@
 #include "../DataStructures/Bytes.h"
 
 class Keccak {
-public:
-  Keccak();
+ public:
   static Bytes H(const Bytes& input_bytes, int length);
   static Bytes XOF(const Bytes& bytes32, const Bytes& a, const Bytes& b, int length);
   static Bytes PRF(const Bytes& sigma, int byte_to_hash, int length);
   static Bytes KDF(const Bytes& input_bytes, int length);
-  static std::vector<Bytes> G(const Bytes& input_bytes);
+  static std::pair<Bytes, Bytes> G(const Bytes& input_bytes);
 
  private:
   static Bytes _shake128(const Bytes& input_data, int output_length);

@@ -24,7 +24,7 @@ std::pair<Matrix<Polynomial<int>>, int> SamplingUnit::GenerateDistribuitionMatri
   Matrix<Polynomial<int>> result_matrix(k_, 1, n_);
   for (int i = 0; i < k_; i++) {
     Bytes bytes_post_prf = Keccak::PRF(sigma, N, 64 * eta);
-    Polynomial<int> result_poly = _CBD(bytes_post_prf, eta);
+    Polynomial<int> result_poly = CBD_(bytes_post_prf, eta);
     result_matrix(i, 0) = result_poly;
     N += 1;
   }
@@ -39,8 +39,7 @@ std::pair<Matrix<Polynomial<int>>, int> SamplingUnit::GenerateDistribuitionMatri
  * @param eta : The eta value is the size of the noise that is going to be generated.
  * @return Polynomial<int> 
  */
-Polynomial<int> SamplingUnit::_CBD(const Bytes& input_bytes, int eta) {
-
+Polynomial<int> SamplingUnit::CBD_(const Bytes& input_bytes, int eta) {
   if (64 >= input_bytes.GetBytesSize()) {
     throw std::invalid_argument("Input length is not correct.");
   }

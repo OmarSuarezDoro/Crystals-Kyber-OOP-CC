@@ -12,9 +12,9 @@
 #include <bitset>
 #include <cmath>
 #include <string>
-#include <algorithm>
 #include <vector>
 #include <iostream>
+#include <algorithm>
 
 #pragma once
 

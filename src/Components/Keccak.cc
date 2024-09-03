@@ -13,13 +13,6 @@
 #include "Keccak.h"
 
 /**
- * @brief Construct a new Keccak:: Keccak object
- * 
- */
-Keccak::Keccak() {
-}
-
-/**
  * @brief This function is used to hash the input data using the SHAKE128 algorithm
  * 
  * @param bytes32 : The first input data
@@ -72,11 +65,11 @@ Bytes Keccak::KDF(const Bytes& input_bytes, int length) {
  * @param input_bytes : The input data
  * @return std::tuple<Bytes, Bytes> 
  */
-std::vector<Bytes> Keccak::G(const Bytes& input_bytes) {
+std::pair<Bytes, Bytes> Keccak::G(const Bytes& input_bytes) {
   Bytes result_hash = _sha3_512(input_bytes);
   Bytes output1 = result_hash.GetNBytes(0, 32);
   Bytes output2 = result_hash.GetNBytes(32, 32);
-  return std::vector{output1, output2};
+  return std::pair<Bytes, Bytes>{output1, output2};
 }
 
 /**

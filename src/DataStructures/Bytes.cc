@@ -163,7 +163,9 @@ Bytes Bytes::FromBitsToBytes(const std::string& kBits) {
 std::string Bytes::FromBytesToHex() const {
   std::string result;
   const char* hex_chars = "0123456789abcdef";
-  for (unsigned char byte : bytes_) {
+  // Have in mind that in the first push we are adding the first 4 bits of the byte
+  // and in the second push we are adding the last 4 bits of the byte.
+  for (const auto& byte : bytes_) {
     result.push_back(hex_chars[byte >> 4]);
     result.push_back(hex_chars[byte & 0x0F]);
   }

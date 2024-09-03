@@ -89,14 +89,14 @@ class EncDecUnitTest : public ::testing::Test {
 
 TEST_F(EncDecUnitTest, TestOfEncodeMethod) {
   EncDecUnit enc_unit = EncDecUnit(256);
-  Bytes result = enc_unit.encode_(test_polynomial1, 12);
+  Bytes result = enc_unit.Encode_(test_polynomial1, 12);
   std::string expected_result = "41aa8db87c81f5250106318beddb923006d0976ab5f08776b3104580b1c8d980b5ae2560c2132831e09b1f2b20f1ec7664f62e5e396b307b515ea6b4caf443c5444dff07395c1841ef911b18b9cae269c65b05068d2a0b6b5c5907516522933097462ed4e22bafc269229c0a16d3649a423f7b6c2662497b90d2ad4a653dae11897da72a1e72196d03a6eb34c374943e90a8bf894cccd3a73cbf54a30261b2d3322a8127a301334d111a3cdb82080ce038e7162e882221366cae53bb11f073210da28727bc32b2252008f3331c208e04f39c6743972e2bc9ebc65874fb00c01a12d28b9a60b69e45663bf8d1c2c169ac80342615db322c2781563ba958700a56d92d2a9ac33ed5b5429478f39378a0db413a68738eb7aaea30ad60a50a0b02bc1309a7eac4199ce08aaea261e7f1246260b495567dd5d34302409ce3292668e59a018a774b5c766b51cd019a93cc45a27be20966bb6ed0aba5d5198115026edcf1b5192443510311f8c00cf1ac7d0132797ba68b0eb40fed5b412ec9b40b2408";
   EXPECT_EQ(result.FromBytesToHex(), expected_result);
 }
 
 TEST_F(EncDecUnitTest, TestOfDecodeMethod) {
   EncDecUnit enc_unit = EncDecUnit(256);
-  Polynomial<int> result = enc_unit.decode_(test_bytes1, 12);
+  Polynomial<int> result = enc_unit.Decode_(test_bytes1, 12);
   Polynomial<int> expected_result = Polynomial<int>(256);
   expected_result.SetCoefficients({{1340, 2153, 2577, 3258, 1855, 570, 312, 3, 689, 951, 645, 211, 2689, 125, 3175, 152, 3306, 151, 32, 1280, 1712, 
     1708, 1717, 1466, 1740, 859, 1516, 1180, 372, 2872, 72, 2858, 2376, 1903, 1833, 1726, 2471, 1806, 1291, 3272, 931, 3035, 413, 2182, 2321, 477, 2666,

@@ -63,7 +63,7 @@ TEST_F(KeccakTest, KDFTest) {
  * @brief Test for the G() method.
  */
 TEST_F(KeccakTest, GTest) {
-  std::vector<Bytes> bytes = Keccak::G(test_byte);
-  EXPECT_EQ(bytes[0].FromBytesToHex(), "3d58a719c6866b0214f96b0a67b37e51a91e233ce0be126a08f35fdf4c043c61");
-  EXPECT_EQ(bytes[1].FromBytesToHex(), "26f40139bfbc338d44eb2a03de9f7bb8eff0ac260b3629811e389a5fbee8a894");
+  std::pair<Bytes, Bytes> bytes = Keccak::G(test_byte);
+  EXPECT_EQ(bytes.first.FromBytesToHex(), "3d58a719c6866b0214f96b0a67b37e51a91e233ce0be126a08f35fdf4c043c61");
+  EXPECT_EQ(bytes.second.FromBytesToHex(), "26f40139bfbc338d44eb2a03de9f7bb8eff0ac260b3629811e389a5fbee8a894");
 }

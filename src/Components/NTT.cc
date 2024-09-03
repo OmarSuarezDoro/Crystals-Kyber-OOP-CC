@@ -36,8 +36,8 @@ Polynomial<int> NTT::NTT_Kyber(const Polynomial<int>& kPolynomial, bool is_ntt) 
     (i % 2 == 0) ? even_coefficients.append(polynomial_copy[i]) : odd_coefficients.append(polynomial_copy[i]);
   }
 
-  Polynomial<int> even_coefficients_ntt = is_ntt ? _NTT(even_coefficients) : _INTT(even_coefficients);
-  Polynomial<int> odd_coefficients_ntt = is_ntt ? _NTT(odd_coefficients) : _INTT(odd_coefficients);
+  Polynomial<int> even_coefficients_ntt = is_ntt ? NTT_(even_coefficients) : INTT_(even_coefficients);
+  Polynomial<int> odd_coefficients_ntt = is_ntt ? NTT_(odd_coefficients) : INTT_(odd_coefficients);
   // Merging results
   Polynomial<int> result = Polynomial<int>(0);
   for (int i = 0; i < n_; ++i) {
@@ -52,11 +52,12 @@ Polynomial<int> NTT::NTT_Kyber(const Polynomial<int>& kPolynomial, bool is_ntt) 
  * @param kPolynomial : The polynomial to apply the NTT.
  * @return Polynomial<int> 
  */
-Polynomial<int> NTT::_NTT(const Polynomial<int>& kPolynomial) const {
+Polynomial<int> NTT::NTT_(const Polynomial<int>& kPolynomial) const {
   int n = kPolynomial.GetSize();
-  int phi = _FirstPrimitiveRoot(2 * n);
   int mid_index = n / 2;
-  // std::cout << "Mid index: " << mid_index << std::endl;
+  // Calculate the first primitive root
+  int phi = FirstPrimitiveRoot_(2 * n);
+
   Polynomial<int> result = kPolynomial;
   // Iterating over the polynomial - First we chunk the polynomial in sizes of 2 * i
   for (int i = 1; i < n; i *= 2) {
@@ -64,9 +65,7 @@ Polynomial<int> NTT::_NTT(const Polynomial<int>& kPolynomial) const {
     for (int j = 0; j < i; ++j) {
       int left_interval = 2 * j * mid_index; 
       int right_interval = left_interval + mid_index - 1;
-      int S = _PowerWithMod(phi, _BitReverse(i + j, n), q_);
-      // std::cout << "i " << i << " j " << j << " => j1: " << left_interval << " j2: " << right_interval << std::endl;
-      // Iterating over the chunk - TODO: Fix this segmentation fault
+      int S = PowerWithMod_(phi, BitReverse_(i + j, n), q_);
       for (int k = left_interval; k <= right_interval; ++k) {
         int temp_element = result[k];
         int temp_mirror_element = result[k + mid_index];
@@ -74,15 +73,10 @@ Polynomial<int> NTT::_NTT(const Polynomial<int>& kPolynomial) const {
         result[k + mid_index] = (temp_element - temp_mirror_element * S) % q_;
         while (result[k] < 0) { result[k] += q_; }
         while (result[k + mid_index] < 0) { result[k + mid_index] += q_; }
-        // std::cout << "k: " << k << " k + mid_index: " << k + mid_index << " S: " << S << " temp_element: " << temp_element << " temp_mirror_element: " << temp_mirror_element << std::endl;
       }
     }
     mid_index /= 2;
   }
-  // for (int i = 0; i < n; ++i) {
-  //   std::cout << result[i] << " ";
-  // }
-  // std::cout << std::endl;
   return result;
 }
 
@@ -92,10 +86,10 @@ Polynomial<int> NTT::_NTT(const Polynomial<int>& kPolynomial) const {
  * @param kPolynomial : The polynomial to apply the INTT.
  * @return Polynomial<int> 
  */
-Polynomial<int> NTT::_INTT(const Polynomial<int>& kPolynomial) const {
+Polynomial<int> NTT::INTT_(const Polynomial<int>& kPolynomial) const {
   int n = kPolynomial.GetSize();
-  int phi = _FirstPrimitiveRoot(2 * n);
-  int phi_inverse = _PowerWithMod(phi, 2 * n - 1, q_);
+  int phi = FirstPrimitiveRoot_(2 * n);
+  int phi_inverse = PowerWithMod_(phi, 2 * n - 1, q_);
   Polynomial<int> result = kPolynomial;
   int mid_index = n / 2;
   int k = 1;
@@ -103,7 +97,7 @@ Polynomial<int> NTT::_INTT(const Polynomial<int>& kPolynomial) const {
     for (int i = 0; i < mid_index; ++i) {
       int left_interval = 2 * i * k;
       int right_interval = left_interval + k - 1;
-      int S = _PowerWithMod(phi_inverse, _BitReverse(mid_index + i, n), q_);
+      int S = PowerWithMod_(phi_inverse, BitReverse_(mid_index + i, n), q_);
       for (int j = left_interval; j <= right_interval; ++j) {
         int temp_element = result[j];
         int temp_mirror_element = result[j + k];
@@ -117,7 +111,7 @@ Polynomial<int> NTT::_INTT(const Polynomial<int>& kPolynomial) const {
     k *= 2;
   }
   // Every element in Zq pow q - 2 = inverse of n.
-  int n_inverse = _PowerWithMod(n, q_ - 2 , q_);
+  int n_inverse = PowerWithMod_(n, q_ - 2 , q_);
   for (int i = 0; i < n; ++i) {
     result[i] = (result[i] * n_inverse) % q_; 
   }
@@ -131,7 +125,7 @@ Polynomial<int> NTT::_INTT(const Polynomial<int>& kPolynomial) const {
  * @param length_of_sequence : The length of the sequence.
  * @return int 
  */
-int NTT::_BitReverse(int element, int length_of_sequence) const {
+int NTT::BitReverse_(int element, int length_of_sequence) const {
   std::vector<int> seq(length_of_sequence);
   for (int i = 0; i < length_of_sequence; ++i) {
     seq[i] = i;
@@ -157,7 +151,7 @@ int NTT::_BitReverse(int element, int length_of_sequence) const {
    * @param n The number to find the primitive root.
    * @return The first primitive root of n.
    */
-int NTT::_FirstPrimitiveRoot(int n) const { // 256
+int NTT::FirstPrimitiveRoot_(int n) const {
   // Checking conditions
   if (!_IsPrime(q_)) {
     throw std::invalid_argument("Q must be a prime number.");
@@ -170,15 +164,15 @@ int NTT::_FirstPrimitiveRoot(int n) const { // 256
     bool is_primitive_root = true;
     // Check if base is a primitive root
     for (int i = 1; i < n; ++i) {
-      if (_PowerWithMod(base, i, q_) == 1) {
+      if (PowerWithMod_(base, i, q_) == 1) {
         is_primitive_root = false;
         break;
       }
     }
-    if (is_primitive_root && _PowerWithMod(base, n, q_) == 1) {
+    if (is_primitive_root && PowerWithMod_(base, n, q_) == 1) {
       return base;
     }
-    if (base ==17) { exit(0); }
+    if (base == 17) { exit(0); }
   }
   throw std::invalid_argument("Primitive root not found.");
 }
@@ -192,7 +186,7 @@ int NTT::_FirstPrimitiveRoot(int n) const { // 256
  * @param mod The module.
  * @return The result of the power with module.
  */
-int NTT::_PowerWithMod(int base, int exp, int mod) const {
+int NTT::PowerWithMod_(int base, int exp, int mod) const {
   int result = 1;
   base = base % mod;
   while (exp > 0) {
