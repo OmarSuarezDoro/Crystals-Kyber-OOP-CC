@@ -29,13 +29,14 @@ The main purpouse of this repository is to document the CKA in a **didactic way*
 The first thing we need to do, in order to understand Kyber is learning about **Mathematical fundamentals** that Kyber is based (don't be afraid, I am bad at Maths too). In cryptography, we need problems that are easy to solve for the device we are communication with, and hard for others, for example, attackers that are sniffing the traffic over the network where messages are being sent. Crystals Kyber Algorithm uses mathematical structures known as **lattices**, and the problem that we are going to use is the Learning With Errors Problem
 
 ### a) Lattices
-A lattice is a mathematical structure which is created using lineal combinations  **vectorial base**. This means that having two vectors $\vec{a}$ and $\vec{u}$ and making some lineal combinations like ($2 \cdot \vec{a} + 1 \cdot \vec{u}$) or ($2 \cdot \vec{u}$) we can generate a lattice. Here is a visual way:
+A lattice is a mathematical structure which is created using integer lineal combinations  of a **vectorial base**. This means that having two vectors $\vec{a}$ and $\vec{u}$ and making some lineal combinations like ($2 \cdot \vec{a} + 1 \cdot \vec{u}$) or ($2 \cdot \vec{u}$) we can generate a lattice. Here is a visual way:
 
-<div align="center"> <img src="https://www.redhat.com/rhdc/managed-files/styles/wysiwyg_full_width/private/lattice-based-cryptography.png?itok=IQVzd4YD" height=200px /> </div>
+<div align="center"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c3/Bravais_Lattices.gif" height=200px /> </div>
 <br>
 
 > [!note]
 > It is important to keep in mind that **different vectors** can generate the **same** lattice
+>
 
 ### b) Learning With Errors Problem
 Suppose that somehow we can represent messages in the points of the lattice that we are going to use and we have a *equations system* that we need to solve, in order to get the key, and therefore, decypher the encrypted message. The solution of this system is the exact lineal combination to get the point that represent the message. This sounds weird, because seems like bruteforce mixed with Gauss Method, substitution could break this scheme.
@@ -151,10 +152,11 @@ The bytes structure allow us to make operations with Bytes in a simple way. Here
   - GetBytesAsNumbersVector: Return an int vector that contains each separated int value of the bytes.
  
 <br>
-### b) Keccak
-The Keccak component consists in a set of **Cryptographic functions** which are provided by the [Cryptopp](https://github.com/weidai11/cryptopp) library, also known as Crypto++. Keccak is structured by static methods (this is because, in our opinion, it is easy to understand the kyber as boxes that implements a set of functions that we will need), that we will call **"Logic Gates"**.
 
-This Logic Gates operates with privates methods which use the functions of the library Crytopp and return our custom byte structure. This logic gates are:
+### b) Keccak
+The Keccak component consists in a set of **Cryptographic functions** which are provided by the [Cryptopp](https://github.com/weidai11/cryptopp) library, also known as Crypto++. Keccak is structured by static methods (this is because, in our opinion, it is easy to understand the kyber as boxes that implements a set of functions that we will need) that we will refer to them, for simplicity, **"Logic Gates"**.
+
+This Logic Gates operates with privates methods which use the functions of the library Crytopp and return our custom `Byte` structure. This logic gates are:
 
 |Gate | Description |
 | --- | --- |
@@ -166,7 +168,44 @@ This Logic Gates operates with privates methods which use the functions of the l
 
 <br>
 
-### c) NTT (Number Theoretic Transform)
+### c) Sampling Unit
+The Sampling unit is a component that is going to generate samples of noise (the errors, which envolves the LWE problem, described at [b) Learning With Errors Problem](#b-learning-with-errors-problem)) and also will be used to generate random polynomials which satisfies the security of the scheme. We need to keep in mind that to guarantee that the algorithm works, we need to introduce a distribution close to 0, so that the error is tiny, in order to recover the original data.
+
+To make this possible *CKA* use **CBD(Central Binomial Distribution)**, which have:
+- An accurate control of the noise generated
+- Computacional efficiency (less complex operations)
+- Ensures the security of the scheme (ensures that the sample generated fulfill security conditions)
+
+
+> [!NOTE]
+> 
+> ### Why do we use a Binomial distribution instead of a Normal(Gaussian) Distribution?
+>
+> First, we need to consider that the Binomial distribution is discrete instead of continuous, this is convenient because we need to generate 0s or 1s, we are not interested in values like 0.9.
+> But we also consider: 
+> - The simplicity of implementation
+> - The accuracy in noice management
+
+This component has two main methods, `GenerateDistributionMatrix` and `CBD_`.
+
+The `GenerateDistributionMatrix` is used to generate a matrix of 1 column using the CBD:
+```c++
+std::pair<Matrix<Polynomial<int>>, int> SamplingUnit::GenerateDistribuitionMatrix(const Bytes& sigma, int eta, int N) {
+  Matrix<Polynomial<int>> result_matrix(k_, 1, n_);
+  for (int i = 0; i < k_; i++) {
+    Bytes bytes_post_prf = Keccak::PRF(sigma, N, 64 * eta);
+    Polynomial<int> result_poly = CBD_(bytes_post_prf, eta);
+    result_matrix(i, 0) = result_poly;
+    N += 1;
+  }
+  return {result_matrix, N};
+}
+```
+
+
+----
+
+### d) NTT (Number Theoretic Transform)
 
 The NTT is a variant of the Discrete Fourier Transform (DFT), but it operates in a finite field instead of complex numbers. This allows for efficient computations with integers, which is crucial for cryptographic applications.
 
@@ -182,11 +221,12 @@ The primary reason for using NTT in cryptographic schemes like Kyber is to **eff
 > <div align="center"> <img src="https://latex.codecogs.com/svg.image?\inline&space;\LARGE&space;\bg{white}{\color{White}\begin{pmatrix}\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\\\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\end{pmatrix}_{R{^{k\cdot&space;k}_q}}\\\longrightarrow\begin{pmatrix}\begin{bmatrix}165\end{bmatrix}\\\begin{bmatrix}125\end{bmatrix}\\\end{pmatrix}_{R_q^k}}" title="{\color{White}\begin{pmatrix}\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\\\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\end{pmatrix}_{R{^{k\cdot&space;k}_q}}\\\longrightarrow\begin{pmatrix}\begin{bmatrix}165\end{bmatrix}\\\begin{bmatrix}125\end{bmatrix}\\\end{pmatrix}_{R_q^k}}" /> </div>
 
 
-The NTT class allow us to apply NTT transformations to our polynomials. The main method that we need to use is the **NTT_kyber** which second parameter determinate if we are going to use **inverse NTT** or the **average one**.
+The NTT class allow us to apply NTT transformations to our polynomials. The main method that we need to use is the **NTT_kyber** which second parameter determinate if we are going to use **inverse NTT** or the **NTT operation**.
 
 
 An example of use is:
 ```C++
+Polynomial<int> sample_polynomial = Polynomial(std::vector<int>{1, 2, 3, 4, 5....., 7})
 Polynomial<int> result = ntt.NTT_Kyber([10,...,30], true);
 ```
 
