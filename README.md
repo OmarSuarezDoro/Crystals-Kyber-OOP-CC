@@ -188,7 +188,7 @@ To make this possible *CKA* use **CBD(Central Binomial Distribution)**, which ha
 
 This component has two main methods, `GenerateDistributionMatrix` and `CBD_`.
 
-The `GenerateDistributionMatrix` is used to generate a matrix of 1 column using the CBD:
+The `GenerateDistributionMatrix` is used to generate a matrix of k x 1 dimention using the CBD:
 ```c++
 std::pair<Matrix<Polynomial<int>>, int> SamplingUnit::GenerateDistribuitionMatrix(const Bytes& sigma, int eta, int N) {
   Matrix<Polynomial<int>> result_matrix(k_, 1, n_);
@@ -201,7 +201,7 @@ std::pair<Matrix<Polynomial<int>>, int> SamplingUnit::GenerateDistribuitionMatri
   return {result_matrix, N};
 }
 ```
-
+By applying a PRF logic gate prior to the CBD, we can guarantee the determinism of the output, prevent biases in the distribution generation due to uncontrolled input factors, and enhance resistance to attacks by ensuring that the CBD input is always  pseudorandom.
 
 ----
 
