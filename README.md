@@ -201,9 +201,40 @@ std::pair<Matrix<Polynomial<int>>, int> SamplingUnit::GenerateDistribuitionMatri
   return {result_matrix, N};
 }
 ```
-By applying a PRF logic gate prior to the CBD, we can guarantee the determinism of the output, prevent biases in the distribution generation due to uncontrolled input factors, and enhance resistance to attacks by ensuring that the CBD input is always  pseudorandom.
+By applying a PRF logic gate prior to the CBD, we can guarantee the determinism of the output, prevent biases in the distribution generation due to uncontrolled input factors, and enhance resistance to attacks by ensuring that the CBD input is always  pseudorandom. Notice that the valyue of N will be increased k times by 1, that means `N = N + k`.
 
-----
+
+The other method is `CBD_` which implements the **Central Binomial Distribution**:
+
+```c++
+Polynomial<int> SamplingUnit::CBD_(const Bytes& input_bytes, int eta) {
+  if (64 >= input_bytes.GetBytesSize()) {
+    throw std::invalid_argument("Input length is not correct.");
+  }
+  Polynomial<int> coefficients(n_);
+  // REALLY IMPORTANT TO REVERT THE BYTES HERE!!!
+  Bytes reverted_input_byte = input_bytes.ChangeByteDirection();
+  std::string list_of_bits = reverted_input_byte.FromBytesToBits();
+  for (int i = 0; i < n_; i++) {
+    int a = 0;
+    int b = 0;
+    for (int j = 0; j < eta; j++) {
+      a += list_of_bits[2 * i * eta + j] - '0';
+      b += list_of_bits[2 * i * eta + eta + j] - '0';
+    }
+    coefficients[i] = a - b;
+  }
+  return coefficients;
+}
+```
+
+Inversion of byte management in CBD sampling in Crystals-Kyber is done for **several key technical reasons**:
+- Compatibility with internal representation of data and mathematical operations.
+- Optimization of bit processing, improving sampling efficiency.
+- Consistency in the order of the data, ensuring uniform and biased sampling.
+- Prevention of biases that could compromise the safety of the scheme.
+- Facilitating implementation in different hardware and software architectures.
+- Compatibility with cryptographic standards and protocols.
 
 ### d) NTT (Number Theoretic Transform)
 
