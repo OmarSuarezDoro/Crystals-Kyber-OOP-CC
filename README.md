@@ -15,7 +15,8 @@ Authors:
 - [6. Components](#6-components)
   - [a) Data Structures](#a-data-structures)
   - [b) Keccak](#b-keccak)
-  - [c) ](#c-ntt-number-theoretic-transform)
+  - [c) Sampling Unit](#c-sampling-unit)
+  - [d) NTT](#d-ntt-number-theoric-transform)
 
 
 
@@ -269,6 +270,8 @@ The NTT is a variant of the Discrete Fourier Transform (DFT), but it operates in
 > ### How does it works?
 > ---
 > NTT takes a polynomial with coefficients in a **finite body** (explained at [d) Finite Field](#d-finite-field)), transform it into a way that makes **point-to-point** highly increasing the performance of the polynomial multiplication. We will see in PWMUnit section that this trasformations will make **pointwise multiplication** be a strong ally.
+> <div align="center"> <img src="https://latex.codecogs.com/svg.image?{\color{White}x(k)=\sum_{j=0}^{n-1}x(j)\cdot\omega^{j\cdot%20k}\(mod\;q\)}" title="cosita" /> </div>
+
 
 
 
