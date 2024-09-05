@@ -335,6 +335,90 @@ Polynomial<int> NTT::NTT_(const Polynomial<int>& kPolynomial) const {
 }
 ```
 
+To keep the explanation simple, here is the steps followed:
+- Polynomial Reorganization: Before applying NTT, the polynomial coefficients are rearranged using a technique called bit reversal. This is necessary for subsequent operations to be performed efficiently.
+- Block division: The polynomial is divided into blocks of increasing size (2, 4, 8, etc.), and operations are performed in each block that combine the coefficients.
+- Multiplication with primitive roots: At each stage, the polynomial coefficients are combined using a scale factor that is calculated with a primitive root of the finite field.
+- Modular addition and subtraction: The values of the coefficients are updated by adding and subtracting in a modular way (to ensure that the results are within the limits of the finite field).
+
+The `INTT_`is the reverse method, and it is similar:
+```C++
+Polynomial<int> NTT::INTT_(const Polynomial<int>& kPolynomial) const {
+  int n = kPolynomial.GetSize();
+  int phi = FirstPrimitiveRoot_(2 * n);
+  int phi_inverse = PowerWithMod_(phi, 2 * n - 1, q_);
+  Polynomial<int> result = kPolynomial;
+  int mid_index = n / 2;
+  int k = 1;
+  while (mid_index > 0) {
+    for (int i = 0; i < mid_index; ++i) {
+      int left_interval = 2 * i * k;
+      int right_interval = left_interval + k - 1;
+      int S = PowerWithMod_(phi_inverse, BitReverse_(mid_index + i, n), q_);
+      for (int j = left_interval; j <= right_interval; ++j) {
+        int temp_element = result[j];
+        int temp_mirror_element = result[j + k];
+        result[j] = (temp_element + temp_mirror_element) % q_;
+        result[j + k] = ((temp_element - temp_mirror_element) * S) % q_;
+        while (result[j] < 0) { result[j] += q_; }
+        while (result[j + k] < 0) { result[j + k] += q_; }
+      }      
+    }
+    mid_index /= 2;
+    k *= 2;
+  }
+  // Every element in Zq pow q - 2 = inverse of n.
+  int n_inverse = PowerWithMod_(n, q_ - 2 , q_);
+  for (int i = 0; i < n; ++i) {
+    result[i] = (result[i] * n_inverse) % q_; 
+  }
+  return result;
+}
+```
+
+NTT also is used to generate a matrix by extending a seed, `GenerateMatrix` and `Parsepolynomial`:
+```C++
+Matrix<Polynomial<int>> NTT::GenerateMatrix_(int k_size, Bytes rho, bool traspose) const {
+  Matrix<Polynomial<int>> matrix(k_size, k_size, n_);
+  for (int i = 0; i < k_size; ++i) {
+    for (int j = 0; j < k_size; ++j) {
+      Bytes generated_bytes = Keccak::XOF(rho, Bytes(traspose ? j : i), Bytes(traspose ? i : j), 3 * n_);
+      matrix(i, j) = ParsePolynomial_(generated_bytes);
+    }
+  }
+  return matrix;
+}
+
+Polynomial<int> NTT::ParsePolynomial_(const Bytes& kBytes) const {
+  Polynomial<int> polynomial(n_);
+  int byte_index = 0;
+  int list_index = 0;
+  int size_bytes = kBytes.GetBytesSize();
+  while ((list_index < n_) && (byte_index + 3 < size_bytes)) {
+    int byte1 = kBytes[byte_index] + n_ * (kBytes[byte_index + 1] % 16);
+    int byte2 = int(kBytes[byte_index + 1] / 16) + 16 * kBytes[byte_index + 2];
+    if (byte1 < q_) {
+      polynomial[list_index] = byte1;
+      list_index++;
+    }
+    if (byte2 < q_ && list_index < n_) {
+      polynomial[list_index] = byte2;
+      list_index++;
+    }
+    byte_index += 3;
+  }
+  return polynomial;
+}
+```
+
+The interesting method here is the `ParsePolynomial_` one:
+- It loops though bytes three by three
+- For each on, it calculates two numbers:
+  - The first number is calculated by combining the first two bytes.
+  - The second number is calculated from the second and third bytes.
+  - If the calculated numbers are less than the q_ module, they are added to the polynomial.
+- Repeat the process until the polynomial is complete or the bytes are exhausted.
+
 
 
 ### d) 
