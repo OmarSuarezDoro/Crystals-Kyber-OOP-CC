@@ -11,7 +11,7 @@ Authors:
   - [b) Learning With Errors Problem](#b-learning-with-errors-problem)
   - [c) Polynomial Ring](#c-polynomial-ring)
   - [d) Finite Field](#d-finite-field)
-- [5. Parameters & Specifications](#5-parameters-&-specifications)
+- [5. Parameters and Specifications](#5-parameters-and-specifications)
 - [6. Components](#6-components)
   - [a) Data Structures](#a-data-structures)
   - [b) Keccak](#b-keccak)
@@ -85,7 +85,7 @@ A Finite field, also known as *Body*, is a finite set of elements on which algeb
 
 <br>
 
-## 5. Parameters & Specifications
+## 5. Parameters and Specifications
 
 Crystals Kyber Algorithm needs a set of parameters, here it is an explanation of each one:
 | Parameter | In code | Description |
@@ -254,7 +254,7 @@ Inversion of byte management in CBD sampling in Crystals-Kyber is done for **sev
 
 The NTT is a variant of the Discrete Fourier Transform (DFT), but it operates in a finite field instead of complex numbers. This allows for efficient computations with integers, which is crucial for cryptographic applications. The primary reason for using NTT in cryptographic schemes like Kyber is to **efficiently perform polynomial multiplication**.  
 
-> [!NOTE]
+> [!Important]
 >
 > ### Complexity Decreased
 > ---
@@ -268,17 +268,73 @@ The NTT is a variant of the Discrete Fourier Transform (DFT), but it operates in
 >
 > ### How does it works?
 > ---
-> NTT takes a polynomial with coefficients in a **finite body** (explained at s), where operations are performed modulus a large prime number what q, and transforms it into a space where the multiplications between polynomials are simplified to point-to-point multiplications of the transformed coefficients. This is very useful in algorithms like Kyber, since it allows to accelerate the multiplication of polynomials, an expensive step in terms of time in encryption schemes.
-> s
-
-#### 
-The NTT class allow us to apply NTT transformations to our polynomials. The main method that we need to use is the **NTT_kyber** which second parameter determinate if we are going to use **inverse NTT** or the **NTT operation**.
+> NTT takes a polynomial with coefficients in a **finite body** (explained at [d) Finite Field](#d-finite-field)), transform it into a way that makes **point-to-point** highly increasing the performance of the polynomial multiplication. We will see in PWMUnit section that this trasformations will make **pointwise multiplication** be a strong ally.
 
 
-An example of use is:
+
+The main method that we need to use is the ``NTT_kyber`` which second parameter determinate if we are going to use **inverse NTT** or the **NTT operation**:
 ```C++
-Polynomial<int> sample_polynomial = Polynomial(std::vector<int>{1, 2, 3, 4, 5....., 7})
-Polynomial<int> result = ntt.NTT_Kyber(sample_polynomial, true);
+Polynomial<int> NTT::NTT_Kyber(const Polynomial<int>& kPolynomial, bool is_ntt) const{
+  Polynomial<int> polynomial_copy = kPolynomial;
+  if (kPolynomial.GetSize() != n_) {
+    Polynomial<int> auxiliar(n_ - kPolynomial.GetSize());
+    for (const auto& element : auxiliar.GetCoefficients()) {
+      polynomial_copy.append(element);
+    }
+  }
+  // Initialize polynomials
+  Polynomial<int> even_coefficients = Polynomial<int>(0);
+  Polynomial<int> odd_coefficients = Polynomial<int>(0);
+  
+  for (int i = 0; i < polynomial_copy.GetSize(); ++i) {
+    (i % 2 == 0) ? even_coefficients.append(polynomial_copy[i]) : odd_coefficients.append(polynomial_copy[i]);
+  }
+
+  Polynomial<int> even_coefficients_ntt = is_ntt ? NTT_(even_coefficients) : INTT_(even_coefficients);
+  Polynomial<int> odd_coefficients_ntt = is_ntt ? NTT_(odd_coefficients) : INTT_(odd_coefficients);
+  // Merging results
+  Polynomial<int> result = Polynomial<int>(0);
+  for (int i = 0; i < n_; ++i) {
+    (i % 2 == 0) ? result.append(even_coefficients_ntt[i / 2]) : result.append(odd_coefficients_ntt[(i - 1) / 2]);
+  }
+  return result;
+}
+
 ```
+
+This method split the polynomial coefficients using the index of the element in two different polynomials, then we apply the NTT or INTT to that polynomials, to end up merging the results.
+
+Now lets see who `NTT_` method works:
+```C++
+Polynomial<int> NTT::NTT_(const Polynomial<int>& kPolynomial) const {
+  int n = kPolynomial.GetSize();
+  int mid_index = n / 2;
+  // Calculate the first primitive root
+  int phi = FirstPrimitiveRoot_(2 * n);
+
+  Polynomial<int> result = kPolynomial;
+  // Iterating over the polynomial - First we chunk the polynomial in sizes of 2 * i
+  for (int i = 1; i < n; i *= 2) {
+    // Iterating over the chunk that we've created
+    for (int j = 0; j < i; ++j) {
+      int left_interval = 2 * j * mid_index; 
+      int right_interval = left_interval + mid_index - 1;
+      int S = PowerWithMod_(phi, BitReverse_(i + j, n), q_);
+      for (int k = left_interval; k <= right_interval; ++k) {
+        int temp_element = result[k];
+        int temp_mirror_element = result[k + mid_index];
+        result[k] = (temp_element + temp_mirror_element * S) % q_;
+        result[k + mid_index] = (temp_element - temp_mirror_element * S) % q_;
+        while (result[k] < 0) { result[k] += q_; }
+        while (result[k + mid_index] < 0) { result[k + mid_index] += q_; }
+      }
+    }
+    mid_index /= 2;
+  }
+  return result;
+}
+```
+
+
 
 ### d) 
