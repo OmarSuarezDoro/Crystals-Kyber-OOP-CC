@@ -9,6 +9,8 @@ Authors:
 - [4. Main Concepts](#4-main-concepts)
   - [a) Lattices](#a-lattices)
   - [b) Learning With Errors Problem](#b-learning-with-errors-problem)
+  - [c) Polynomial Ring](#c-polynomial-ring)
+  - [d) Finite Field](#d-finite-field)
 - [5. Parameters & Specifications](#5-parameters-&-specifications)
 - [6. Components](#6-components)
   - [a) Data Structures](#a-data-structures)
@@ -73,6 +75,15 @@ Here it's a table that resume the main concepts that you should keep in mind:
 |Big O notation (**O(n)**)| Is a standard which function describe the time that an algorithm needs to be completed. This notation focussed in the **worst case** with a sample of n elements.|
  
  <br>
+
+### d) Finite field
+A Finite field, also known as *Body*, is a finite set of elements on which algebraic operations such as addition, subtraction, multiplication, and division (except for zero) are defined, which fulfill certain properties:
+
+- Finite number of elements: A finite body contains a finite number of elements, generally denoted as $\mathbb{F} _q$ , where  q is the number of elements in the field.
+- Modular Arithmetic: Operations in a finite body often use modular arithmetic, are performed in modulus q, where q is the prime established.
+- Properties of operations: The addition, subtraction, multiplication and division (except for 0) are well defined operations and fulfill the associative, commutative, distributive properties and have neutral elements.
+
+<br>
 
 ## 5. Parameters & Specifications
 
@@ -142,15 +153,18 @@ The bytes structure work with each bytes as **Little Endian** way, that means th
 
 
 The bytes structure allow us to make operations with Bytes in a simple way. Hereis a list of some methods that are included in this class:
-- operator+ : which make the concatenation
-- bitwise operations like and (&), or (|), not(~)..
-- operator<< and operator>> : which will make a shift in any char that the string has. **CAREFUL!** It doesn't take care of carrying bits, it will make shift operation in any byte, and the bits that are overflowed will dissapear. **TAKE CARE OF THIS**.
-- A few methods of transformation:
-  - FromBytesToBits: Return a string of the bit representation of each byte.
-  - FromBytesToHex: Return a string of hex representation of each byte.
-  - FromBytesToNumbers: Return a long with the value of the bytes, It iterates, adding each bit * 2^n to the result.
-  - GetBytesAsNumbersVector: Return an int vector that contains each separated int value of the bytes.
- 
+
+| **Method**                      | **Description**                                                                                                                                                                |
+|----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `operator+`                      | Performs concatenation of byte sequences.                                                                                                                                      |
+| Bitwise operations               | Supports bitwise operations such as `and (&)`, `or (|)`, and `not (~)`.                                                                                                       |
+| `operator<<` and `operator>>`    | Performs a shift operation on each byte in the string. **CAREFUL**: Does not manage carry bits; overflowed bits are discarded. **TAKE CARE OF THIS**.                          |
+| **Transformation Methods**       | **Description**                                                                                                                                                               |
+| `FromBytesToBits`                | Returns a string with the bit representation of each byte.                                                                                                                    |
+| `FromBytesToHex`                 | Returns a string with the hex representation of each byte.                                                                                                                    |
+| `FromBytesToNumbers`             | Returns a long integer representing the value of the bytes by iterating over each bit and adding `bit * 2^n` to the result.                                                   |
+| `GetBytesAsNumbersVector`        | Returns a vector of integers, each representing the individual value of each byte.                                                                                            |
+
 <br>
 
 ### b) Keccak
@@ -201,7 +215,7 @@ std::pair<Matrix<Polynomial<int>>, int> SamplingUnit::GenerateDistribuitionMatri
   return {result_matrix, N};
 }
 ```
-By applying a PRF logic gate prior to the CBD, we can guarantee the determinism of the output, prevent biases in the distribution generation due to uncontrolled input factors, and enhance resistance to attacks by ensuring that the CBD input is always  pseudorandom. Notice that the valyue of N will be increased k times by 1, that means `N = N + k`.
+By applying a** PRF logic gate** prior to the CBD, we can guarantee the determinism of the output, prevent biases in the distribution generation due to uncontrolled input factors, and enhance resistance to attacks by ensuring that the CBD input is always  pseudorandom. Notice that the valyue of N will be increased k times by 1, that means `N = N + k`.
 
 
 The other method is `CBD_` which implements the **Central Binomial Distribution**:
@@ -238,27 +252,33 @@ Inversion of byte management in CBD sampling in Crystals-Kyber is done for **sev
 
 ### d) NTT (Number Theoretic Transform)
 
-The NTT is a variant of the Discrete Fourier Transform (DFT), but it operates in a finite field instead of complex numbers. This allows for efficient computations with integers, which is crucial for cryptographic applications.
-
-The primary reason for using NTT in cryptographic schemes like Kyber is to **efficiently perform polynomial multiplication**.  
+The NTT is a variant of the Discrete Fourier Transform (DFT), but it operates in a finite field instead of complex numbers. This allows for efficient computations with integers, which is crucial for cryptographic applications. The primary reason for using NTT in cryptographic schemes like Kyber is to **efficiently perform polynomial multiplication**.  
 
 > [!NOTE]
 >
+> ### Complexity Decreased
+> ---
+> 
 >The computational complexity is highly decreased due to this algorithm:
 > <div align="center"> <img src="https://latex.codecogs.com/svg.image?\inline&space;\LARGE&space;\bg{white}{\color{White}O(n^2)\rightarrow&space;O(n\cdot&space;log(n))}" title="{\color{White}O(n^2)\rightarrow O(n\cdot log(n))}" /> </div>
 >This happens because the following domain transformation is performed:
 > <div align="center"> <img src="https://latex.codecogs.com/svg.image?\inline&space;\LARGE&space;\bg{white}{\color{White}R_q^{k\cdot&space;k}\rightarrow&space;R_q^k}" title="{\color{White}R_q^{k\cdot k}\rightarrow R_q^k}" /> </div>
 > Where **q** is the prime that we are using in the algorithm and **k** the dimension.
 > <div align="center"> <img src="https://latex.codecogs.com/svg.image?\inline&space;\LARGE&space;\bg{white}{\color{White}\begin{pmatrix}\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\\\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\end{pmatrix}_{R{^{k\cdot&space;k}_q}}\\\longrightarrow\begin{pmatrix}\begin{bmatrix}165\end{bmatrix}\\\begin{bmatrix}125\end{bmatrix}\\\end{pmatrix}_{R_q^k}}" title="{\color{White}\begin{pmatrix}\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\\\begin{bmatrix}1&2&3\end{bmatrix}&\begin{bmatrix}1&2&3\end{bmatrix}\end{pmatrix}_{R{^{k\cdot&space;k}_q}}\\\longrightarrow\begin{pmatrix}\begin{bmatrix}165\end{bmatrix}\\\begin{bmatrix}125\end{bmatrix}\\\end{pmatrix}_{R_q^k}}" /> </div>
+>
+> ### How does it works?
+> ---
+> NTT takes a polynomial with coefficients in a **finite body** (explained at s), where operations are performed modulus a large prime number what q, and transforms it into a space where the multiplications between polynomials are simplified to point-to-point multiplications of the transformed coefficients. This is very useful in algorithms like Kyber, since it allows to accelerate the multiplication of polynomials, an expensive step in terms of time in encryption schemes.
+> s
 
-
+#### 
 The NTT class allow us to apply NTT transformations to our polynomials. The main method that we need to use is the **NTT_kyber** which second parameter determinate if we are going to use **inverse NTT** or the **NTT operation**.
 
 
 An example of use is:
 ```C++
 Polynomial<int> sample_polynomial = Polynomial(std::vector<int>{1, 2, 3, 4, 5....., 7})
-Polynomial<int> result = ntt.NTT_Kyber([10,...,30], true);
+Polynomial<int> result = ntt.NTT_Kyber(sample_polynomial, true);
 ```
 
 ### d) 
