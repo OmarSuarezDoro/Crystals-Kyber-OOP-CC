@@ -104,6 +104,27 @@ target_link_libraries(runTests cryptopp)
 target_compile_features(runTests PRIVATE cxx_std_17)
 target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
 
-# Add compile options to a target.
+
+# Setting app options that the user can enable/disable in the CMake configuration
+option(ENABLE_DEBUG "Enable debugging" OFF)
+option(ENABLE_TIME "Enable timing measurements" OFF)
+option(ENABLE_KEM "Enable KEM mode" OFF)
+
+
 target_compile_options(runTests PRIVATE)
-target_compile_options(client_main PRIVATE)
+
+# If ENABLE_DEBUG is enabled, define the DEBUG macro in the preprocessor
+if(ENABLE_DEBUG)
+  target_compile_definitions(client_main PRIVATE DEBUG)
+endif()
+
+# If ENABLE_TIME is enabled, define the TIME macro in the preprocessor
+if(ENABLE_TIME)
+  target_compile_definitions(client_main PRIVATE TIME)
+endif()
+
+# If ENABLE_KEM is enabled, define the KEM macro in the preprocessor
+if(ENABLE_KEM)
+  target_compile_definitions(runTests PRIVATE KEM)
+  target_compile_definitions(client_main PRIVATE KEM)
+endif()
