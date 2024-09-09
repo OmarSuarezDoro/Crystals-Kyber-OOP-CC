@@ -12,6 +12,8 @@
 
 #include "Kyber.h"
 
+std::mutex mutex;
+
 /**
  * @brief Construct a new Kyber:: Kyber object
  * 
@@ -94,7 +96,9 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
 
   #ifdef TIME
     std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    time_results_["KeyGen"].push_back(elapsed.count());
+    mutex.lock();
+    time_results_["KeyGen"] += elapsed.count();
+    mutex.unlock();
   #endif
   pk_ = std::make_unique<Bytes>(t_encoded);
   sk_ = std::make_unique<Bytes>(s_encoded);
@@ -177,7 +181,9 @@ Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed
 
   #ifdef TIME
     std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    time_results_["Encryption"].push_back(elapsed.count());
+    mutex.lock();
+    time_results_["Encryption"] += elapsed.count();
+    mutex.unlock();  
   #endif
 
   return c_encoded;
@@ -221,7 +227,9 @@ Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext) {
 
   #ifdef TIME
     std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    time_results_["Decryption"].push_back(elapsed.count());
+    mutex.lock();
+    time_results_["Decryption"] += elapsed.count();
+    mutex.unlock();
   #endif
 
   return result;
@@ -251,7 +259,9 @@ std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
   
   #ifdef TIME
     std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    time_results_["KEMKeyGen"].push_back(elapsed.count());
+    mutex.lock();
+    time_results_["KEMKeyGen"] += elapsed.count();
+    mutex.unlock();
   #endif
 
   return std::pair<Bytes, Bytes>{pk, sk};
@@ -289,7 +299,9 @@ std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk) {
 
   #ifdef TIME
     std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    time_results_["KEMEncapsulation"].push_back(elapsed.count());
+    mutex.lock();
+    time_results_["KEMEncapsulation"] += elapsed.count();
+    mutex.unlock();
   #endif
 
   return std::pair<Bytes, Bytes>{c, K};
@@ -340,9 +352,10 @@ Bytes Kyber::KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext) {
   
   #ifdef TIME
     std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    time_results_["KEMDecapsulation"].push_back(elapsed.count());
+    mutex.lock();
+    time_results_["KEMDecapsulation"] += elapsed.count();
+    mutex.unlock();
    #endif
-  
   return result;
 }
 

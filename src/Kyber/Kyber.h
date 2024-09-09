@@ -34,18 +34,7 @@ class Kyber {
   Bytes Decryption(const Bytes& sk, const Bytes& ciphertext);
   
   std::map<std::string, double> GetTimeResults() const { 
-    std::map<std::string, double> results;
-    for (auto& [key, value] : time_results_) {
-      if (value.size() == 0) {
-        continue;
-      }
-      double sum = 0;
-      for (auto& time : value) {
-        sum += time;
-      }
-      results[key] = sum / value.size();
-    }
-    return results;
+    return time_results_;
   }
 
   std::pair<Bytes, Bytes> KEMKeyGen();
