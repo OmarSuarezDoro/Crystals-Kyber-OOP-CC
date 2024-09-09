@@ -16,9 +16,19 @@
 #include "../Kyber/Kyber.h"
 
 
+#define OPTION_SPECIFICATION_SHORT "-s"
+#define OPTION_SPECIFICATION_LONG "--specification"
+
+#define OPTION_MESSAGE_SHORT "-m"
+#define OPTION_MESSAGE_LONG "--message"
+
+#define OPTION_HELP_SHORT "-h"
+#define OPTION_HELP_LONG "--help"
+
+
 class ProgramInterface { 
  public:
-  ProgramInterface(char* const args[]);
+  ProgramInterface(const std::vector<std::string>& args);
   virtual void Run();
 
  private:

@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <stdarg.h>
+
 #include "../Components/NTT.h"
 #include "../Components/Keccak.h"
 #include "../Components/PWMUnit.h"
@@ -41,6 +43,7 @@ class Kyber {
   std::pair<Bytes, Bytes> GenerateRhoSigma_(const Bytes& seed) const;
   Matrix<Polynomial<int>> applyNTTMatrix_(const Matrix<Polynomial<int>>& matrix, int k, bool is_ntt = true) const;
 
+
   int n_;
   int q_;
   int k_;
@@ -48,6 +51,7 @@ class Kyber {
   int n2_;
   int du_;
   int dv_;
+  
   std::unique_ptr<NTT> ntt_ = nullptr;
   std::unique_ptr<PWMUnit> pwm_unit_ = nullptr;
   std::unique_ptr<EncDecUnit> encdec_unit_ = nullptr;
@@ -58,4 +62,15 @@ class Kyber {
   std::unique_ptr<Bytes> sk_ = nullptr;
   
   std::vector<int> seed_ = {};
+
+  #ifdef TIME
+  std::map<std::string, double> time_results_ {
+    {"KeyGen", 0.0},
+    {"Encryption", 0.0},
+    {"Decryption", 0.0},
+    {"KEMKeyGen", 0.0},
+    {"KEMEncapsulation", 0.0},
+    {"KEMDecapsulation", 0.0}
+  };
+  #endif
 };

@@ -16,7 +16,33 @@
  * @brief Construct a new Program Interface:: Program Interface object
  * @param args : The arguments passed to the program 
  */
-ProgramInterface::ProgramInterface(char* const args[]) {
+ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
+  if (args.size() < 3) {
+    throw std::invalid_argument("The number of arguments is not correct");
+  }
+  int i = 0;
+  while (args.size() > i) {
+    if (args[i] == OPTION_SPECIFICATION_SHORT || args[i] == OPTION_SPECIFICATION_LONG) {
+      specification_ = std::stoi(args[i + 1]);
+    }
+    if (args[i] == OPTION_MESSAGE_SHORT || args[i] == OPTION_MESSAGE_LONG) {
+      input_message_ = args[i + 1];
+    }
+    if (args[i] == OPTION_HELP_SHORT || args[i] == OPTION_HELP_LONG) {
+      std::cout << "Usage: " << std::endl;
+      std::cout << "  " << OPTION_SPECIFICATION_SHORT << ", " << OPTION_SPECIFICATION_LONG << " <specification> :" << " The specification of the Kyber cryptosystem" << std::endl;
+      std::cout << "  " << OPTION_MESSAGE_SHORT << ", " << OPTION_MESSAGE_LONG << " <message> :" << " The message to encrypt and decrypt" << std::endl;
+      std::cout << "  " << OPTION_HELP_SHORT << ", " << OPTION_HELP_LONG << " :" << " Show the help menu" << std::endl;
+      exit(0);
+    }
+    ++i;
+  }
+
+
+
+
+
+
   specification_ = std::stoi(args[1]);
   kyber_ = std::make_unique<Kyber>(specification_); // Specification that it is going to be used
   #ifdef DEBUG
@@ -32,9 +58,6 @@ ProgramInterface::ProgramInterface(char* const args[]) {
       {"Splitting", {}}
     };
   #endif
-  if (args[2] != nullptr) {
-    input_message_ = args[2];
-  }
 }
 
 /**
