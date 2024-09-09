@@ -47,18 +47,14 @@ add_executable(
   test/Polynomial.cc
   test/Keccak.cc
   test/NTT.cc
-  test/PWMUnit.cc
   test/SamplingUnit.cc
   test/EncDecUnit.cc
   test/CompressorUnit.cc
   test/Kyber.cc
-  test/KyberKEM.cc
   ./src/DataStructures/Bytes.cc
   ./src/Components/Keccak.cc
   ./src/Components/NTT.cc
   ./src/Components/NTT.h
-  ./src/Components/PWMUnit.cc
-  ./src/Components/PWMUnit.h
   ./src/Components/SamplingUnit.cc
   ./src/Components/SamplingUnit.h
   ./src/Components/EncDecUnit.cc
@@ -67,8 +63,6 @@ add_executable(
   ./src/Components/CompressorUnit.h
   ./src/Kyber/Kyber.cc  
   ./src/Kyber/Kyber.h
-  ./src/Kyber/KyberKEM.cc
-  ./src/Kyber/KyberKEM.h
   ./.conf/constants_values.h
   )
 
@@ -86,18 +80,14 @@ add_executable(
   ./src/Components/NTT.h
   ./src/Components/SamplingUnit.cc
   ./src/Components/SamplingUnit.h
-  ./src/Components/PWMUnit.cc
-  ./src/Components/PWMUnit.h
   ./src/Components/EncDecUnit.cc
   ./src/Components/EncDecUnit.h
   ./src/Components/CompressorUnit.cc
   ./src/Components/CompressorUnit.h
-  ./src/Components/MessageParser.cc
-  ./src/Components/MessageParser.h
+  ./src/ProgramInterfaces/MessageParser.cc
+  ./src/ProgramInterfaces/MessageParser.h
   ./src/Kyber/Kyber.cc  
   ./src/Kyber/Kyber.h
-  ./src/Kyber/KyberKEM.cc
-  ./src/Kyber/KyberKEM.h
   ./src/ProgramInterfaces/ProgramInterface.cc
   ./src/ProgramInterfaces/ProgramInterface.h
   ./.conf/constants_values.h

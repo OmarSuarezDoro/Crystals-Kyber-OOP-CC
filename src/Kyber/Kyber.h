@@ -18,7 +18,6 @@
 
 #include "../Components/NTT.h"
 #include "../Components/Keccak.h"
-#include "../Components/PWMUnit.h"
 #include "../Components/EncDecUnit.h"
 #include "../Components/SamplingUnit.h"
 #include "../Components/CompressorUnit.h"
@@ -28,8 +27,7 @@
 
 class Kyber {
  public:
-  Kyber(int option, const std::vector<int>& seed = {}, int n = 256, int q = 3329, int k = 2,
-  int n1 = 3, int n2 = 2, int du = 10, int dv = 4, bool benchmarking = false);
+  Kyber(int option, const std::vector<int>& seed = {});
 
   std::pair<Bytes, Bytes> KeyGen();
   Bytes Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed);  
@@ -47,6 +45,10 @@ class Kyber {
     return results;
   }
 
+  std::pair<Bytes, Bytes> KEMKeyGen();
+  std::pair<Bytes, Bytes> KEMEncapsulation(const Bytes& pk);
+  Bytes KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext);
+
  protected:
   Bytes GenerateSeed_(int seed_size) const;
   std::pair<Bytes, Bytes> GenerateRhoSigma_(const Bytes& seed) const;
@@ -63,7 +65,6 @@ class Kyber {
   int dv_;
   
   std::unique_ptr<NTT> ntt_ = nullptr;
-  std::unique_ptr<PWMUnit> pwm_unit_ = nullptr;
   std::unique_ptr<EncDecUnit> encdec_unit_ = nullptr;
   std::unique_ptr<SamplingUnit> sampling_unit_ = nullptr;
   std::unique_ptr<CompressorUnit> compressor_unit_ = nullptr;

@@ -43,21 +43,13 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
     ++i;
   }}
 
-void ProgramInterface::run(int option, const std::vector<int>& seed, int n, int q, int k, int n1, int n2, int du, int dv, bool benchmarking) {
+void ProgramInterface::run(int option, const std::vector<int>& seed) {
   std::unique_ptr<Kyber> kyber = nullptr;
 
   #ifdef BENCHMARKING
-  if (use_kem_) {
-    kyber = std::make_unique<KyberKEM>(specification_, seed, n, q, k, n1, n2, du, dv, true);
-  } else {
-    kyber = std::make_unique<Kyber>(specification_, seed, n, q, k, n1, n2, du, dv, true);
-  }
+  kyber = std::make_unique<Kyber>(specification_, seed, n, q, k, n1, n2, du, dv, true);
   #else
-  if (use_kem_) {
-    kyber = std::make_unique<KyberKEM>(specification_);
-  } else {
-    kyber = std::make_unique<Kyber>(specification_);
-  }
+  kyber = std::make_unique<Kyber>(specification_);
   #endif
 
   std::pair<std::string, int> message_padlen = MessageParser::PadMessage(input_message_);
@@ -75,7 +67,16 @@ void ProgramInterface::run(int option, const std::vector<int>& seed, int n, int 
     decrypted_message = MessageParser::unpad(decrypted_message);
   }
   std::cout << "Decrypted message: " << decrypted_message << std::endl;
-  std::cout << kyber->GetTimeResults() << std::endl;
+
+  #ifdef TIME
+  std::cout << "Time results: " << std::endl;
+  std::map<std::string, double> time_results = kyber->GetTimeResults();
+  for (const auto& time_result : time_results) {
+    std::cout << time_result.first << ": " << time_result.second << "s" << std::endl;
+  }
+  #endif
+
+  // std::cout << kyber->GetTimeResults() << std::endl;
 }
 
 

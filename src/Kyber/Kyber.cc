@@ -17,28 +17,17 @@
  * 
  * @param option : The option to choose the parameters of the Kyber cryptosystem
  */
-Kyber::Kyber(int option, const std::vector<int>& seed, int n, int q, int k, int n1, int n2, int du, int dv, bool benchmarking) {
-  if (benchmarking) {
-    n_ = n;
-    q_ = q;
-    k_ = k;
-    n1_ = n1;
-    n2_ = n2;
-    du_ = du;
-    dv_ = dv;
-  } else {
-    InitializeConstants(option);
-    n_ = KyberConstants::N;
-    q_ = KyberConstants::Q;
-    k_ = KyberConstants::K;
-    n1_ = KyberConstants::N1;
-    n2_ = KyberConstants::N2;
-    du_ = KyberConstants::Du;
-    dv_ = KyberConstants::Dv;  
-  }
+Kyber::Kyber(int option, const std::vector<int>& seed) {
+  InitializeConstants(option);
+  n_ = KyberConstants::N;
+  q_ = KyberConstants::Q;
+  k_ = KyberConstants::K;
+  n1_ = KyberConstants::N1;
+  n2_ = KyberConstants::N2;
+  du_ = KyberConstants::Du;
+  dv_ = KyberConstants::Dv;  
   seed_ = seed;
   ntt_ = std::make_unique<NTT>(NTT(n_, q_));
-  pwm_unit_ = std::make_unique<PWMUnit>(PWMUnit(n_, q_));
   encdec_unit_ = std::make_unique<EncDecUnit>(EncDecUnit(n_));
   sampling_unit_ = std::make_unique<SamplingUnit>(SamplingUnit(k_, n_));
   compressor_unit_ = std::make_unique<CompressorUnit>(CompressorUnit(q_));
@@ -87,7 +76,7 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
   #endif
 
 
-  Matrix<Polynomial<int>> A_s = pwm_unit_->multMatrixViaNTT(a, s_ntt);
+  Matrix<Polynomial<int>> A_s = ntt_->multMatrixViaNTT(a, s_ntt);
   Matrix<Polynomial<int>> t = A_s + e_ntt;
 
   #ifdef DEBUG
@@ -157,7 +146,7 @@ Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed
     std::cout << "Polynomial E2: " << e2 << std::endl << std::endl;
   #endif
 
-  Matrix<Polynomial<int>> A_r = pwm_unit_->multMatrixViaNTT(At, r_ntt);
+  Matrix<Polynomial<int>> A_r = ntt_->multMatrixViaNTT(At, r_ntt);
   Matrix<Polynomial<int>> A_r_ntt = applyNTTMatrix_(A_r, k_, false);
   Matrix<Polynomial<int>> u = A_r_ntt + e1;
 
@@ -166,7 +155,7 @@ Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed
     std::cout << "Matrix U: " << u << std::endl << std::endl;
   #endif
 
-  Polynomial<int> v = pwm_unit_->multMatrixViaNTT(t_matrix, r_ntt)(0, 0);
+  Polynomial<int> v = ntt_->multMatrixViaNTT(t_matrix, r_ntt)(0, 0);
   Polynomial<int> v_ntt = ntt_->NTT_Kyber(v, false);
   v_ntt = v_ntt + e2;
   v_ntt = v_ntt + m_pol;
@@ -218,7 +207,7 @@ Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext) {
 
   Polynomial<int> v = compressor_unit_->Decompress_(encdec_unit_->Decode_(c2, dv_), dv_);
   Matrix<Polynomial<int>> st = encdec_unit_->DecodeBytesToMatrix(sk, 1, k_, 12); 
-  Polynomial<int> st_u = pwm_unit_->multMatrixViaNTT(st, u_ntt)(0, 0);
+  Polynomial<int> st_u = ntt_->multMatrixViaNTT(st, u_ntt)(0, 0);
   Polynomial<int> st_u_ntt = ntt_->NTT_Kyber(st_u, false);
   Polynomial<int> m = v - st_u_ntt;
   Bytes result = encdec_unit_->Encode_(compressor_unit_->Compress_(m, 1), 1);
@@ -237,6 +226,126 @@ Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext) {
 
   return result;
 }
+
+
+/**
+ * @brief Generate a key pair for the KEM
+ * 
+ * @return std::pair<Bytes, Bytes> : The generated key pair
+ */
+std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
+  auto start = std::chrono::high_resolution_clock::now();
+  Bytes seed = GenerateSeed_(KyberConstants::SeedSize);
+
+  #ifdef DEBUG
+    std::cout << "Seed Generated: " << seed.FromBytesToHex() << std::endl;
+  #endif
+  
+  std::pair<Bytes, Bytes> key_pair = Kyber::KeyGen();
+  Bytes pk = key_pair.first;
+  Bytes sk = key_pair.second + pk + Keccak::H(pk, 32) + seed;
+  
+  #ifdef DEBUG
+    std::cout << "Secret Key: " << sk.FromBytesToHex() << std::endl;
+  #endif
+  
+  #ifdef TIME
+    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
+    time_results_["KEMKeyGen"].push_back(elapsed.count());
+  #endif
+
+  return std::pair<Bytes, Bytes>{pk, sk};
+}
+
+
+/**
+ * @brief Encapsulate a key
+ * 
+ * @param pk : The public key
+ * @return std::pair<Bytes, Bytes> : The encapsulated key
+ */
+std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk) {
+  auto start = std::chrono::high_resolution_clock::now();
+  Bytes message = Keccak::H(GenerateSeed_(KyberConstants::SeedSize), KyberConstants::SeedSize);
+
+  #ifdef DEBUG
+    std::cout << "Message: " << message.FromBytesToHex() << std::endl;
+  #endif
+
+  std::pair<Bytes, Bytes> pair = Keccak::G(message + Keccak::H(pk, KyberConstants::SeedSize));
+
+  #ifdef DEBUG
+    std::cout << "K' and r': " << pair.first.FromBytesToHex() << " " << pair.second.FromBytesToHex() << std::endl;
+  #endif
+  Bytes K_prime = pair.first;
+  Bytes r = pair.second;
+  Bytes c = Encryption(pk, message, r);
+  Bytes K = Keccak::KDF(K_prime + Keccak::H(c, KyberConstants::SeedSize), KyberConstants::SeedSize);
+
+  #ifdef DEBUG
+    std::cout << "Ciphertext: " << c.FromBytesToHex() << std::endl;
+    std::cout << "K: " << K.FromBytesToHex() << std::endl << std::endl;
+  #endif
+
+  #ifdef TIME
+    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
+    time_results_["KEMEncapsulation"].push_back(elapsed.count());
+  #endif
+
+  return std::pair<Bytes, Bytes>{c, K};
+}
+
+
+/**
+ * @brief Decapsulate a key
+ * 
+ * @param sk : The secret key
+ * @param ciphertext : The ciphertext to decapsulate
+ * @return Bytes : The decapsulated key
+ */
+Bytes Kyber::KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext) {
+  auto start = std::chrono::high_resolution_clock::now();
+  if (sk.GetBytesSize() != (24 * k_ * int(n_ / 8) + 96)) {
+    throw std::invalid_argument("The secret key is not the correct size");
+  }
+  if (ciphertext.GetBytesSize() != (du_ * k_ * int(n_ / 8) + dv_ * int(n_ / 8))) {
+    throw std::invalid_argument("The cyphered text is not the correct size");
+  }
+  int entry_index = 12 * k_ * int(n_ / 8);
+  int following_index = 24 * k_ * int(n_ / 8);
+  Bytes pk = sk.GetNBytes(entry_index, KyberConstants::PkSize);
+  Bytes h = sk.GetNBytes(following_index + 32, 32);
+  Bytes z = sk.GetNBytes(following_index + 64, 32);
+
+  #ifdef DEBUG
+    std::cout << "Public Key: " << pk.FromBytesToHex() << std::endl;
+    std::cout << "H: " << h.FromBytesToHex() << std::endl;
+    std::cout << "Z: " << z.FromBytesToHex() << std::endl;
+  #endif
+  // Decrypting the message
+  Bytes m_prime = Decryption(sk, ciphertext);
+  // Generating the K' and r' values
+  std::pair<Bytes, Bytes> pair = Keccak::G(m_prime + h);
+  Bytes K_prime = pair.first;
+  Bytes r_prime = pair.second;
+  // Encrypting the message again
+  Bytes c_prime = Encryption(pk, m_prime, r_prime);
+
+  #ifdef DEBUG
+    std::cout << "Message Decrypted: " << m_prime.FromBytesToHex() << std::endl;
+    std::cout << "K' and r': " << K_prime.FromBytesToHex() << " " << r_prime.FromBytesToHex() << std::endl;
+    std::cout << "Ciphertext: " << c_prime.FromBytesToHex() << std::endl;
+  #endif
+  Bytes result = Keccak::KDF((c_prime == ciphertext ? K_prime : z) + Keccak::H(c_prime, 32), 32);
+  
+  #ifdef TIME
+    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
+    time_results_["KEMDecapsulation"].push_back(elapsed.count());
+  #endif
+  
+  return result;
+}
+
 
 /**
  * @brief Apply the NTT to a matrix
@@ -285,7 +394,6 @@ std::pair<Bytes, Bytes> Kyber::GenerateRhoSigma_(const Bytes& seed) const {
  * @brief Initialize the constants of the Kyber cryptosystem
  * @param option : The option to choose the parameters of the Kyber cryptosystem
  */
-#ifndef BENCHWORKING
 void Kyber::InitializeConstants(int option) {
   switch (option) {
     case 512:
@@ -329,4 +437,3 @@ void Kyber::InitializeConstants(int option) {
       break;
   }
 }
-#endif

@@ -272,3 +272,88 @@ Polynomial<int> NTT::ParsePolynomial_(const Bytes& kBytes) const {
   }
   return polynomial;
 }
+
+
+/**
+ * @brief This method multiplies two matrices using pointwise multiplication in NTT
+ * 
+ * @param A The first matrix
+ * @param B The second matrix
+ * @return Matrix<Polynomial<int>> 
+ */
+Matrix<Polynomial<int>> NTT::multMatrixViaNTT(const Matrix<Polynomial<int>>& A, const Matrix<Polynomial<int>>& B) {
+  int rowsA = A.GetRowsSize();
+  int columnsA = A.GetColumnsSize();
+  int columnsB = B.GetColumnsSize();
+  Matrix<Polynomial<int>> result(rowsA, columnsB);
+  for (int i = 0; i < rowsA; ++i) {
+    for (int j = 0; j < columnsB; ++j) {
+      Polynomial<int> sum_polynomial = Polynomial<int>(n_);
+        for (int k = 0; k < columnsA; ++k) {
+          sum_polynomial = sum_polynomial + pointwise_(A(i, k), B(k, j));
+        }
+      result(i, j) = sum_polynomial;
+    }
+  }
+  return result;
+}
+
+/**
+ * @brief This function performs the pointwise multiplication of two polynomials
+ * 
+ * @param p : polynomial p
+ * @param g : polynomial g
+ * @return Polynomial<int> 
+ */
+Polynomial<int> NTT::pointwise_(const Polynomial<int>& p, const Polynomial<int>& g) {
+  int phi = FirstPrimitiveRoot_(n_);
+  // If the degree of any polynomial is less than 256 we apply NTT 
+  // we fill with zeros since it does not change the polynomial.
+  Polynomial<int> p_filled = p;
+  Polynomial<int> g_filled = g;
+  if (p.GetSize() < n_) {
+    p_filled = p_filled.ReturnAppend(Polynomial<int>(n_ - p.GetSize()));
+  } 
+  if (g.GetSize() < n_) {
+    g_filled = g_filled.ReturnAppend(Polynomial<int>(n_ - g.GetSize()));
+  }
+  Polynomial<int> p_odd(0);
+  Polynomial<int> p_even(0);
+  Polynomial<int> g_odd(0);
+  Polynomial<int> g_even(0);
+  for (int i = 0; i < n_; i++) {
+    if (i % 2 == 0) {
+      p_even.append(p_filled[i]);
+      g_even.append(g_filled[i]);
+    } else {
+      p_odd.append(p_filled[i]);
+      g_odd.append(g_filled[i]);
+    }
+  }
+  Polynomial<int> p_wise_mult_even = Polynomial<int>(0);
+  Polynomial<int> p_wise_mult_odd = Polynomial<int>(0);
+  for (int i = 0; i < n_; ++i) {
+    int left = 0;
+    int right = 0;
+    if (i % 2 == 0) {
+      int mid = i / 2;
+      int left = (p_even[mid] * g_even[mid]) % q_;
+      int phi_power = PowerWithMod_(phi, 2 * BitReverse_(mid, n_ / 2) + 1, q_);
+      int right = (p_odd[mid] * g_odd[mid]) % q_;
+      right = (right * phi_power) % q_;
+      p_wise_mult_even.append((left + right) % q_);
+    } else {
+      int mid = (i - 1) / 2;
+      int left = (p_even[mid] * g_odd[mid]) % q_;
+      int right = (p_odd[mid] * g_even[mid]) % q_;
+      p_wise_mult_odd.append((left + right) % q_);
+    }
+  }
+  Polynomial<int> result = Polynomial<int>(n_);
+  for (int i = 0; i < n_; i++) {
+    result[i] = (i % 2 == 0) ? p_wise_mult_even[i / 2] : p_wise_mult_odd[(i - 1) / 2];
+  }
+  return result;
+}
+
+

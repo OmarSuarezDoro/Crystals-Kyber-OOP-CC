@@ -22,6 +22,11 @@
 class CompressorUnit {
  public:
   CompressorUnit(int q) { q_ = q; }
+  // Getters
+  int GetQ() const { return q_; }
+  // Setters
+  void SetQ(int q) { q_ = q; }
+  
   Matrix<Polynomial<int>> CompressMatrix(const Matrix<Polynomial<int>>& matrix, int bits_per_coefficient) const;
   Matrix<Polynomial<int>> DecompressMatrix(const Matrix<Polynomial<int>>& matrix, int bits_per_coefficient) const;
   Polynomial<int> Compress_(const Polynomial<int>& polynomial, int bits_per_coefficient) const;

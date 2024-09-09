@@ -16,8 +16,8 @@
 #include <chrono>
 #include <thread>
 
-#include "../Kyber/KyberKEM.h"
-#include "../Components/MessageParser.h"
+#include "../Kyber/Kyber.h"
+#include "./MessageParser.h"
 
 
 #define OPTION_SPECIFICATION_SHORT "-s"
@@ -37,8 +37,7 @@ class ProgramInterface {
  public:
   ProgramInterface(const std::vector<std::string>& args);
   // run must can specify each parameter
-  void run(int option = 512, const std::vector<int>& seed = {}, int n = 256, int q = 3329, int k = 3,
-  int n1 = 8, int n2 = 256, int du = 10, int dv = 10, bool benchmarking = false);
+  void run(int option = 512, const std::vector<int>& seed = {});
   #ifdef BENCHMARKING
   void benchmark();
   #endif

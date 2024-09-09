@@ -21,6 +21,11 @@
 class EncDecUnit {
  public:
   EncDecUnit(int n) : n_{n} {}
+  // Getters
+  int GetN() const { return n_; }
+  // Setters
+  void SetN(int n) { n_ = n; }
+  
   Bytes EncodeMatrixToBytes(const Matrix<Polynomial<int>>& input_matrix, const int bits_per_coefficient = 0) const;
   Matrix<Polynomial<int>> DecodeBytesToMatrix(const Bytes& input_bytes, const int rows, const int cols, const int length = 0) const;;
   Bytes Encode_(const Polynomial<int>& polynomial, int bits_per_coefficient = 0) const;  

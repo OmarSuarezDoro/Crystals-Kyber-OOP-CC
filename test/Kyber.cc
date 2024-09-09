@@ -59,3 +59,12 @@ TEST_F(KyberTest, TestOfDecryptionMethod) {
   Bytes decryption = kyber.Decryption(pair.second, encryption);
   EXPECT_EQ(decryption, random_message);
 }
+
+
+TEST_F(KyberTest, TestOfKEM) {
+  Kyber kyber = Kyber(512);
+  std::pair<Bytes, Bytes> pair_keys = kyber.KEMKeyGen();
+  std::pair<Bytes, Bytes> pair_encapsulation = kyber.KEMEncapsulation(pair_keys.first);
+  Bytes decapsulation = kyber.KEMDecapsulation(pair_keys.second, pair_encapsulation.first);
+  EXPECT_EQ(decapsulation, pair_encapsulation.second);
+}
