@@ -177,7 +177,7 @@ Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed
 
   #ifdef TIME
     std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    time_results_["Encryption"].push_back(elapsed.count());;	
+    time_results_["Encryption"].push_back(elapsed.count());
   #endif
 
   return c_encoded;
@@ -341,7 +341,7 @@ Bytes Kyber::KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext) {
   #ifdef TIME
     std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
     time_results_["KEMDecapsulation"].push_back(elapsed.count());
-  #endif
+   #endif
   
   return result;
 }

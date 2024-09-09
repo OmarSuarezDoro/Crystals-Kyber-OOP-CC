@@ -32,10 +32,13 @@ class Kyber {
   std::pair<Bytes, Bytes> KeyGen();
   Bytes Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed);  
   Bytes Decryption(const Bytes& sk, const Bytes& ciphertext);
-
+  
   std::map<std::string, double> GetTimeResults() const { 
     std::map<std::string, double> results;
     for (auto& [key, value] : time_results_) {
+      if (value.size() == 0) {
+        continue;
+      }
       double sum = 0;
       for (auto& time : value) {
         sum += time;
@@ -74,12 +77,13 @@ class Kyber {
   
   std::vector<int> seed_ = {};
 
-  std::map<std::string, std::vector<double>> time_results_ {
-    {"KeyGen", {}},
-    {"Encryption", {}},
-    {"Decryption", {}},
-    {"KEMKeyGen", {}},
-    {"KEMEncapsulation", {}},
-    {"KEMDecapsulation", {}}
+  std::map<std::string, double> time_results_ {
+    {"KeyGen", 0.0},
+    {"Encryption", 0.0},
+    {"Decryption", 0.0},
+    {"KEMKeyGen", 0.0},
+    {"KEMEncapsulation", 0.0},
+    {"KEMDecapsulation", 0.0},
+    {"TotalTime", 0.0}
   };
 };

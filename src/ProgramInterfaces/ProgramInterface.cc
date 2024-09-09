@@ -12,6 +12,9 @@
 
 #include "./ProgramInterface.h"
 
+std::mutex mtx;
+
+
 /**
  * @brief Construct a new Program Interface:: Program Interface object
  * @param args : The arguments passed to the program 
@@ -44,8 +47,9 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
   }}
 
 void ProgramInterface::run(int option, const std::vector<int>& seed) {
+  auto start = std::chrono::high_resolution_clock::now();
   std::unique_ptr<Kyber> kyber = nullptr;
-
+  
   #ifdef BENCHMARKING
   kyber = std::make_unique<Kyber>(specification_, seed, n, q, k, n1, n2, du, dv, true);
   #else
@@ -66,17 +70,27 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
   if (message_padlen.second > 0) {
     decrypted_message = MessageParser::unpad(decrypted_message);
   }
-  std::cout << "Decrypted message: " << decrypted_message << std::endl;
-
   #ifdef TIME
-  std::cout << "Time results: " << std::endl;
-  std::map<std::string, double> time_results = kyber->GetTimeResults();
-  for (const auto& time_result : time_results) {
-    std::cout << time_result.first << ": " << time_result.second << "s" << std::endl;
+  // Push to time_results_ the values of time
+  for (const auto& [phase, time] : kyber->GetTimeResults()) {
+    if (time == -1) {
+      continue;
+    }
+    mtx.lock();
+    time_results_[phase] += time;
+    mtx.unlock();
   }
+  mtx.lock();
+  ++number_of_instances_;
+  mtx.unlock();
   #endif
 
-  // std::cout << kyber->GetTimeResults() << std::endl;
+  // std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
+  // time_results_["TotalTime"].push_back(elapsed.count());
+  #ifndef BENCHMARKING
+  std::cout << "Decrypted Message: " << decrypted_message << std::endl;
+  #endif
+
 }
 
 
