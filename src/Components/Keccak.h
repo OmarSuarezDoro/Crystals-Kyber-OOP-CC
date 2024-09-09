@@ -13,7 +13,6 @@
 
 #pragma once
 
-#include <iostream>
 #include <string>
 #include <tuple>
 #include <cryptopp/hex.h>

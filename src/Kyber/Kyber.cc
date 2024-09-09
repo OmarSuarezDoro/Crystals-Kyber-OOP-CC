@@ -11,28 +11,37 @@
  */
 
 #include "Kyber.h"
-#include "../../.conf/constants_values.h"
 
 /**
  * @brief Construct a new Kyber:: Kyber object
  * 
  * @param option : The option to choose the parameters of the Kyber cryptosystem
  */
-Kyber::Kyber(int option, const std::vector<int>& seed) {
-  KyberConstants::InitializeConstants(option);
-  n_ = KyberConstants::N;
-  q_ = KyberConstants::Q;
-  k_ = KyberConstants::K;
-  n1_ = KyberConstants::N1;
-  n2_ = KyberConstants::N2;
-  du_ = KyberConstants::Du;
-  dv_ = KyberConstants::Dv;  
+Kyber::Kyber(int option, const std::vector<int>& seed, int n, int q, int k, int n1, int n2, int du, int dv, bool benchmarking) {
+  if (benchmarking) {
+    n_ = n;
+    q_ = q;
+    k_ = k;
+    n1_ = n1;
+    n2_ = n2;
+    du_ = du;
+    dv_ = dv;
+  } else {
+    InitializeConstants(option);
+    n_ = KyberConstants::N;
+    q_ = KyberConstants::Q;
+    k_ = KyberConstants::K;
+    n1_ = KyberConstants::N1;
+    n2_ = KyberConstants::N2;
+    du_ = KyberConstants::Du;
+    dv_ = KyberConstants::Dv;  
+  }
+  seed_ = seed;
   ntt_ = std::make_unique<NTT>(NTT(n_, q_));
   pwm_unit_ = std::make_unique<PWMUnit>(PWMUnit(n_, q_));
   encdec_unit_ = std::make_unique<EncDecUnit>(EncDecUnit(n_));
   sampling_unit_ = std::make_unique<SamplingUnit>(SamplingUnit(k_, n_));
   compressor_unit_ = std::make_unique<CompressorUnit>(CompressorUnit(q_));
-  seed_ = seed;
 }
 
 
@@ -96,7 +105,7 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
 
   #ifdef TIME
     std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    time_results_["KeyGen"] = elapsed.count();
+    time_results_["KeyGen"].push_back(elapsed.count());
   #endif
   pk_ = std::make_unique<Bytes>(t_encoded);
   sk_ = std::make_unique<Bytes>(s_encoded);
@@ -179,7 +188,7 @@ Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed
 
   #ifdef TIME
     std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    time_results_["Encryption"] = elapsed.count();	
+    time_results_["Encryption"].push_back(elapsed.count());;	
   #endif
 
   return c_encoded;
@@ -223,140 +232,9 @@ Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext) {
 
   #ifdef TIME
     std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    time_results_["Decryption"] = elapsed.count();
+    time_results_["Decryption"].push_back(elapsed.count());
   #endif
 
-  return result;
-}
-
-/**
- * @brief Generate a key pair for the KEM
- * 
- * @return std::pair<Bytes, Bytes> : The generated key pair
- */
-std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
-  auto start = std::chrono::high_resolution_clock::now();
-  Bytes seed = GenerateSeed_(KyberConstants::SeedSize);
-
-  #ifdef DEBUG
-    std::cout << "Seed Generated: " << seed.FromBytesToHex() << std::endl;
-  #endif
-  
-  std::pair<Bytes, Bytes> key_pair = KeyGen();
-  Bytes pk = key_pair.first;
-  Bytes sk = key_pair.second + pk + Keccak::H(pk, 32) + seed;
-  
-  #ifdef DEBUG
-    std::cout << "Secret Key: " << sk.FromBytesToHex() << std::endl;
-  #endif
-  
-  #ifdef TIME
-    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    time_results_["KEMKeyGen"] = elapsed.count();
-  #endif
-
-  return std::pair<Bytes, Bytes>{pk, sk};
-}
-
-
-/**
- * @brief Encapsulate a key
- * 
- * @param pk : The public key
- * @param seed : The seed to generate the rho and sigma values
- * @param k : The k value
- * @param n1 : The n1 value
- * @param n2 : The n2 value
- * @param du : The du value
- * @param dv : The dv value
- * @return std::pair<Bytes, Bytes> : The encapsulated key
- */
-std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk) {
-  auto start = std::chrono::high_resolution_clock::now();
-  Bytes message = Keccak::H(GenerateSeed_(KyberConstants::SeedSize), 32);
-
-  #ifdef DEBUG
-    std::cout << "Message: " << message.FromBytesToHex() << std::endl;
-  #endif
-
-  std::pair<Bytes, Bytes> pair = Keccak::G(message + Keccak::H(pk, 32));
-
-  #ifdef DEBUG
-    std::cout << "K' and r': " << pair.first.FromBytesToHex() << " " << pair.second.FromBytesToHex() << std::endl;
-  #endif
-  Bytes K_prime = pair.first;
-  Bytes r = pair.second;
-  Bytes c = Encryption(pk, message, r);
-  Bytes K = Keccak::KDF(K_prime + Keccak::H(c, 32), 32);
-
-  #ifdef DEBUG
-    std::cout << "Ciphertext: " << c.FromBytesToHex() << std::endl;
-    std::cout << "K: " << K.FromBytesToHex() << std::endl << std::endl;
-  #endif
-
-  #ifdef TIME
-    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    time_results_["KEMEncapsulation"] = elapsed.count();
-  #endif
-
-  return std::pair<Bytes, Bytes>{c, K};
-}
-
-
-/**
- * @brief Decapsulate a key
- * 
- * @param sk : The secret key
- * @param ciphertext : The ciphertext to decapsulate
- * @param k : The k value
- * @param n1 : The n1 value
- * @param n2 : The n2 value
- * @param du : The du value
- * @param dv : The dv value
- * @return Bytes : The decapsulated key
- */
-Bytes Kyber::KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext) {
-  auto start = std::chrono::high_resolution_clock::now();
-  if (sk.GetBytesSize() != (24 * k_ * int(n_ / 8) + 96)) {
-    throw std::invalid_argument("The secret key is not the correct size");
-  }
-  if (ciphertext.GetBytesSize() != (du_ * k_ * int(n_ / 8) + dv_ * int(n_ / 8))) {
-    throw std::invalid_argument("The cyphered text is not the correct size");
-  }
-  int entry_index = 12 * k_ * int(n_ / 8);
-  int following_index = 24 * k_ * int(n_ / 8);
-  Bytes pk = sk.GetNBytes(entry_index, KyberConstants::PkSize);
-  Bytes h = sk.GetNBytes(following_index + 32, 32);
-  Bytes z = sk.GetNBytes(following_index + 64, 32);
-
-  #ifdef DEBUG
-    std::cout << "Public Key: " << pk.FromBytesToHex() << std::endl;
-    std::cout << "H: " << h.FromBytesToHex() << std::endl;
-    std::cout << "Z: " << z.FromBytesToHex() << std::endl;
-  #endif
-
-
-  // Decrypting the message
-  Bytes m_prime = Decryption(sk, ciphertext);
-  // Generating the K' and r' values
-  std::pair<Bytes, Bytes> pair = Keccak::G(m_prime + h);
-  Bytes K_prime = pair.first;
-  Bytes r_prime = pair.second;
-  // Encrypting the message again
-  Bytes c_prime = Encryption(pk, m_prime, r_prime);
-
-  #ifdef DEBUG
-    std::cout << "Message Decrypted: " << m_prime.FromBytesToHex() << std::endl;
-    std::cout << "K' and r': " << K_prime.FromBytesToHex() << " " << r_prime.FromBytesToHex() << std::endl;
-    std::cout << "Ciphertext: " << c_prime.FromBytesToHex() << std::endl;
-  #endif
-  Bytes result = (c_prime == ciphertext ? Keccak::KDF(K_prime + z, 32) : Keccak::KDF(K_prime + Keccak::H(c_prime, 32), 32));
-  
-  #ifdef TIME
-    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    time_results_["KEMDecapsulation"] = elapsed.count();
-  #endif
-  
   return result;
 }
 
@@ -386,8 +264,9 @@ Matrix<Polynomial<int>> Kyber::applyNTTMatrix_(const Matrix<Polynomial<int>>& ma
 Bytes Kyber::GenerateSeed_(int seed_size) const {
   std::vector<unsigned char> seed(seed_size);
   std::srand(std::time(nullptr));
-  std::generate(seed.begin(), seed.end(), []() {
-    return rand() % 256;
+  int n = int(n_);
+  std::generate(seed.begin(), seed.end(), [n]() {
+    return rand() % n;
   });
   return Bytes(seed);
 }
@@ -402,3 +281,52 @@ std::pair<Bytes, Bytes> Kyber::GenerateRhoSigma_(const Bytes& seed) const {
   return Keccak::G(seed);
 }
 
+/**
+ * @brief Initialize the constants of the Kyber cryptosystem
+ * @param option : The option to choose the parameters of the Kyber cryptosystem
+ */
+#ifndef BENCHWORKING
+void Kyber::InitializeConstants(int option) {
+  switch (option) {
+    case 512:
+      KyberConstants::N = 256;
+      KyberConstants::Q = 3329;
+      KyberConstants::K = 2;
+      KyberConstants::N1 = 3;
+      KyberConstants::N2 = 2;
+      KyberConstants::Du = 10;
+      KyberConstants::Dv = 4;
+      KyberConstants::PkSize = 800;
+      KyberConstants::SkSize = 1632;
+      KyberConstants::CtSize = 768;
+      KyberConstants::SeedSize = 32;
+      break;
+    case 768:
+      KyberConstants::N = 256;
+      KyberConstants::Q = 3329;
+      KyberConstants::K = 3;
+      KyberConstants::N1 = 3;
+      KyberConstants::N2 = 2;
+      KyberConstants::Du = 10;
+      KyberConstants::Dv = 4;
+      KyberConstants::PkSize = 1184;
+      KyberConstants::SkSize = 2400;
+      KyberConstants::CtSize = 1088;
+      break;
+    case 1024:
+      KyberConstants::N = 256;
+      KyberConstants::Q = 3329;
+      KyberConstants::K = 4;
+      KyberConstants::N1 = 2;
+      KyberConstants::N2 = 2;
+      KyberConstants::Du = 11;
+      KyberConstants::Dv = 5;
+      KyberConstants::PkSize = 1568;
+      KyberConstants::SkSize = 3168;
+      KyberConstants::CtSize = 1568;
+      break;
+    default:
+      break;
+  }
+}
+#endif

@@ -14,12 +14,13 @@
 
 #include <stdarg.h>
 
+#include "../../.conf/constants_values.h"
+
 #include "../Components/NTT.h"
 #include "../Components/Keccak.h"
 #include "../Components/PWMUnit.h"
 #include "../Components/EncDecUnit.h"
 #include "../Components/SamplingUnit.h"
-#include "../Components/MessageParser.h"
 #include "../Components/CompressorUnit.h"
 
 #include "../DataStructures/Bytes.h"
@@ -27,22 +28,31 @@
 
 class Kyber {
  public:
-  Kyber(int option, const std::vector<int>& seed = {});
+  Kyber(int option, const std::vector<int>& seed = {}, int n = 256, int q = 3329, int k = 2,
+  int n1 = 3, int n2 = 2, int du = 10, int dv = 4, bool benchmarking = false);
+
   std::pair<Bytes, Bytes> KeyGen();
   Bytes Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed);  
   Bytes Decryption(const Bytes& sk, const Bytes& ciphertext);
-  
-  std::pair<Bytes, Bytes> KEMKeyGen();
-  std::pair<Bytes, Bytes> KEMEncapsulation(const Bytes& pk);
-  Bytes KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext);
-  
-  
-  
- private:
+
+  std::map<std::string, double> GetTimeResults() const { 
+    std::map<std::string, double> results;
+    for (auto& [key, value] : time_results_) {
+      double sum = 0;
+      for (auto& time : value) {
+        sum += time;
+      }
+      results[key] = sum / value.size();
+    }
+    return results;
+  }
+
+ protected:
   Bytes GenerateSeed_(int seed_size) const;
   std::pair<Bytes, Bytes> GenerateRhoSigma_(const Bytes& seed) const;
   Matrix<Polynomial<int>> applyNTTMatrix_(const Matrix<Polynomial<int>>& matrix, int k, bool is_ntt = true) const;
-
+  
+  void InitializeConstants(int option);
 
   int n_;
   int q_;
@@ -63,14 +73,12 @@ class Kyber {
   
   std::vector<int> seed_ = {};
 
-  #ifdef TIME
-  std::map<std::string, double> time_results_ {
-    {"KeyGen", 0.0},
-    {"Encryption", 0.0},
-    {"Decryption", 0.0},
-    {"KEMKeyGen", 0.0},
-    {"KEMEncapsulation", 0.0},
-    {"KEMDecapsulation", 0.0}
+  std::map<std::string, std::vector<double>> time_results_ {
+    {"KeyGen", {}},
+    {"Encryption", {}},
+    {"Decryption", {}},
+    {"KEMKeyGen", {}},
+    {"KEMEncapsulation", {}},
+    {"KEMDecapsulation", {}}
   };
-  #endif
 };

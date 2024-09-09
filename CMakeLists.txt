@@ -52,6 +52,7 @@ add_executable(
   test/EncDecUnit.cc
   test/CompressorUnit.cc
   test/Kyber.cc
+  test/KyberKEM.cc
   ./src/DataStructures/Bytes.cc
   ./src/Components/Keccak.cc
   ./src/Components/NTT.cc
@@ -66,6 +67,9 @@ add_executable(
   ./src/Components/CompressorUnit.h
   ./src/Kyber/Kyber.cc  
   ./src/Kyber/Kyber.h
+  ./src/Kyber/KyberKEM.cc
+  ./src/Kyber/KyberKEM.h
+  ./.conf/constants_values.h
   )
 
 # Adds an executable target called "client_main" to be built from the source files listed in the command invocation.
@@ -92,6 +96,11 @@ add_executable(
   ./src/Components/MessageParser.h
   ./src/Kyber/Kyber.cc  
   ./src/Kyber/Kyber.h
+  ./src/Kyber/KyberKEM.cc
+  ./src/Kyber/KyberKEM.h
+  ./src/ProgramInterfaces/ProgramInterface.cc
+  ./src/ProgramInterfaces/ProgramInterface.h
+  ./.conf/constants_values.h
   )
 
 
@@ -108,7 +117,7 @@ target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
 # Setting app options that the user can enable/disable in the CMake configuration
 option(ENABLE_DEBUG "Enable debugging" OFF)
 option(ENABLE_TIME "Enable timing measurements" OFF)
-option(ENABLE_KEM "Enable KEM mode" OFF)
+option(ENABLE_BENCHMARKING "Enable BENCHMARKING mode" OFF)
 
 
 target_compile_options(runTests PRIVATE)
@@ -123,8 +132,8 @@ if(ENABLE_TIME)
   target_compile_definitions(client_main PRIVATE TIME)
 endif()
 
-# If ENABLE_KEM is enabled, define the KEM macro in the preprocessor
-if(ENABLE_KEM)
-  target_compile_definitions(runTests PRIVATE KEM)
-  target_compile_definitions(client_main PRIVATE KEM)
+# If ENABLE_BENCHMARKING is enabled, define the BENCHMARKING macro in the preprocessor
+if(ENABLE_BENCHMARKING)
+  target_compile_definitions(runTests PRIVATE BENCHMARKING)
+  target_compile_definitions(client_main PRIVATE BENCHMARKING)
 endif()
