@@ -164,7 +164,6 @@ int NTT::FirstPrimitiveRoot_(int n) const {
     if (is_primitive_root && PowerWithMod_(base, n, q_) == 1) {
       return base;
     }
-    if (base == 17) { exit(0); }
   }
   throw std::invalid_argument("Primitive root not found.");
 }
