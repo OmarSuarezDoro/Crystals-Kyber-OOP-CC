@@ -39,12 +39,8 @@
 class ProgramInterface { 
  public:
   ProgramInterface(const std::vector<std::string>& args);
-  // run must can specify each parameter
   void run(int option = 512, const std::vector<int>& seed = {});
-  #ifdef BENCHMARKING
-  void benchmark();
-  #endif
-
+  
  private:
   int specification_;
   std::map<std::string, double> time_results_{

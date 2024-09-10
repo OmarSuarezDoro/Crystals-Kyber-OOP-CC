@@ -21,13 +21,17 @@
  * @return Bytes 
  */
 Bytes EncDecUnit::EncodeMatrixToBytes(const Matrix<Polynomial<int>>& input_matrix, const int bits_per_coefficient) const {
-  Bytes result = Bytes();
-  for (int i = 0; i < input_matrix.GetRowsSize(); i++) {
-    for (int j = 0; j < input_matrix.GetColumnsSize(); j++) {
-      Bytes current_bytes = Encode_(input_matrix(i, j), bits_per_coefficient);
-      result += current_bytes;
+  Bytes result;
+  const int krows = input_matrix.GetRowsSize();
+  const int kcols = input_matrix.GetColumnsSize();
+  result.Reserve(krows * kcols * n_ * bits_per_coefficient / BYTE_SIZE);
+  
+  for (int i = 0; i < krows; i++) {
+    for (int j = 0; j < kcols; j++) {
+      result += Encode_(input_matrix(i, j), bits_per_coefficient);
     }
   }
+
   return result;
 }
 
@@ -41,15 +45,9 @@ Bytes EncDecUnit::EncodeMatrixToBytes(const Matrix<Polynomial<int>>& input_matri
  */
 Bytes EncDecUnit::Encode_(const Polynomial<int>& polynomial, int bits_per_coefficient) const {
   if (bits_per_coefficient < 1) {
-    // iterate through the vector and see the number of bits needed to represent the biggest coefficient
-    int max_coefficient = 0;
-    for (int i = 0; i < polynomial.GetSize(); i++) {
-      int current_coefficient = std::bitset<32>(polynomial[i]).to_string().length();
-      max_coefficient = std::max(max_coefficient, current_coefficient);
-    }
-    bits_per_coefficient = max_coefficient;
+    // Iterate through the vector and see the number of bits needed to represent the biggest coefficient
+    bits_per_coefficient = std::ceil(std::log2(*std::max_element(polynomial.GetCoefficients().begin(), polynomial.GetCoefficients().end()) + 1));
   }
-  
   std::string result_string = "";
   for (const auto& element : polynomial.GetCoefficients()) {
     std::string binary_string = std::bitset<32>(element).to_string();
@@ -59,7 +57,7 @@ Bytes EncDecUnit::Encode_(const Polynomial<int>& polynomial, int bits_per_coeffi
     std::reverse(binary_string.begin(), binary_string.end());
     result_string += binary_string;
   }
-  while (result_string.length() % 8 != 0) { result_string += "0"; }
+  while (result_string.length() % BYTE_SIZE != 0) { result_string += "0"; }
   Bytes result = Bytes::FromBitsToBytes(result_string);
   return result;
 }
@@ -77,22 +75,24 @@ Bytes EncDecUnit::Encode_(const Polynomial<int>& polynomial, int bits_per_coeffi
 Matrix<Polynomial<int>> EncDecUnit::DecodeBytesToMatrix(const Bytes& input_bytes, const int rows, const int cols, int length) const {
   if (length < 1) {
     const int denominator = n_ * rows * cols;
-    const int total_bits = 8 * input_bytes.GetBytesSize();
+    const int total_bits = BYTE_SIZE * input_bytes.GetBytesSize();
     length = total_bits / denominator;
     if (total_bits % denominator != 0 || n_ * length * rows * cols > total_bits) {
       throw std::invalid_argument("The input byte list must have a valid length.");
     }
   }
 
-  const int chunk_length = 32 * length;
+  const int chunk_length = CHUNK_LENGTH * length;
   const int total_chunks = input_bytes.GetBytesSize() / chunk_length;
-  std::vector<Bytes> coefficients(total_chunks + (input_bytes.GetBytesSize() % chunk_length != 0 ? 1 : 0));
+
+  bool is_last_chunk = input_bytes.GetBytesSize() % chunk_length != 0;
+  std::vector<Bytes> coefficients(total_chunks + (is_last_chunk ? 1 : 0));
 
   for (int i = 0; i < total_chunks; ++i) {
     coefficients[i] = input_bytes.GetNBytes(i * chunk_length, chunk_length);
   }
   
-  if (input_bytes.GetBytesSize() % chunk_length != 0) {
+  if (is_last_chunk) {
     coefficients.back() = input_bytes.GetNBytes(total_chunks * chunk_length, input_bytes.GetBytesSize() % chunk_length);
   }
 
@@ -116,13 +116,13 @@ Matrix<Polynomial<int>> EncDecUnit::DecodeBytesToMatrix(const Bytes& input_bytes
  */
 Polynomial<int> EncDecUnit::Decode_(const Bytes& input_bytes, int bits_per_coefficient) const {
   if (bits_per_coefficient < 1) {
-    bits_per_coefficient = (8 * input_bytes.GetBytesSize()) / n_;
-    if ((8 * input_bytes.GetBytesSize()) % n_ != 0) {
+    bits_per_coefficient = (BYTE_SIZE * input_bytes.GetBytesSize()) / n_;
+    if ((BYTE_SIZE * input_bytes.GetBytesSize()) % n_ != 0) {
       throw std::invalid_argument("The input byte list must have a length multiple of n_ * bits_per_coefficient.");
     }
   }
   const int expected_size = n_ * bits_per_coefficient;
-  if (expected_size != 8 * input_bytes.GetBytesSize()) {
+  if (expected_size != BYTE_SIZE * input_bytes.GetBytesSize()) {
     throw std::invalid_argument("The input byte list size does not match the expected size.");
   }
   Polynomial<int> coefficients(n_);

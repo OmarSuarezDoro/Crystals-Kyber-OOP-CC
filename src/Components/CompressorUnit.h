@@ -9,6 +9,13 @@
  * @version v0.1.0
  * @brief This file contains the  the header declaration of the class CompressorUnit, that
  * will be used to compress and decompress the messages in the lattice-based cryptosystem.
+ *
+ *  > The main reason for defining the Compress and Decompress functions is to be able to discard some low-order
+ *  bits in the ciphertext which do not have much effect on the correctness probability of decryption – thus 
+ *  reducing the size of ciphertexts.
+ *  
+ *  > The Compressq and Decompressq are also used for a purpose other than compression – namely to perform 
+ *  the usual LWE error correction during encryption and decryption
  */
 
 #pragma once

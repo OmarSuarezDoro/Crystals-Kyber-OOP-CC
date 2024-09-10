@@ -17,15 +17,11 @@
 #include "../DataStructures/Polynomial.h"
 #include "../DataStructures/Matrix.h"
 
+#define CBD_INPUT_BYTE_ARRAY 64
+
 class SamplingUnit {
  public:
   SamplingUnit(int k, int n) { k_ = k; n_ = n; };
-  // Getters
-  int GetK() const { return k_; }
-  int GetN() const { return n_; }
-  // Setters
-  void SetK(int k) { k_ = k; }
-  void SetN(int n) { n_ = n; }
 
   std::pair<Matrix<Polynomial<int>>, int> GenerateDistribuitionMatrix(const Bytes& input_bytes, int eta, int N);
   Polynomial<int> CBD_(const Bytes& input_bytes, int eta);

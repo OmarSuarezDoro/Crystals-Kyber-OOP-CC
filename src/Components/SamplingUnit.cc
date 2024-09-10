@@ -23,7 +23,8 @@
 std::pair<Matrix<Polynomial<int>>, int> SamplingUnit::GenerateDistribuitionMatrix(const Bytes& sigma, int eta, int N) {
   Matrix<Polynomial<int>> result_matrix(k_, 1, n_);
   for (int i = 0; i < k_; i++) {
-    Bytes bytes_post_prf = Keccak::PRF(sigma, N, 64 * eta);
+    Bytes bytes_post_prf = Keccak::PRF(sigma, N, CBD_INPUT_BYTE_ARRAY * eta);
+    // Specification told us that the output of the PRF function must be 64 * eta bytes long.
     Polynomial<int> result_poly = CBD_(bytes_post_prf, eta);
     result_matrix(i, 0) = result_poly;
     N += 1;
@@ -35,12 +36,13 @@ std::pair<Matrix<Polynomial<int>>, int> SamplingUnit::GenerateDistribuitionMatri
 /**
  * @brief This method implements the Centralized Binomial Distribution (CBD) function.
  * 
- * @param input_bytes : The input bytes stream.
+ * @param input_bytes : The input bytes stream. It is the output of the PRF function (pseudorandom).
+ *                      MUST BE 64 BYTES LONG.
  * @param eta : The eta value is the size of the noise that is going to be generated.
  * @return Polynomial<int> 
  */
 Polynomial<int> SamplingUnit::CBD_(const Bytes& input_bytes, int eta) {
-  if (64 >= input_bytes.GetBytesSize()) {
+  if (CBD_INPUT_BYTE_ARRAY >= input_bytes.GetBytesSize()) {
     throw std::invalid_argument("Input length is not correct.");
   }
   Polynomial<int> coefficients(n_);

@@ -14,11 +14,12 @@
 #pragma once
 
 #include <stdexcept>
-#include <cmath>
 
 #include "../DataStructures/Matrix.h"
 #include "../DataStructures/Bytes.h"
 
+#define FIRST_PRIMITIVE_ROOT_3329 17
+#define MODULUS_3329 3329
 
 class NTT {
  public:

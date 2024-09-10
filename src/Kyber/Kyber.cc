@@ -122,6 +122,7 @@ Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed
   #endif
   
   Matrix<Polynomial<int>> t_matrix = encdec_unit_->DecodeBytesToMatrix(pk, 1, k_, 12);
+  // We use Decompress here to create error tolerance gaps by sending the message bit 0 to 0 and 1 to [q/2]
   Polynomial<int> m_pol = compressor_unit_->Decompress_(encdec_unit_->Decode_(message, 1), 1);
 
   #ifdef DEBUG
@@ -216,6 +217,7 @@ Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext) {
   Polynomial<int> st_u = ntt_->multMatrixViaNTT(st, u_ntt)(0, 0);
   Polynomial<int> st_u_ntt = ntt_->NTT_Kyber(st_u, false);
   Polynomial<int> m = v - st_u_ntt;
+  // The Compressq function is used to decrypt to a 1 if v − s^T u is closer to [q/2] than to 0, and decrypt to a 0 otherwise.
   Bytes result = encdec_unit_->Encode_(compressor_unit_->Compress_(m, 1), 1);
 
   #ifdef DEBUG

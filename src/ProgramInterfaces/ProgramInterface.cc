@@ -49,13 +49,7 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
 void ProgramInterface::run(int option, const std::vector<int>& seed) {
   auto start = std::chrono::high_resolution_clock::now();
   std::unique_ptr<Kyber> kyber = nullptr;
-  
-  #ifdef BENCHMARKING
-  kyber = std::make_unique<Kyber>(specification_, seed, n, q, k, n1, n2, du, dv, true);
-  #else
   kyber = std::make_unique<Kyber>(specification_);
-  #endif
-
   std::pair<std::string, int> message_padlen = MessageParser::PadMessage(input_message_);
   std::vector<std::string> message_blocks = MessageParser::SplitMessageInChunks(message_padlen.first);  
   std::pair<Bytes, Bytes> keypair = kyber->KeyGen();
@@ -70,27 +64,13 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
   if (message_padlen.second > 0) {
     decrypted_message = MessageParser::unpad(decrypted_message);
   }
-  #ifdef TIME
-  // Push to time_results_ the values of time
-  for (const auto& [phase, time] : kyber->GetTimeResults()) {
-    if (time == -1) {
-      continue;
-    }
-    mtx.lock();
-    time_results_[phase] += time;
-    mtx.unlock();
-  }
-  mtx.lock();
-  ++number_of_instances_;
-  mtx.unlock();
-  #endif
 
-  // std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-  // time_results_["TotalTime"].push_back(elapsed.count());
+  std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
+  std::cout << "Elapsed time: " << elapsed.count() << "s" << std::endl;
+
   #ifndef BENCHMARKING
   std::cout << "Decrypted Message: " << decrypted_message << std::endl;
   #endif
-
 }
 
 

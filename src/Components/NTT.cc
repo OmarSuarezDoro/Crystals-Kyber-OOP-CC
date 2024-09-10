@@ -56,7 +56,7 @@ Polynomial<int> NTT::NTT_(const Polynomial<int>& kPolynomial) const {
   int n = kPolynomial.GetSize();
   int mid_index = n / 2;
   // Calculate the first primitive root
-  int phi = FirstPrimitiveRoot_(2 * n);
+  int phi = (n == MODULUS_3329) ? FIRST_PRIMITIVE_ROOT_3329 : FirstPrimitiveRoot_(2 * n);
 
   Polynomial<int> result = kPolynomial;
   // Iterating over the polynomial - First we chunk the polynomial in sizes of 2 * i
@@ -88,7 +88,7 @@ Polynomial<int> NTT::NTT_(const Polynomial<int>& kPolynomial) const {
  */
 Polynomial<int> NTT::INTT_(const Polynomial<int>& kPolynomial) const {
   int n = kPolynomial.GetSize();
-  int phi = FirstPrimitiveRoot_(2 * n);
+  int phi = (n == MODULUS_3329) ? FIRST_PRIMITIVE_ROOT_3329 : FirstPrimitiveRoot_(2 * n);
   int phi_inverse = PowerWithMod_(phi, 2 * n - 1, q_);
   Polynomial<int> result = kPolynomial;
   int mid_index = n / 2;
@@ -126,23 +126,15 @@ Polynomial<int> NTT::INTT_(const Polynomial<int>& kPolynomial) const {
  * @return int 
  */
 int NTT::BitReverse_(int element, int length_of_sequence) const {
-  std::vector<int> seq(length_of_sequence);
-  for (int i = 0; i < length_of_sequence; ++i) {
-    seq[i] = i;
+  int reversed = 0;
+  while (length_of_sequence > 1) {
+    reversed = (reversed << 1) | (element & 1);
+    element >>= 1;
+    length_of_sequence >>= 1;
   }
-
-  int m = std::log2(length_of_sequence);
-  std::vector<int> out(length_of_sequence, 0);
-
-  for (int i = 0; i < length_of_sequence; ++i) {
-    std::bitset<32> bin(i);
-    std::string bin_str = bin.to_string().substr(32 - m);
-    std::reverse(bin_str.begin(), bin_str.end());
-    int j = std::stoi(bin_str, nullptr, 2);
-    out[j] = seq[i];
-  }
-  return out[element];
+  return reversed;
 }
+
 
   /**
    * This method finds the first primitive root of n. 

@@ -17,6 +17,9 @@
 #include "../DataStructures/Polynomial.h"
 #include "../DataStructures/Matrix.h"
 
+#define BYTE_SIZE 8
+#define CHUNK_LENGTH 32
+
 
 class EncDecUnit {
  public:

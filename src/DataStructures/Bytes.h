@@ -9,12 +9,13 @@
  * @version v0.1.0
  * @brief This file contains the header declaration of the class Bytes
  */
+#include <iostream>
+#include <functional>
+#include <cstdint>
 #include <bitset>
 #include <cmath>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <iostream>
 
 #pragma once
 
@@ -27,6 +28,7 @@ class Bytes {
   Bytes(const std::vector<int>& kBytes);
   Bytes(const std::vector<unsigned char>& kBytes);
   ~Bytes() = default;
+  void Reserve(const int& kSize) { bytes_.reserve(kSize); }
 
   // Getters
   int GetBytesSize() const { return bytes_.size(); }
@@ -36,6 +38,7 @@ class Bytes {
   void SetBytes(const std::string& kBytes);
 
   // Operator overload
+
   // Selector
   unsigned char& operator[](int index) { return bytes_[index]; }
   const unsigned char& operator[](int index) const { return bytes_[index]; }
@@ -45,6 +48,7 @@ class Bytes {
   Bytes operator>>(const int& kShift) const;
   Bytes operator<<=(const int& kShift) { return *this = *this << kShift; }
   Bytes operator>>=(const int& kShift) { return *this = *this >> kShift; }
+
   // Binary
   Bytes operator+(const Bytes& kBytes) const;
   Bytes operator^(const Bytes& kBytes) const { return ApplyBitwiseOperation(kBytes, std::bit_xor<unsigned char>()); }
