@@ -71,6 +71,15 @@ class Bytes {
   std::vector<int> GetBytesAsNumbersVector() const;
   Bytes ChangeByteDirection() const;
   std::string FromBytesToAscii() const { return std::string(bytes_.begin(), bytes_.end()); }
+
+  // Print method
+  void PrintBytes() const {
+    std::cout << "[";
+    for (const unsigned char& byte : bytes_) {
+      std::cout << int(byte) << ", ";
+    }
+    std::cout << "]" << std::endl;
+  }
   
   static Bytes FromBitsToBytes(const std::string& kBits);
   

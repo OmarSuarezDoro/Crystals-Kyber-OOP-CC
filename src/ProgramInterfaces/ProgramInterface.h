@@ -20,6 +20,7 @@
 
 #include "../Kyber/Kyber.h"
 #include "./MessageParser.h"
+#include "../Attack/KleptoKyber.h"
 
 
 #define OPTION_SPECIFICATION_SHORT "-s"

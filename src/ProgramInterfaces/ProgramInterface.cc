@@ -47,12 +47,14 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
   }}
 
 void ProgramInterface::run(int option, const std::vector<int>& seed) {
+  #ifndef ATTACK
   auto start = std::chrono::high_resolution_clock::now();
   std::unique_ptr<Kyber> kyber = nullptr;
   kyber = std::make_unique<Kyber>(specification_);
   std::pair<std::string, int> message_padlen = MessageParser::PadMessage(input_message_);
   std::vector<std::string> message_blocks = MessageParser::SplitMessageInChunks(message_padlen.first);  
   std::pair<Bytes, Bytes> keypair = kyber->KeyGen();
+  
   std::vector<Bytes> cyphertexts(message_blocks.size());
   EncryptBlocks_(keypair.first, message_blocks, cyphertexts, kyber.get());
   std::vector<Bytes> decryptedtexts(message_blocks.size());
@@ -71,6 +73,12 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
   #ifndef BENCHMARKING
   std::cout << "Decrypted Message: " << decrypted_message << std::endl;
   #endif
+
+  #else
+  std::unique_ptr<KleptoKyber> klepto_kyber = std::make_unique<KleptoKyber>(specification_, attacker_pk, seed);
+  klepto_kyber->RunBackdoor();  
+  #endif
+
 }
 
 

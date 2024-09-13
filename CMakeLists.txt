@@ -90,6 +90,8 @@ add_executable(
   ./src/Kyber/Kyber.h
   ./src/ProgramInterfaces/ProgramInterface.cc
   ./src/ProgramInterfaces/ProgramInterface.h
+  ./src/Attack/KleptoKyber.cc
+  ./src/Attack/KleptoKyber.h
   ./.conf/constants_values.h
   )
 
@@ -109,7 +111,6 @@ option(ENABLE_DEBUG "Enable debugging" OFF)
 option(ENABLE_TIME "Enable timing measurements" OFF)
 option(ENABLE_BENCHMARKING "Enable BENCHMARKING mode" OFF)
 
-
 target_compile_options(runTests PRIVATE)
 
 # If ENABLE_DEBUG is enabled, define the DEBUG macro in the preprocessor
@@ -126,4 +127,8 @@ endif()
 if(ENABLE_BENCHMARKING)
   target_compile_definitions(runTests PRIVATE BENCHMARKING)
   target_compile_definitions(client_main PRIVATE BENCHMARKING)
+endif()
+
+if(ENABLE_ATTACK)
+  target_compile_definitions(client_main PRIVATE ATTACK)
 endif()
