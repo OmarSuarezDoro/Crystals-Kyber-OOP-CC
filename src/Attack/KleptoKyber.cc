@@ -42,9 +42,9 @@ void KleptoKyber::RunBackdoor() {
   // ctbd = (bt0 , bt1 , . . . , btb ); c = ⌈b/(k · n)⌉
   int b = pair_ct_sharedm.first.GetBytesSize() * BYTE_SIZE;
   int c = b / (k_ * n_);
-  // Initialize the polynomial p with c length
-  Polynomial<int> p(c);
-  
+  // Initialize the polynomial p with c length - NOT SURE ABOUT THIS!!
+  Polynomial<int> p(b / c);
+
   // Pack the bits of the ciphertext into the polynomial p
   for (int i = 0; i < p.GetSize(); ++i) {
     p[i] = 0;
@@ -55,9 +55,13 @@ void KleptoKyber::RunBackdoor() {
       p[i] += bit_j * (1 << (j - i * c));
     }
   }
-  // Compute the compensation polynomial
+
   
 
-  std::cout << "Polynomial p: " << p << std::endl;
+  
+  // Compute the compensation polynomial
+
+
+  // std::cout << "Polynomial p: " << p << std::endl;
 
 }

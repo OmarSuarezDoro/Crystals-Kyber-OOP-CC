@@ -27,6 +27,15 @@ class Polynomial {
   // Getters
   int GetSize() const { return vector_.size(); }
   std::vector<T> GetCoefficients() const { return vector_; }
+  
+  Polynomial<T> GetSubPolynomial(const int& kStart, const int& kEnd) const {
+    Polynomial<T> result(kEnd - kStart, module_);
+    for (int i = kStart; i < kEnd; ++i) {
+      result.append(vector_[i]);
+    }
+    return result;
+  }
+
   // Setters
   void SetCoefficients(const std::vector<T>& kCoefficients) { vector_ = kCoefficients; }
   // Operator overload

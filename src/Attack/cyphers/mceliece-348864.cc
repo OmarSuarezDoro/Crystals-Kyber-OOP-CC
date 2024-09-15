@@ -45,7 +45,6 @@ std::pair<Bytes, Bytes> McEliece_348864::Encrypt(const Bytes& pk) {
   std::vector<uint8_t> ciphertext(kem->length_ciphertext);   // Espacio para ctbd (ciphertext)
   std::vector<uint8_t> shared_secret(kem->length_shared_secret);  // Espacio para mbd (shared secret)
 
-  
   std::vector<uint8_t> aux_pk = pk.GetBytes();
   
   // Encrypt the message
@@ -53,7 +52,7 @@ std::pair<Bytes, Bytes> McEliece_348864::Encrypt(const Bytes& pk) {
   if (status != OQS_SUCCESS) {
     throw std::runtime_error("ERROR: Unable to encrypt the message using the McEliece-348864 cypher.");
   }
-  
+ 
   Bytes cyphertext(ciphertext);
   Bytes shared_secret_bytes(shared_secret);
   return {cyphertext, shared_secret_bytes};
