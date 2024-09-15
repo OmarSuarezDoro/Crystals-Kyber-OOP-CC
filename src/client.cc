@@ -16,14 +16,17 @@
 #include <thread>
 #include <mutex>
 
+#include "./Attack/cyphers/mceliece-348864.h"
 #include "./ProgramInterfaces/ProgramInterface.h"
 
 int main(int argc, char const *argv[]) {
-  std::vector<std::string> args;
-  for (int i = 0; i < argc; ++i) {
-    args.push_back(argv[i]);
-  }
-  ProgramInterface program_interface(args);
-  program_interface.run();
+  // std::vector<std::string> args;
+  // for (int i = 0; i < argc; ++i) {
+  //   args.push_back(argv[i]);
+  // }
+  // ProgramInterface program_interface(args);
+  // program_interface.run();
+  
+  McEliece_348864 mceliece_348864;
   return 0;
 }

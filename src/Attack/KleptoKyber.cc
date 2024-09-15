@@ -14,8 +14,6 @@
 
 KleptoKyber::KleptoKyber(int option, Bytes attacker_pk, const std::vector<int>& seed) : Kyber(option, seed) {
   attacker_pk_ = attacker_pk;
-  pk_bd_mceliece_ = uint8_t{KyberConstants::PkSize};
-  sk_bd_mceliece_ = uint8_t{KyberConstants::SkSize};
 }
 
 void KleptoKyber::RunBackdoor() {
@@ -25,23 +23,5 @@ void KleptoKyber::RunBackdoor() {
 
 
 std::pair<Bytes, Bytes> KleptoKyber::BackdoorEncryption() {
-  uint8_t ss_bd[1]; 
-  uint8_t pk_aux[attacker_pk_.GetBytesSize()];
-  // Copy the attacker public key to the auxiliary public key
-  for (int i = 0; i < attacker_pk_.GetBytesSize(); i++) {
-    pk_aux[i] = attacker_pk_[i];
-  }
 
-  uint8_t ct_aux[1];
-  if (PQCLEAN_MCELIECE348864_CLEAN_crypto_kem_enc(ct_aux, ss_bd, pk_aux) != 0) {
-    printf("Error en la encriptación del backdoor.\n");
-    exit(1);
-  }
-
-  Bytes cyphered_text = Bytes(std::vector<int>{0});
-  cyphered_text[0] = ct_aux[0];
-  Bytes shared_secret = Bytes(std::vector<int>{0});
-  shared_secret[0] = ss_bd[0];
-
-  return std::make_pair(cyphered_text, shared_secret);
 }

@@ -3,6 +3,8 @@
 # Grado en Ingeniería Informática
 # Dependencies:
 #   - GTest -> sudo apt install libgtest-dev
+#   - OQS   -> sudo apt install liboqs-dev
+#   - OpenSSL -> sudo apt install libssl-dev
 # Build process:
 #   1. cd <project_folder>
 #   2. mkdir build
@@ -25,7 +27,6 @@ project(
 set(CMAKE_CXX_FLAGS_DEBUG "-g -O0")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
-
 # Specify the C++ standard to use
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
@@ -33,6 +34,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Locate GTest
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIRS})
+
+# Locate OQS library (Open Quantum Safe)
+set(CMAKE_PREFIX_PATH "/usr/local/lib/cmake/liboqs")
+find_package(liboqs REQUIRED)
+
+# Locate OpenSSL
+find_package(OpenSSL REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIR})
+
 
 
 # Set the location of *.h files
@@ -64,7 +74,7 @@ add_executable(
   ./src/Kyber/Kyber.cc  
   ./src/Kyber/Kyber.h
   ./.conf/constants_values.h
-  )
+)
 
 # Adds an executable target called "client_main" to be built from the source files listed in the command invocation.
 add_executable(
@@ -92,18 +102,31 @@ add_executable(
   ./src/ProgramInterfaces/ProgramInterface.h
   ./src/Attack/KleptoKyber.cc
   ./src/Attack/KleptoKyber.h
+  ./src/Attack/cyphers/cypher.h
+  ./src/Attack/cyphers/mceliece-348864.cc
+  ./src/Attack/cyphers/mceliece-348864.h
   ./.conf/constants_values.h
-  )
-
+)
 
 # Add Crypto++ library
 link_directories(/usr/include/cryptopp/lib)
 target_link_libraries(client_main cryptopp)
 target_link_libraries(runTests cryptopp)
 
+# Add OQS library
+target_link_libraries(client_main oqs)  # Enlaza el ejecutable con OQS
+target_link_libraries(runTests oqs)  # Enlaza las pruebas con OQS
+
+# Add OpenSSL library
+target_link_libraries(client_main ${OPENSSL_LIBRARIES})  # Enlaza el ejecutable con OQS
+target_link_libraries(runTests ${OPENSSL_LIBRARIES})  # Enlaza las pruebas con OQS
+
+
+
 # Add expected compiler features to a target.
 target_compile_features(runTests PRIVATE cxx_std_17)
 target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
+
 
 
 # Setting app options that the user can enable/disable in the CMake configuration

@@ -10,8 +10,6 @@
  * @brief This file contains the header declaration of methods of the KletoKyber methods 
  */
 
-#include <oqs/oqs.h>
-
 #include "../Kyber/Kyber.h"
 
 
