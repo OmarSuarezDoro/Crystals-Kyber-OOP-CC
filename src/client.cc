@@ -28,5 +28,10 @@ int main(int argc, char const *argv[]) {
   // program_interface.run();
   
   McEliece_348864 mceliece_348864;
+  std::pair<Bytes, Bytes> cyphertext = mceliece_348864.Encrypt(Bytes("Hello, World!"));
+  std::cout << "Cyphertext: " << std::endl;
+  cyphertext.first.PrintBytes();
+  std::cout << "Shared secret: " << std::endl;
+  cyphertext.second.PrintBytes();
   return 0;
 }

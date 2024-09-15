@@ -20,7 +20,8 @@ class McEliece_348864 : public Cypher {
   McEliece_348864();
   ~McEliece_348864() { OQS_KEM_free(kem); }
   std::pair<Bytes, Bytes> Encrypt(const Bytes& message) override;
-  Bytes Decrypt(const Bytes& cyphertext) override {}
+  // NOT IMPLEMENTED YET
+  Bytes Decrypt(const Bytes& cyphertext) override { return Bytes(); }
 
   std::vector<uint8_t> GetPublicKey() const { return public_key_; }
   std::vector<uint8_t> GetSecretKey() const { return secret_key_; }

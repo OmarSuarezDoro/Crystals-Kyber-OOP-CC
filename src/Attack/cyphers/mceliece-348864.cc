@@ -37,18 +37,21 @@ McEliece_348864::McEliece_348864() {
 
 /**
  * @brief Encrypts a message using the McEliece-348864 cypher
- * @param message The message to be encrypted
+ * @param pk The pk to be encrypted
  * @return Bytes The cyphertext
  */
-Bytes McEliece_348864::Encrypt(const Bytes& message) {
+std::pair<Bytes, Bytes> McEliece_348864::Encrypt(const Bytes& pk) {
   // We need to assign the length of the cyphertext
-  std::vector<uint8_t> cyphertext(kem->length_ciphertext);
+  std::vector<uint8_t> ciphertext(kem->length_ciphertext);   // Espacio para ctbd (ciphertext)
+  std::vector<uint8_t> shared_secret(kem->length_shared_secret);  // Espacio para mbd (shared secret)
 
   // Encrypt the message
-  OQS_STATUS status = OQS_KEM_encaps(kem, cyphertext.data(), public_key_.data());
+  OQS_STATUS status = OQS_KEM_encaps(kem, ciphertext.data(), shared_secret.data(), public_key_.data());
   if (status != OQS_SUCCESS) {
     throw std::runtime_error("ERROR: Unable to encrypt the message using the McEliece-348864 cypher.");
   }
-
-  return cyphertext;
+  
+  Bytes cyphertext(ciphertext);
+  Bytes shared_secret_bytes(shared_secret);
+  return {cyphertext, shared_secret_bytes};
 }
