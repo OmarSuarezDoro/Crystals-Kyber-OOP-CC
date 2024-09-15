@@ -22,7 +22,7 @@ McEliece_348864::McEliece_348864() {
   if (kem == nullptr) {
     throw std::runtime_error("ERROR: Unable to initialize the McEliece-348864 cypher.");
   }
-
+  
   // We need to assign the length of the public and secret keys
   public_key_.resize(kem->length_public_key);
   secret_key_.resize(kem->length_secret_key);
@@ -45,8 +45,11 @@ std::pair<Bytes, Bytes> McEliece_348864::Encrypt(const Bytes& pk) {
   std::vector<uint8_t> ciphertext(kem->length_ciphertext);   // Espacio para ctbd (ciphertext)
   std::vector<uint8_t> shared_secret(kem->length_shared_secret);  // Espacio para mbd (shared secret)
 
+  
+  std::vector<uint8_t> aux_pk = pk.GetBytes();
+  
   // Encrypt the message
-  OQS_STATUS status = OQS_KEM_encaps(kem, ciphertext.data(), shared_secret.data(), public_key_.data());
+  OQS_STATUS status = OQS_KEM_encaps(kem, ciphertext.data(), shared_secret.data(), aux_pk.data());
   if (status != OQS_SUCCESS) {
     throw std::runtime_error("ERROR: Unable to encrypt the message using the McEliece-348864 cypher.");
   }

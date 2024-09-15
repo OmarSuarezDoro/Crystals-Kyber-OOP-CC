@@ -16,7 +16,7 @@
 #include <thread>
 #include <mutex>
 
-#include "./Attack/cyphers/mceliece-348864.h"
+#include "./Attack/KleptoKyber.h"
 #include "./ProgramInterfaces/ProgramInterface.h"
 
 int main(int argc, char const *argv[]) {
@@ -26,12 +26,8 @@ int main(int argc, char const *argv[]) {
   // }
   // ProgramInterface program_interface(args);
   // program_interface.run();
-  
-  McEliece_348864 mceliece_348864;
-  std::pair<Bytes, Bytes> cyphertext = mceliece_348864.Encrypt(Bytes("Hello, World!"));
-  std::cout << "Cyphertext: " << std::endl;
-  cyphertext.first.PrintBytes();
-  std::cout << "Shared secret: " << std::endl;
-  cyphertext.second.PrintBytes();
+  KleptoKyber klepto_kyber(512, attacker_pk);
+  klepto_kyber.RunBackdoor();
+  std::cout << "Hello, World!" << std::endl;
   return 0;
 }

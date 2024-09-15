@@ -10,6 +10,8 @@
  * @brief This file contains the declaration of the methods of the Cypher class  
  */
 
+#pragma once
+
 #include <oqs/oqs.h>
 
 #include "../../DataStructures/Bytes.h"

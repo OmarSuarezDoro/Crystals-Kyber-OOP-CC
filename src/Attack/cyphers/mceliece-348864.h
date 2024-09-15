@@ -10,6 +10,8 @@
  * @brief This file contains the declaration of the methods of the mceliece--348864 cypher class
  */
 
+#pragma once
+
 #include <iostream>
 #include <stdexcept>
 

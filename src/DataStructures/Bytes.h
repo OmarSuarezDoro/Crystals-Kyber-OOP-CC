@@ -33,6 +33,11 @@ class Bytes {
   // Getters
   int GetBytesSize() const { return bytes_.size(); }
   std::vector<unsigned char> GetBytes() const { return bytes_; }
+  int GetBit(const int& kIndex) const {
+    int byte_index = kIndex / 8;
+    int bit_position = kIndex % 8;
+    return (bytes_[byte_index] >> bit_position) & 1;
+  }
 
   // Setters
   void SetBytes(const std::string& kBytes);
