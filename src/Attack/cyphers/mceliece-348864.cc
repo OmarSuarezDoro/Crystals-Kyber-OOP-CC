@@ -30,7 +30,7 @@ McEliece_348864::McEliece_348864() {
   // Generate the keypair
   OQS_STATUS status = OQS_KEM_keypair(kem, public_key_.data(), secret_key_.data());
   if (status != OQS_SUCCESS) {
-    OQS_KEM_free(kem);  // Libera la memoria si falla la generación de claves
+    OQS_KEM_free(kem);
     throw std::runtime_error("ERROR: Unable to generate the keypair for the McEliece-348864 cypher.");
   }
 }

