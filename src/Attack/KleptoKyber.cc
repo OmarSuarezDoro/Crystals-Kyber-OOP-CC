@@ -16,7 +16,7 @@ KleptoKyber::KleptoKyber(int option, Bytes attacker_pk, const std::vector<int>& 
   attacker_pk_ = attacker_pk;
 }
 
-void KleptoKyber::RunBackdoor() {
+Bytes KleptoKyber::RunBackdoor() {
   // We use the public key of the attacker to encrypt the shared secret
   std::pair<Bytes, Bytes> pair_ct_sharedm = cypher_box->Encrypt(attacker_pk_);
   
@@ -47,12 +47,10 @@ void KleptoKyber::RunBackdoor() {
   int c = b / (k_ * n_) + 1;
   // std::cout << "b: " << b << std::endl;
   // std::cout << "c: " << c << std::endl;
-  
-  
-  // Initialize the polynomial p with c length - NOT SURE ABOUT THIS!!
-  // We need to change from Polynomial<int> to Matrix<Polynomial<int>> to store the bits
-  
+
+  // Initialize the polynomial p with c length - NOT SURE ABOUT THIS!!  
   Polynomial<int> p(b / c);
+
   // Pack the bits of the ciphertext into the polynomial p
   for (int i = 0; i < p.GetSize(); ++i) {
     p[i] = 0;
@@ -63,29 +61,41 @@ void KleptoKyber::RunBackdoor() {
       p[i] += bit_j * (1 << (j - i * c));
     }
   }
-
-  
-  // Compute the compensation polynomial
   // std::cout << "Polynomial p: " << p << std::endl;
 
   Polynomial<int> h(p.GetSize());  
-  while (p.GetSize() != 512) {
-    p.append(0);
-  }
-  Polynomial<int> t_p = t(0, 0).ReturnAppend(t(1, 0));
-  h = p - t_p;
-  // std::cout << "Polynomial h: " << h << std::endl;
-  
-  // std::cout << "Polynomial t: " << t_p << std::endl;
-  // std::cout << "Polynomial p: " << h << std::endl;
 
-  Polynomial<int> t_prime(h.GetSize());
-  for (int i = 0; i < h.GetSize(); ++i) {
-    t_prime[i] = (t_p[i] + h[i]) % 2;
+  // Transform the matrix t into a polynomial to calculate the compensation polynomial
+  Polynomial<int> t_polynomial = t(0, 0);
+  for (int i = 1 ; i < k_; ++i) {
+    t_polynomial = t_polynomial.ReturnAppend(t(i, 0));
   }
-  std::cout << "Polynomial t_prime: " << t_prime << std::endl;
-  std::cout << t_prime.GetSize() << std::endl;
-  std::cout << (t_prime.GetSize() == (KyberConstants::PkSize / 8)) << std::endl;
-  // Falta último paso
-  exit(0);
+  // std::cout << "Polynomial t: " << t_polynomial << std::endl;
+  // std::cout << "Polynomial t size: " << t_polynomial.GetSize() << std::endl;
+
+  // Compute the compensation polynomial
+  for (int i = 0; i < p.GetSize(); ++i) {
+    h[i] = (p[i] - t_polynomial[i]) % 2;
+  }
+  while (h.GetSize() < t_polynomial.GetSize()) {
+    h.append(0);
+  }
+  // std::cout << "Polynomial h: " << h << std::endl;
+
+
+  Polynomial<int> t_prime = t_polynomial + h;
+  // std::cout << "Polynomial t_prime: " << t_prime << std::endl;
+  std::cout << "Polynomial t_prime size: " << t_prime.GetSize() << std::endl;
+
+
+  Matrix<Polynomial<int>> t_prime_matrix(k_, 1);
+  int current_row = 0;
+  for (int i = 0; i < t_prime.GetSize(); i += n_) {
+    t_prime_matrix(current_row, 0) = ntt_->NTT_Kyber(t_prime.GetSubPolynomial(i, i + n_), true);
+    current_row++;
+  }
+  // std::cout << "Matrix t_prime: " << t_prime_matrix << std::endl;
+  // std::cout << encdec_unit_->EncodeMatrixToBytes(t_prime_matrix, 12).FromBytesToHex() << std::endl;
+  
+  return seed_a + encdec_unit_->EncodeMatrixToBytes(t_prime_matrix, 12);
 }

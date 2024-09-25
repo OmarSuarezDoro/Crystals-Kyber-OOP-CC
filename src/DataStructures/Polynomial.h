@@ -29,7 +29,7 @@ class Polynomial {
   std::vector<T> GetCoefficients() const { return vector_; }
   
   Polynomial<T> GetSubPolynomial(const int& kStart, const int& kEnd) const {
-    Polynomial<T> result(kEnd - kStart, module_);
+    Polynomial<T> result(0, module_);
     for (int i = kStart; i < kEnd; ++i) {
       result.append(vector_[i]);
     }

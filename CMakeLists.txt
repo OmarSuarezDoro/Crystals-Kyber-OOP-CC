@@ -3,8 +3,10 @@
 # Grado en Ingeniería Informática
 # Dependencies:
 #   - GTest -> sudo apt install libgtest-dev
-#   - OQS   -> sudo apt install liboqs-dev
+#   - OQS   -> https://openquantumsafe.org/liboqs/getting-started.html
 #   - OpenSSL -> sudo apt install libssl-dev
+#   - Cryptopp -> sudo apt install libcrypto++-dev libcrypto++-doc libcrypto++-utils
+
 # Build process:
 #   1. cd <project_folder>
 #   2. mkdir build
