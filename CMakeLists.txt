@@ -135,6 +135,8 @@ target_link_libraries(runTests ${GTEST_LIBRARIES} pthread)
 option(ENABLE_DEBUG "Enable debugging" OFF)
 option(ENABLE_TIME "Enable timing measurements" OFF)
 option(ENABLE_BENCHMARKING "Enable BENCHMARKING mode" OFF)
+option(ENABLE_KEM "Enable KEM mode" OFF)
+
 
 target_compile_options(runTests PRIVATE)
 
@@ -156,4 +158,9 @@ endif()
 
 if(ENABLE_ATTACK)
   target_compile_definitions(client_main PRIVATE ATTACK)
+endif()
+
+# If ENABLE_KEM is enabled, define the KEM macro in the preprocessor
+if(ENABLE_KEM)
+  target_compile_definitions(client_main PRIVATE KEM)
 endif()

@@ -31,11 +31,9 @@ Polynomial<int> NTT::NTT_Kyber(const Polynomial<int>& kPolynomial, bool is_ntt) 
   // Initialize polynomials
   Polynomial<int> even_coefficients = Polynomial<int>(0);
   Polynomial<int> odd_coefficients = Polynomial<int>(0);
-  
   for (int i = 0; i < polynomial_copy.GetSize(); ++i) {
     (i % 2 == 0) ? even_coefficients.append(polynomial_copy[i]) : odd_coefficients.append(polynomial_copy[i]);
   }
-
   Polynomial<int> even_coefficients_ntt = is_ntt ? NTT_(even_coefficients) : INTT_(even_coefficients);
   Polynomial<int> odd_coefficients_ntt = is_ntt ? NTT_(odd_coefficients) : INTT_(odd_coefficients);
   // Merging results
@@ -57,7 +55,6 @@ Polynomial<int> NTT::NTT_(const Polynomial<int>& kPolynomial) const {
   int mid_index = n / 2;
   // Calculate the first primitive root
   int phi = (n == MODULUS_3329) ? FIRST_PRIMITIVE_ROOT_3329 : FirstPrimitiveRoot_(2 * n);
-
   Polynomial<int> result = kPolynomial;
   // Iterating over the polynomial - First we chunk the polynomial in sizes of 2 * i
   for (int i = 1; i < n; i *= 2) {

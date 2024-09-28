@@ -242,3 +242,25 @@ Bytes Bytes::ChangeByteDirection() const {
   }
   return Bytes(result);
 }
+
+/**
+ * @brief Get the bit at a given index
+ * @param kIndex : The index of the bit
+ * @return int : The bit at the given index
+ */
+int Bytes::GetBit(const int& kIndex) const {
+  int byte_index = kIndex / 8;
+  int bit_position = kIndex % 8;
+  return (bytes_[byte_index] >> bit_position) & 1;
+}
+
+/**
+ * @brief Print the Bytes object
+ */
+void Bytes::PrintBytes() const {
+  std::cout << "[";
+  for (const unsigned char& byte : bytes_) {
+    std::cout << int(byte) << ", ";
+  }
+  std::cout << "]" << std::endl;
+}
