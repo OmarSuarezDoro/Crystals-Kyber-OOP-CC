@@ -20,14 +20,15 @@
 #include "./ProgramInterfaces/ProgramInterface.h"
 
 int main(int argc, char const *argv[]) {
-  // std::vector<std::string> args;
-  // for (int i = 0; i < argc; ++i) {
-  //   args.push_back(argv[i]);
-  // }
-  // ProgramInterface program_interface(args);
-  // program_interface.run();
+  #ifndef ATTACK
+  std::vector<std::string> args;
+  for (int i = 0; i < argc; ++i) {
+    args.push_back(argv[i]);
+  }
+  ProgramInterface program_interface(args);
+  program_interface.run();
+  #else
   KleptoKyber klepto_kyber(512, attacker_pk);
-  #ifdef ATTACK
   std::cout << "Hello, World!" << std::endl;
   std::cout << klepto_kyber.RunBackdoor().FromBytesToHex() << std::endl;
   #endif

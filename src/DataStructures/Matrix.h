@@ -52,6 +52,7 @@ class Matrix {
   unsigned int sizeElements_;
 };
 
+
 /**
  * @brief Construct a new Matrix< T>:: Matrix object
  * 

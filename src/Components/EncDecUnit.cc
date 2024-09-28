@@ -25,13 +25,11 @@ Bytes EncDecUnit::EncodeMatrixToBytes(const Matrix<Polynomial<int>>& input_matri
   const int krows = input_matrix.GetRowsSize();
   const int kcols = input_matrix.GetColumnsSize();
   result.Reserve(krows * kcols * n_ * bits_per_coefficient / BYTE_SIZE);
-  
   for (int i = 0; i < krows; i++) {
     for (int j = 0; j < kcols; j++) {
       result += Encode_(input_matrix(i, j), bits_per_coefficient);
     }
   }
-
   return result;
 }
 

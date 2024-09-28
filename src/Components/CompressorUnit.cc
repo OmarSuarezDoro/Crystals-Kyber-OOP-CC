@@ -21,9 +21,6 @@
 
 #include "CompressorUnit.h"
 
-
-
-
 /**
  * @brief This method compresses a matrix of polynomials by compressing each polynomial
  * 
@@ -35,13 +32,11 @@ Matrix<Polynomial<int>> CompressorUnit::CompressMatrix(const Matrix<Polynomial<i
   const int rows = matrix.GetRowsSize();
   const int columns = matrix.GetColumnsSize();
   Matrix<Polynomial<int>> compressed_matrix(rows, columns);
-
   for (int i = 0; i < rows; ++i) {
     for (int j = 0; j < columns; ++j) {
       compressed_matrix(i, j) = Compress_(matrix(i, j), bits_per_coefficient);
     }
   }
-  
   return compressed_matrix;
 }
 
@@ -56,13 +51,11 @@ Matrix<Polynomial<int>> CompressorUnit::DecompressMatrix(const Matrix<Polynomial
   const int rows = matrix.GetRowsSize();
   const int columns = matrix.GetColumnsSize();
   Matrix<Polynomial<int>> decompressed_matrix(rows, columns, matrix.GetSizeElements());
-  
   for (int i = 0; i < rows; ++i) {
     for (int j = 0; j < columns; ++j) {
       decompressed_matrix(i, j) = Decompress_(matrix(i, j), bits_per_coefficient);
     }
   }
-  
   return decompressed_matrix;
 }
 
@@ -78,11 +71,9 @@ Polynomial<int> CompressorUnit::Compress_(const Polynomial<int>& polynomial, int
   const double compressed_coefficient = static_cast<double>(1 << bits_per_coefficient);
   Polynomial<int> compressed_polynomial(polynomial.GetSize());
   const double factor = compressed_coefficient / q_;
-
   for (int i = 0; i < polynomial.GetSize(); ++i) {
     compressed_polynomial[i] = static_cast<int>(_round_up(polynomial[i] * factor)) % static_cast<int>(compressed_coefficient);
   }
-
   return compressed_polynomial;
 }
 
@@ -96,11 +87,9 @@ Polynomial<int> CompressorUnit::Compress_(const Polynomial<int>& polynomial, int
 Polynomial<int> CompressorUnit::Decompress_(const Polynomial<int>& polynomial, int bits_per_coefficient) const {
   const double factor = q_ / static_cast<double>(1 << bits_per_coefficient);
   Polynomial<int> decompressed_polynomial(polynomial.GetSize());
-
   for (int i = 0; i < polynomial.GetSize(); ++i) {
     decompressed_polynomial[i] = static_cast<int>(_round_up(polynomial[i] * factor));
   }
-  
   return decompressed_polynomial;
 }
 

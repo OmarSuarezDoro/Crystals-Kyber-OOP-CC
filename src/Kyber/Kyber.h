@@ -33,10 +33,6 @@ class Kyber {
   Bytes Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed);  
   Bytes Decryption(const Bytes& sk, const Bytes& ciphertext);
   
-  std::map<std::string, double> GetTimeResults() const { 
-    return time_results_;
-  }
-
   std::pair<Bytes, Bytes> KEMKeyGen();
   std::pair<Bytes, Bytes> KEMEncapsulation(const Bytes& pk);
   Bytes KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext);
@@ -45,7 +41,6 @@ class Kyber {
   Bytes GenerateSeed_(int seed_size) const;
   std::pair<Bytes, Bytes> GenerateRhoSigma_(const Bytes& seed) const;
   Matrix<Polynomial<int>> applyNTTMatrix_(const Matrix<Polynomial<int>>& matrix, int k, bool is_ntt = true) const;
-  
   void InitializeConstants(int option);
 
   int n_;
@@ -65,14 +60,4 @@ class Kyber {
   std::unique_ptr<Bytes> sk_ = nullptr;
   
   std::vector<int> seed_ = {};
-
-  std::map<std::string, double> time_results_ {
-    {"KeyGen", 0.0},
-    {"Encryption", 0.0},
-    {"Decryption", 0.0},
-    {"KEMKeyGen", 0.0},
-    {"KEMEncapsulation", 0.0},
-    {"KEMDecapsulation", 0.0},
-    {"TotalTime", 0.0}
-  };
 };

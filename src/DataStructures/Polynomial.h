@@ -27,14 +27,7 @@ class Polynomial {
   // Getters
   int GetSize() const { return vector_.size(); }
   std::vector<T> GetCoefficients() const { return vector_; }
-  
-  Polynomial<T> GetSubPolynomial(const int& kStart, const int& kEnd) const {
-    Polynomial<T> result(0, module_);
-    for (int i = kStart; i < kEnd; ++i) {
-      result.append(vector_[i]);
-    }
-    return result;
-  }
+  Polynomial<T> GetSubPolynomial(const int& kStart, const int& kEnd) const;
 
   // Setters
   void SetCoefficients(const std::vector<T>& kCoefficients) { vector_ = kCoefficients; }
@@ -145,5 +138,20 @@ Polynomial<T> Polynomial<T>::ReturnAppend(const Polynomial<T>& kElements) {
   Polynomial<T> result(vector_.size() + kElements.vector_.size(), module_);
   std::copy(vector_.begin(), vector_.end(), result.vector_.begin());
   std::copy(kElements.vector_.begin(), kElements.vector_.end(), result.vector_.begin() + vector_.size());
+  return result;
+}
+
+/**
+ * @brief This method returns a subpolynomial
+ * @param kStart : The start index
+ * @param kEnd : The end index
+ * @return Polynomial<T>
+ */
+template <typename T>
+Polynomial<T> Polynomial<T>::GetSubPolynomial(const int& kStart, const int& kEnd) const {
+  Polynomial<T> result(0, module_);
+  for (int i = kStart; i < kEnd; ++i) {
+    result.append(vector_[i]);
+  }
   return result;
 }

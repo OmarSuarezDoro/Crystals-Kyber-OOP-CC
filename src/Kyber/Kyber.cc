@@ -50,14 +50,12 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
   std::pair<Bytes, Bytes> rho_sigma = GenerateRhoSigma_(seed);
   Bytes rho = rho_sigma.first;
   Bytes sigma = rho_sigma.second;
-
   #ifdef DEBUG
     std::cout << "Seed Generated: " << seed.FromBytesToHex() << std::endl;
     std::cout << "Rho and Sigma values Generated:" << std::endl;
     std::cout << "Rho: " << rho.FromBytesToHex() << std::endl;
     std::cout << "Sigma: " << sigma.FromBytesToHex() << std::endl << std::endl;
   #endif
-
   Matrix<Polynomial<int>> a = ntt_->GenerateMatrix_(k_, rho, true);
   int N = 0;
   std::pair<Matrix<Polynomial<int>>, int> pair_secret = sampling_unit_->GenerateDistribuitionMatrix(sigma, n1_, N);
@@ -68,7 +66,6 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
   N = pair_error.second;
   Matrix<Polynomial<int>> e = pair_error.first;  
   Matrix<Polynomial<int>> e_ntt = applyNTTMatrix_(e, k_);
-
   #ifdef DEBUG
     std::cout << "Matrix A: " << a << std::endl;
     std::cout << "Matrix S: " << s << std::endl;
@@ -76,29 +73,17 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
     std::cout << "Matrix S NTT: " << s_ntt << std::endl;
     std::cout << "Matrix E NTT: " << e_ntt << std::endl << std::endl;
   #endif
-
-
   Matrix<Polynomial<int>> A_s = ntt_->multMatrixViaNTT(a, s_ntt);
   Matrix<Polynomial<int>> t = A_s + e_ntt;
-
   #ifdef DEBUG
     std::cout << "Matrix A * S: " << A_s << std::endl;
     std::cout << "Matrix T: " << t << std::endl << std::endl;
   #endif
-    
   Bytes t_encoded = encdec_unit_->EncodeMatrixToBytes(t, 12) + rho;
   Bytes s_encoded = encdec_unit_->EncodeMatrixToBytes(s_ntt, 12);
-
   #ifdef DEBUG
     std::cout << "Public Key: " << t_encoded.FromBytesToHex() << std::endl;
     std::cout << "Secret Key: " << s_encoded.FromBytesToHex() << std::endl << std::endl;
-  #endif
-
-  #ifdef TIME
-    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    mutex.lock();
-    time_results_["KeyGen"] += elapsed.count();
-    mutex.unlock();
   #endif
   pk_ = std::make_unique<Bytes>(t_encoded);
   sk_ = std::make_unique<Bytes>(s_encoded);
@@ -116,77 +101,56 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
 Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed) {
   auto start = std::chrono::high_resolution_clock::now();
   Bytes rho = pk.GetNBytes(pk.GetBytesSize() - 32, 32);
-  
   #ifdef DEBUG
     std::cout << "Rho: " << rho.FromBytesToHex() << std::endl;
   #endif
-  
   Matrix<Polynomial<int>> t_matrix = encdec_unit_->DecodeBytesToMatrix(pk, 1, k_, 12);
   // We use Decompress here to create error tolerance gaps by sending the message bit 0 to 0 and 1 to [q/2]
   Polynomial<int> m_pol = compressor_unit_->Decompress_(encdec_unit_->Decode_(message, 1), 1);
-
   #ifdef DEBUG
     std::cout << "Matrix T: " << t_matrix << std::endl;
     std::cout << "Message: " << m_pol << std::endl << std::endl;
   #endif
-
   int N = 0;  
   Matrix<Polynomial<int>> At = ntt_->GenerateMatrix_(k_, rho, false);
   std::pair<Matrix<Polynomial<int>>, int> pair_r = sampling_unit_->GenerateDistribuitionMatrix(seed, n1_, N);
-  
   #if DEBUG
     std::cout << "Matrix A Transposed: " << At << std::endl;
     std::cout << "Matrix R: " << pair_r.first << std::endl;
   #endif
-
   Matrix<Polynomial<int>> r = pair_r.first;
   Matrix<Polynomial<int>> r_ntt = applyNTTMatrix_(r, k_);
   std::pair<Matrix<Polynomial<int>>, int> pair_error1 = sampling_unit_->GenerateDistribuitionMatrix(seed, n2_, pair_r.second);
   Matrix<Polynomial<int>> e1 = pair_error1.first;
   Polynomial<int> e2 = sampling_unit_->CBD_(Keccak::PRF(seed, pair_error1.second, 64 * n2_), n2_);
-
   #ifdef DEBUG
     std::cout << "Matrix R NTT: " << r_ntt << std::endl;
     std::cout << "Matrix E1: " << e1 << std::endl;
     std::cout << "Polynomial E2: " << e2 << std::endl << std::endl;
   #endif
-
   Matrix<Polynomial<int>> A_r = ntt_->multMatrixViaNTT(At, r_ntt);
   Matrix<Polynomial<int>> A_r_ntt = applyNTTMatrix_(A_r, k_, false);
   Matrix<Polynomial<int>> u = A_r_ntt + e1;
-
   #ifdef DEBUG
     std::cout << "Matrix A Transposed * R: " << A_r << std::endl;
     std::cout << "Matrix U: " << u << std::endl << std::endl;
   #endif
-
   Polynomial<int> v = ntt_->multMatrixViaNTT(t_matrix, r_ntt)(0, 0);
   Polynomial<int> v_ntt = ntt_->NTT_Kyber(v, false);
   v_ntt = v_ntt + e2;
   v_ntt = v_ntt + m_pol;
-  
   #ifdef DEBUG
     std::cout << "Polynomial V: " << v << std::endl;
     std::cout << "Polynomial V NTT: " << v_ntt << std::endl << std::endl;
   #endif
-
   Bytes c1 = encdec_unit_->EncodeMatrixToBytes(compressor_unit_->CompressMatrix(u, du_), du_);
   Bytes c2 = encdec_unit_->Encode_(compressor_unit_->Compress_(v_ntt, dv_), dv_);
   Bytes c_encoded = c1 + c2;
-
   #ifdef DEBUG
     std::cout << "C1: " << c1.FromBytesToHex() << std::endl;
     std::cout << "C2: " << c2.FromBytesToHex() << std::endl;
     std::cout << "Ciphertext: " << c_encoded.FromBytesToHex() << std::endl << std::endl;
   #endif
-
-  #ifdef TIME
-    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    mutex.lock();
-    time_results_["Encryption"] += elapsed.count();
-    mutex.unlock();  
-  #endif
-
   return c_encoded;
 }
 
@@ -205,13 +169,11 @@ Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext) {
   Bytes c2 = ciphertext.GetNBytes(du_ * k_ * int(n_ / 8), ciphertext.GetBytesSize() - du_ * k_ * int(n_ / 8));
   Matrix<Polynomial<int>> u = compressor_unit_->DecompressMatrix(encdec_unit_->DecodeBytesToMatrix(ciphertext, k_, 1, du_), du_);
   Matrix<Polynomial<int>> u_ntt = applyNTTMatrix_(u, k_, true);
-
   #ifdef DEBUG
     std::cout << "c2: " << c2.FromBytesToHex() << std::endl;
     std::cout << "Matrix U: " << u << std::endl;
     std::cout << "Matrix U NTT: " << u_ntt << std::endl;
   #endif
-
   Polynomial<int> v = compressor_unit_->Decompress_(encdec_unit_->Decode_(c2, dv_), dv_);
   Matrix<Polynomial<int>> st = encdec_unit_->DecodeBytesToMatrix(sk, 1, k_, 12); 
   Polynomial<int> st_u = ntt_->multMatrixViaNTT(st, u_ntt)(0, 0);
@@ -219,21 +181,12 @@ Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext) {
   Polynomial<int> m = v - st_u_ntt;
   // The Compressq function is used to decrypt to a 1 if v − s^T u is closer to [q/2] than to 0, and decrypt to a 0 otherwise.
   Bytes result = encdec_unit_->Encode_(compressor_unit_->Compress_(m, 1), 1);
-
   #ifdef DEBUG
     std::cout << "Polynomial V: " << v << std::endl;
     std::cout << "Polynomial ST * U: " << st_u << std::endl;
     std::cout << "Polynomial ST * U NTT: " << st_u_ntt << std::endl;
     std::cout << "Polynomial M: " << m << std::endl << std::endl;
   #endif
-
-  #ifdef TIME
-    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    mutex.lock();
-    time_results_["Decryption"] += elapsed.count();
-    mutex.unlock();
-  #endif
-
   return result;
 }
 
@@ -246,26 +199,15 @@ Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext) {
 std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
   auto start = std::chrono::high_resolution_clock::now();
   Bytes seed = GenerateSeed_(KyberConstants::SeedSize);
-
   #ifdef DEBUG
     std::cout << "Seed Generated: " << seed.FromBytesToHex() << std::endl;
   #endif
-  
   std::pair<Bytes, Bytes> key_pair = Kyber::KeyGen();
   Bytes pk = key_pair.first;
   Bytes sk = key_pair.second + pk + Keccak::H(pk, 32) + seed;
-  
   #ifdef DEBUG
     std::cout << "Secret Key: " << sk.FromBytesToHex() << std::endl;
   #endif
-  
-  #ifdef TIME
-    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    mutex.lock();
-    time_results_["KEMKeyGen"] += elapsed.count();
-    mutex.unlock();
-  #endif
-
   return std::pair<Bytes, Bytes>{pk, sk};
 }
 
@@ -279,13 +221,10 @@ std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
 std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk) {
   auto start = std::chrono::high_resolution_clock::now();
   Bytes message = Keccak::H(GenerateSeed_(KyberConstants::SeedSize), KyberConstants::SeedSize);
-
   #ifdef DEBUG
     std::cout << "Message: " << message.FromBytesToHex() << std::endl;
   #endif
-
   std::pair<Bytes, Bytes> pair = Keccak::G(message + Keccak::H(pk, KyberConstants::SeedSize));
-
   #ifdef DEBUG
     std::cout << "K' and r': " << pair.first.FromBytesToHex() << " " << pair.second.FromBytesToHex() << std::endl;
   #endif
@@ -293,19 +232,10 @@ std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk) {
   Bytes r = pair.second;
   Bytes c = Encryption(pk, message, r);
   Bytes K = Keccak::KDF(K_prime + Keccak::H(c, KyberConstants::SeedSize), KyberConstants::SeedSize);
-
   #ifdef DEBUG
     std::cout << "Ciphertext: " << c.FromBytesToHex() << std::endl;
     std::cout << "K: " << K.FromBytesToHex() << std::endl << std::endl;
   #endif
-
-  #ifdef TIME
-    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    mutex.lock();
-    time_results_["KEMEncapsulation"] += elapsed.count();
-    mutex.unlock();
-  #endif
-
   return std::pair<Bytes, Bytes>{c, K};
 }
 
@@ -330,7 +260,6 @@ Bytes Kyber::KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext) {
   Bytes pk = sk.GetNBytes(entry_index, KyberConstants::PkSize);
   Bytes h = sk.GetNBytes(following_index + 32, 32);
   Bytes z = sk.GetNBytes(following_index + 64, 32);
-
   #ifdef DEBUG
     std::cout << "Public Key: " << pk.FromBytesToHex() << std::endl;
     std::cout << "H: " << h.FromBytesToHex() << std::endl;
@@ -351,13 +280,6 @@ Bytes Kyber::KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext) {
     std::cout << "Ciphertext: " << c_prime.FromBytesToHex() << std::endl;
   #endif
   Bytes result = Keccak::KDF((c_prime == ciphertext ? K_prime : z) + Keccak::H(c_prime, 32), 32);
-  
-  #ifdef TIME
-    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    mutex.lock();
-    time_results_["KEMDecapsulation"] += elapsed.count();
-    mutex.unlock();
-   #endif
   return result;
 }
 

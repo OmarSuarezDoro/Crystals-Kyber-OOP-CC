@@ -33,11 +33,7 @@ class Bytes {
   // Getters
   int GetBytesSize() const { return bytes_.size(); }
   std::vector<unsigned char> GetBytes() const { return bytes_; }
-  int GetBit(const int& kIndex) const {
-    int byte_index = kIndex / 8;
-    int bit_position = kIndex % 8;
-    return (bytes_[byte_index] >> bit_position) & 1;
-  }
+  int GetBit(const int& kIndex) const;
 
   // Setters
   void SetBytes(const std::string& kBytes);
@@ -66,7 +62,6 @@ class Bytes {
   bool operator==(const Bytes& kBytes) const { return bytes_ == kBytes.bytes_; }
   bool operator!=(const Bytes& kBytes) const { return bytes_ != kBytes.bytes_; }
 
-
   // Methods
   Bytes toBigEndian() const;
   std::string FromBytesToBits() const;
@@ -78,13 +73,7 @@ class Bytes {
   std::string FromBytesToAscii() const { return std::string(bytes_.begin(), bytes_.end()); }
 
   // Print method
-  void PrintBytes() const {
-    std::cout << "[";
-    for (const unsigned char& byte : bytes_) {
-      std::cout << int(byte) << ", ";
-    }
-    std::cout << "]" << std::endl;
-  }
+  void PrintBytes() const;
   
   static Bytes FromBitsToBytes(const std::string& kBits);
   
