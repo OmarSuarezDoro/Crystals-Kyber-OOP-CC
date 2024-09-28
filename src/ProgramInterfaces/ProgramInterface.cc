@@ -42,7 +42,6 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
       file.close();
       input_message_ = buffer.str();
     }
-
     if (args[i] == OPTION_HELP_SHORT || args[i] == OPTION_HELP_LONG) {
       std::cout << "Usage: " << std::endl;
       std::cout << "  " << OPTION_SPECIFICATION_SHORT << ", " << OPTION_SPECIFICATION_LONG << " <specification> :" << " The specification of the Kyber cryptosystem" << std::endl;
@@ -50,6 +49,11 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
       std::cout << "  " << OPTION_HELP_SHORT << ", " << OPTION_HELP_LONG << " :" << " Show the help menu" << std::endl;
       exit(0);
     }
+    // if (args[i] == OPTION_CYPHER_BOX_SHORT || args[i] == OPTION_CYPHER_BOX_LONG) {
+    //   if (args[i] == "mceliece-348864") {
+    //     cypher_box_option_ = MCELIECE_348864;
+    //   }
+    // }
     ++i;
   }}
 
@@ -78,13 +82,18 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
   DecryptBlocks_(cyphertexts, keypair.second, decryptedtexts, kyber.get());
   #else
   keypair = kyber->KEMKeyGen();
+  std::cout << "MIAU" << std::endl;
   // Encapsulate the shared secret
   std::pair<Bytes, Bytes> pair_ct_shareds = kyber->KEMEncapsulation(keypair.first);
   KEMEncryptBlocks_(message_blocks, cyphertexts, pair_ct_shareds.second);
+  std::cout << "MIAU" << std::endl;
+
   // Decapsulate the shared secret
   Bytes shared_secret = kyber->KEMDecapsulation(keypair.second, pair_ct_shareds.first);
+  std::cout << "MIAU" << std::endl;
   decryptedtexts = cyphertexts;
   KEMDecryptBlocks_(cyphertexts, decryptedtexts, shared_secret);
+
   #endif
 
   // 2. Encrypt the message
@@ -167,4 +176,27 @@ void ProgramInterface::ProcessDecryptionBlock(int id, const Bytes& block, const 
   decryptedtexts[id] = kyber->Decryption(key, block);
 }
 
+/**
+ * @brief Encrypt the blocks of the message using the KEM
+ * @param message_chunks : The vector of message chunks
+ * @param operand : The vector of operands
+ * @param key : The key to use
+ */
+void ProgramInterface::KEMEncryptBlocks_(const std::vector<std::string>& message_chunks, std::vector<Bytes>& operand, const Bytes& key) {
+  for (int i = 0; i < operand.size(); ++i) {
+    operand[i] = Bytes(message_chunks[i]) ^ key; 
+  }
+}
+
+/**
+ * @brief Decrypt the blocks of the message using the KEM
+ * @param encrypted_messages : The vector of encrypted messages
+ * @param operand : The vector of operands
+ * @param key : The key to use
+ */
+void ProgramInterface::KEMDecryptBlocks_(const std::vector<Bytes>& encrypted_messages, std::vector<Bytes>& operand, const Bytes& key) {
+  for (int i = 0; i < operand.size(); ++i) {
+    operand[i] = encrypted_messages[i] ^ key; 
+  }
+}
 

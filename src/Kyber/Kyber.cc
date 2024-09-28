@@ -19,7 +19,7 @@ std::mutex mutex;
  * 
  * @param option : The option to choose the parameters of the Kyber cryptosystem
  */
-Kyber::Kyber(int option, const std::vector<int>& seed) {
+Kyber::Kyber(int option, const std::vector<int>& seed, int cypher_box_option) {
   InitializeConstants(option);
   n_ = KyberConstants::N;
   q_ = KyberConstants::Q;
@@ -33,6 +33,15 @@ Kyber::Kyber(int option, const std::vector<int>& seed) {
   encdec_unit_ = std::make_unique<EncDecUnit>(EncDecUnit(n_));
   sampling_unit_ = std::make_unique<SamplingUnit>(SamplingUnit(k_, n_));
   compressor_unit_ = std::make_unique<CompressorUnit>(CompressorUnit(q_));
+  switch (cypher_box_option) {
+    case KYBER_CBOX:
+      cypher_box_ = nullptr;
+    case MCELIECE_348864:
+      cypher_box_ = std::make_unique<McEliece_348864>(McEliece_348864());
+      break;
+    default:
+      break;
+  }
 }
 
 
@@ -219,6 +228,9 @@ std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
  * @return std::pair<Bytes, Bytes> : The encapsulated key
  */
 std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk) {
+  if (cypher_box_ != nullptr) {
+    return cypher_box_->Encrypt(pk);
+  }
   auto start = std::chrono::high_resolution_clock::now();
   Bytes message = Keccak::H(GenerateSeed_(KyberConstants::SeedSize), KyberConstants::SeedSize);
   #ifdef DEBUG

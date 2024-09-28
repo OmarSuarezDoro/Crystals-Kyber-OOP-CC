@@ -57,3 +57,22 @@ std::pair<Bytes, Bytes> McEliece_348864::Encrypt(const Bytes& pk) {
   Bytes shared_secret_bytes(shared_secret);
   return {cyphertext, shared_secret_bytes};
 }
+
+
+/**
+ * @brief Decrypts a cyphertext using the McEliece-348864 cypher
+ * @param cyphertext The cyphertext to be decrypted
+ * @return Bytes The decrypted message
+ */
+Bytes McEliece_348864::Decrypt(const Bytes& cyphertext) {
+  std::vector<uint8_t> aux_cyphertext = cyphertext.GetBytes();
+  std::vector<uint8_t> shared_secret(kem->length_shared_secret);
+  // Decrypt the message
+  OQS_STATUS status = OQS_KEM_decaps(kem, shared_secret.data(), aux_cyphertext.data(), secret_key_.data());
+  if (status != OQS_SUCCESS) {
+    throw std::runtime_error("ERROR: Unable to decrypt the message using the McEliece-348864 cypher.");
+  }
+
+  Bytes shared_secret_bytes(shared_secret);
+  return shared_secret_bytes;
+}

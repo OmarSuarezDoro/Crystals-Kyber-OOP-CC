@@ -21,5 +21,9 @@ class Cypher {
   Cypher() = default;
   virtual std::pair<Bytes, Bytes> Encrypt(const Bytes& pk) = 0;
   virtual Bytes Decrypt(const Bytes& cyphertext) = 0;
- private:
+ protected:
+  std::vector<uint8_t> public_key_;
+  std::vector<uint8_t> secret_key_;
+  std::vector<uint8_t> GetPublicKey() const { return public_key_; }
+  std::vector<uint8_t> GetSecretKey() const { return secret_key_; }
 };

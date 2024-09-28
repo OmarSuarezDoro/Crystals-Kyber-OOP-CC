@@ -75,6 +75,9 @@ add_executable(
   ./src/Components/CompressorUnit.h
   ./src/Kyber/Kyber.cc  
   ./src/Kyber/Kyber.h
+  ./src/Attack/cyphers/cypher.h
+  ./src/Attack/cyphers/mceliece-348864.cc
+  ./src/Attack/cyphers/mceliece-348864.h
   ./.conf/constants_values.h
 )
 

@@ -40,6 +40,9 @@
 #define OPTION_FILE_SHORT "-f"
 #define OPTION_FILE_LONG "--file"
 
+#define OPTION_CYPHER_BOX_SHORT "-c"
+#define OPTION_CYPHER_BOX_LONG "--cypher-box"
+
 
 
 class ProgramInterface { 
@@ -52,17 +55,10 @@ class ProgramInterface {
   long number_of_instances_ = 0;
   std::string input_file_ = "";
   std::string input_message_ = "";
+  int cypher_box_option_ = KYBER_CBOX;
 
-  static void KEMEncryptBlocks_(const std::vector<std::string>& message_chunks, std::vector<Bytes>& operand, const Bytes& key) {
-    for (int i = 0; i < operand.size(); ++i) {
-      operand[i] = Bytes(message_chunks[i]) ^ key; 
-    }
-  }
-  static void KEMDecryptBlocks_(const std::vector<Bytes>& encrypted_messages, std::vector<Bytes>& operand, const Bytes& key) {
-    for (int i = 0; i < operand.size(); ++i) {
-      operand[i] = encrypted_messages[i] ^ key; 
-    }
-  }
+  static void KEMEncryptBlocks_(const std::vector<std::string>& message_chunks, std::vector<Bytes>& operand, const Bytes& key);
+  static void KEMDecryptBlocks_(const std::vector<Bytes>& encrypted_messages, std::vector<Bytes>& operand, const Bytes& key);
   static void EncryptBlocks_(const Bytes& public_key, const std::vector<std::string>& message_chunks, std::vector<Bytes>& ciphertexts, Kyber* kyber);
   static void DecryptBlocks_(const std::vector<Bytes>& ciphertexts, const Bytes& secret_key, std::vector<Bytes>& decryptedtexts, Kyber* kyber);
   static void ProcessBlock(int id, const Bytes& block, const Bytes& key, const Bytes& coins, std::vector<Bytes>& ciphertexts, Kyber* kyber);
