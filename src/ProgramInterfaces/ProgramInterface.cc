@@ -53,6 +53,12 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
       if (args[i + 1] == "mceliece-348864") {
         cypher_box_option_ = MCELIECE_348864;
       }
+      if (args[i + 1] == "mceliece-460896") {
+        cypher_box_option_ = MCELIECE_460896;
+      }
+      if (args[i + 1] == "frodokem-1344-shake") {
+        cypher_box_option_ = FRODOKEM_1344_SHAKE;
+      }
     }
     ++i;
   }}

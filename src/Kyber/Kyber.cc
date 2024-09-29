@@ -37,6 +37,12 @@ Kyber::Kyber(int option, const std::vector<int>& seed, int cypher_box_option) {
     case MCELIECE_348864:
       cypher_box_ = std::make_unique<McEliece_348864>(McEliece_348864());
       break;
+    case MCELIECE_460896:
+      cypher_box_ = std::make_unique<McEliece_460896>(McEliece_460896());
+      break;
+    case FRODOKEM_1344_SHAKE:
+      cypher_box_ = std::make_unique<Frodokem_1344_shake>(Frodokem_1344_shake());
+      break;
     default:
       break;
   }

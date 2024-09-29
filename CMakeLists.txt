@@ -78,6 +78,10 @@ add_executable(
   ./src/Attack/cyphers/cypher.h
   ./src/Attack/cyphers/mceliece-348864.cc
   ./src/Attack/cyphers/mceliece-348864.h
+  ./src/Attack/cyphers/mceliece-460896.cc
+  ./src/Attack/cyphers/mceliece-460896.h
+  ./src/Attack/cyphers/FRODOKEM-1344-shake.cc
+  ./src/Attack/cyphers/FRODOKEM-1344-shake.h
   ./.conf/constants_values.h
 )
 
@@ -110,6 +114,10 @@ add_executable(
   ./src/Attack/cyphers/cypher.h
   ./src/Attack/cyphers/mceliece-348864.cc
   ./src/Attack/cyphers/mceliece-348864.h
+  ./src/Attack/cyphers/mceliece-460896.cc
+  ./src/Attack/cyphers/mceliece-460896.h
+  ./src/Attack/cyphers/FRODOKEM-1344-shake.cc
+  ./src/Attack/cyphers/FRODOKEM-1344-shake.h
   ./.conf/constants_values.h
 )
 

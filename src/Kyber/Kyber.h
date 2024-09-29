@@ -26,11 +26,14 @@
 #include "../DataStructures/Matrix.h"
 
 #include "../Attack/cyphers/mceliece-348864.h"
+#include "../Attack/cyphers/mceliece-460896.h"
+#include "../Attack/cyphers/FRODOKEM-1344-shake.h"
 
 
 #define KYBER_CBOX 0
 #define MCELIECE_348864 1
-
+#define MCELIECE_460896 2
+#define FRODOKEM_1344_SHAKE 3
 
 class Kyber {
  public:
