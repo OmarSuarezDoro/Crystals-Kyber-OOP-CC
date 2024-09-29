@@ -48,7 +48,7 @@ std::pair<Bytes, Bytes> McEliece_348864::Encrypt(const Bytes& pk) {
   std::vector<uint8_t> aux_pk = pk.GetBytes();
   
   // Encrypt the message
-  OQS_STATUS status = OQS_KEM_encaps(kem, ciphertext.data(), shared_secret.data(), aux_pk.data());
+  OQS_STATUS status = OQS_KEM_classic_mceliece_348864_encaps(ciphertext.data(), shared_secret.data(), aux_pk.data());
   if (status != OQS_SUCCESS) {
     throw std::runtime_error("ERROR: Unable to encrypt the message using the McEliece-348864 cypher.");
   }
@@ -68,7 +68,7 @@ Bytes McEliece_348864::Decrypt(const Bytes& cyphertext) {
   std::vector<uint8_t> aux_cyphertext = cyphertext.GetBytes();
   std::vector<uint8_t> shared_secret(kem->length_shared_secret);
   // Decrypt the message
-  OQS_STATUS status = OQS_KEM_decaps(kem, shared_secret.data(), aux_cyphertext.data(), secret_key_.data());
+  OQS_STATUS status = OQS_KEM_classic_mceliece_348864_decaps(shared_secret.data(), aux_cyphertext.data(), secret_key_.data());
   if (status != OQS_SUCCESS) {
     throw std::runtime_error("ERROR: Unable to decrypt the message using the McEliece-348864 cypher.");
   }

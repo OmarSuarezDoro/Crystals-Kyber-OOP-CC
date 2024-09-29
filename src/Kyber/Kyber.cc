@@ -34,8 +34,6 @@ Kyber::Kyber(int option, const std::vector<int>& seed, int cypher_box_option) {
   sampling_unit_ = std::make_unique<SamplingUnit>(SamplingUnit(k_, n_));
   compressor_unit_ = std::make_unique<CompressorUnit>(CompressorUnit(q_));
   switch (cypher_box_option) {
-    case KYBER_CBOX:
-      cypher_box_ = nullptr;
     case MCELIECE_348864:
       cypher_box_ = std::make_unique<McEliece_348864>(McEliece_348864());
       break;
@@ -206,6 +204,9 @@ Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext) {
  * @return std::pair<Bytes, Bytes> : The generated key pair
  */
 std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
+  if (cypher_box_) {
+    return {cypher_box_->GetPublicKey(), cypher_box_->GetSecretKey()};
+  }
   auto start = std::chrono::high_resolution_clock::now();
   Bytes seed = GenerateSeed_(KyberConstants::SeedSize);
   #ifdef DEBUG
@@ -228,8 +229,8 @@ std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
  * @return std::pair<Bytes, Bytes> : The encapsulated key
  */
 std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk) {
-  if (cypher_box_ != nullptr) {
-    return cypher_box_->Encrypt(pk);
+  if (cypher_box_) {
+    return cypher_box_->Encrypt(cypher_box_->GetPublicKey());
   }
   auto start = std::chrono::high_resolution_clock::now();
   Bytes message = Keccak::H(GenerateSeed_(KyberConstants::SeedSize), KyberConstants::SeedSize);
@@ -260,6 +261,9 @@ std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk) {
  * @return Bytes : The decapsulated key
  */
 Bytes Kyber::KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext) {
+  if (cypher_box_) {
+    return cypher_box_->Decrypt(ciphertext);
+  }
   auto start = std::chrono::high_resolution_clock::now();
   if (sk.GetBytesSize() != (24 * k_ * int(n_ / 8) + 96)) {
     throw std::invalid_argument("The secret key is not the correct size");

@@ -49,11 +49,11 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
       std::cout << "  " << OPTION_HELP_SHORT << ", " << OPTION_HELP_LONG << " :" << " Show the help menu" << std::endl;
       exit(0);
     }
-    // if (args[i] == OPTION_CYPHER_BOX_SHORT || args[i] == OPTION_CYPHER_BOX_LONG) {
-    //   if (args[i] == "mceliece-348864") {
-    //     cypher_box_option_ = MCELIECE_348864;
-    //   }
-    // }
+    if (args[i] == OPTION_CYPHER_BOX_SHORT || args[i] == OPTION_CYPHER_BOX_LONG) {
+      if (args[i + 1] == "mceliece-348864") {
+        cypher_box_option_ = MCELIECE_348864;
+      }
+    }
     ++i;
   }}
 
@@ -67,7 +67,7 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
   auto start = std::chrono::high_resolution_clock::now();
   #endif
   // Initialize Kyber object
-  std::unique_ptr<Kyber> kyber = std::make_unique<Kyber>(specification_);
+  std::unique_ptr<Kyber> kyber = std::make_unique<Kyber>(specification_, std::vector<int>(), cypher_box_option_);
   // Pad & Split the message
   std::pair<std::string, int> message_padlen = MessageParser::PadMessage(input_message_);
   std::vector<std::string> message_blocks = MessageParser::SplitMessageInChunks(message_padlen.first);  
@@ -82,18 +82,18 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
   DecryptBlocks_(cyphertexts, keypair.second, decryptedtexts, kyber.get());
   #else
   keypair = kyber->KEMKeyGen();
-  std::cout << "MIAU" << std::endl;
   // Encapsulate the shared secret
   std::pair<Bytes, Bytes> pair_ct_shareds = kyber->KEMEncapsulation(keypair.first);
+
   KEMEncryptBlocks_(message_blocks, cyphertexts, pair_ct_shareds.second);
-  std::cout << "MIAU" << std::endl;
 
   // Decapsulate the shared secret
   Bytes shared_secret = kyber->KEMDecapsulation(keypair.second, pair_ct_shareds.first);
-  std::cout << "MIAU" << std::endl;
   decryptedtexts = cyphertexts;
   KEMDecryptBlocks_(cyphertexts, decryptedtexts, shared_secret);
-
+  if (pair_ct_shareds.second != shared_secret) {
+    throw "The shared secret is not the same";
+  }
   #endif
 
   // 2. Encrypt the message
