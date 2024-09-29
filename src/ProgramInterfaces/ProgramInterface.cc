@@ -42,13 +42,23 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
       file.close();
       input_message_ = buffer.str();
     }
-
     if (args[i] == OPTION_HELP_SHORT || args[i] == OPTION_HELP_LONG) {
       std::cout << "Usage: " << std::endl;
       std::cout << "  " << OPTION_SPECIFICATION_SHORT << ", " << OPTION_SPECIFICATION_LONG << " <specification> :" << " The specification of the Kyber cryptosystem" << std::endl;
       std::cout << "  " << OPTION_MESSAGE_SHORT << ", " << OPTION_MESSAGE_LONG << " <message> :" << " The message to encrypt and decrypt" << std::endl;
       std::cout << "  " << OPTION_HELP_SHORT << ", " << OPTION_HELP_LONG << " :" << " Show the help menu" << std::endl;
       exit(0);
+    }
+    if (args[i] == OPTION_CYPHER_BOX_SHORT || args[i] == OPTION_CYPHER_BOX_LONG) {
+      if (args[i + 1] == "mceliece-348864") {
+        cypher_box_option_ = MCELIECE_348864;
+      }
+      if (args[i + 1] == "mceliece-460896") {
+        cypher_box_option_ = MCELIECE_460896;
+      }
+      if (args[i + 1] == "frodokem-1344-shake") {
+        cypher_box_option_ = FRODOKEM_1344_SHAKE;
+      }
     }
     ++i;
   }}
@@ -63,7 +73,7 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
   auto start = std::chrono::high_resolution_clock::now();
   #endif
   // Initialize Kyber object
-  std::unique_ptr<Kyber> kyber = std::make_unique<Kyber>(specification_);
+  std::unique_ptr<Kyber> kyber = std::make_unique<Kyber>(specification_, std::vector<int>(), cypher_box_option_);
   // Pad & Split the message
   std::pair<std::string, int> message_padlen = MessageParser::PadMessage(input_message_);
   std::vector<std::string> message_blocks = MessageParser::SplitMessageInChunks(message_padlen.first);  
@@ -80,11 +90,16 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
   keypair = kyber->KEMKeyGen();
   // Encapsulate the shared secret
   std::pair<Bytes, Bytes> pair_ct_shareds = kyber->KEMEncapsulation(keypair.first);
+
   KEMEncryptBlocks_(message_blocks, cyphertexts, pair_ct_shareds.second);
+
   // Decapsulate the shared secret
   Bytes shared_secret = kyber->KEMDecapsulation(keypair.second, pair_ct_shareds.first);
   decryptedtexts = cyphertexts;
   KEMDecryptBlocks_(cyphertexts, decryptedtexts, shared_secret);
+  if (pair_ct_shareds.second != shared_secret) {
+    throw "The shared secret is not the same";
+  }
   #endif
 
   // 2. Encrypt the message
@@ -167,4 +182,27 @@ void ProgramInterface::ProcessDecryptionBlock(int id, const Bytes& block, const 
   decryptedtexts[id] = kyber->Decryption(key, block);
 }
 
+/**
+ * @brief Encrypt the blocks of the message using the KEM
+ * @param message_chunks : The vector of message chunks
+ * @param operand : The vector of operands
+ * @param key : The key to use
+ */
+void ProgramInterface::KEMEncryptBlocks_(const std::vector<std::string>& message_chunks, std::vector<Bytes>& operand, const Bytes& key) {
+  for (int i = 0; i < operand.size(); ++i) {
+    operand[i] = Bytes(message_chunks[i]) ^ key; 
+  }
+}
+
+/**
+ * @brief Decrypt the blocks of the message using the KEM
+ * @param encrypted_messages : The vector of encrypted messages
+ * @param operand : The vector of operands
+ * @param key : The key to use
+ */
+void ProgramInterface::KEMDecryptBlocks_(const std::vector<Bytes>& encrypted_messages, std::vector<Bytes>& operand, const Bytes& key) {
+  for (int i = 0; i < operand.size(); ++i) {
+    operand[i] = encrypted_messages[i] ^ key; 
+  }
+}
 

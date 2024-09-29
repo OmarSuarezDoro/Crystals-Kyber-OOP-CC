@@ -25,10 +25,20 @@
 #include "../DataStructures/Bytes.h"
 #include "../DataStructures/Matrix.h"
 
+#include "../Attack/cyphers/mceliece-348864.h"
+#include "../Attack/cyphers/mceliece-460896.h"
+#include "../Attack/cyphers/FRODOKEM-1344-shake.h"
+
+
+#define KYBER_CBOX 0
+#define MCELIECE_348864 1
+#define MCELIECE_460896 2
+#define FRODOKEM_1344_SHAKE 3
+
 class Kyber {
  public:
-  Kyber(int option, const std::vector<int>& seed = {});
-
+  Kyber(int option, const std::vector<int>& seed = {}, int cypher_box_option = KYBER_CBOX);
+  
   std::pair<Bytes, Bytes> KeyGen();
   Bytes Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed);  
   Bytes Decryption(const Bytes& sk, const Bytes& ciphertext);
@@ -60,4 +70,5 @@ class Kyber {
   std::unique_ptr<Bytes> sk_ = nullptr;
   
   std::vector<int> seed_ = {};
+  std::unique_ptr<Cypher> cypher_box_ = nullptr;
 };
