@@ -33,6 +33,7 @@ class Matrix {
   unsigned int GetRowsSize() const { return rows_; }
   unsigned int GetSizeElements() const { return sizeElements_; }
   Matrix<T> GetTranspose() const;
+
   // Setter
   void SetRow(int indexRow, const Polynomial<int>& kRow);
 
@@ -43,6 +44,8 @@ class Matrix {
   bool operator==(const Matrix<T>& kMatrix2) const;
   bool operator!=(const Matrix<T>& kMatrix2) const { return !(*this == kMatrix2); }
   template <typename B> friend std::ostream& operator<<(std::ostream& os, const Matrix<B>& kMatrix);
+
+  Polynomial<T> ReturnPolynomial() const;
 
  private:
   bool isPolynomial_ = false;
@@ -187,4 +190,20 @@ void Matrix<T>::SetRow(int indexRow, const Polynomial<int>& kRow) {
   for (unsigned int i = 0; i < columns_; i++) {
     vector_[indexRow * columns_ + i] = kRow[i];
   }
+}
+
+/**
+ * @brief This method returns the matrix as a polynomial
+ * 
+ * @tparam T : Template type parameter
+ * @return Polynomial<T> 
+ */
+template <typename T>
+Polynomial<T> Matrix<T>::ReturnPolynomial() const {
+  Polynomial<T> result(rows_ * columns_);
+  for (unsigned int i = 0; i < vector_; ++i) {
+
+  }
+
+  return result;
 }

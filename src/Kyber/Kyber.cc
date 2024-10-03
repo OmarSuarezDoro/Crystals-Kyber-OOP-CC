@@ -88,6 +88,8 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
   #endif
   Matrix<Polynomial<int>> A_s = ntt_->multMatrixViaNTT(a, s_ntt);
   Matrix<Polynomial<int>> t = A_s + e_ntt;
+  
+
   #ifdef DEBUG
     std::cout << "Matrix A * S: " << A_s << std::endl;
     std::cout << "Matrix T: " << t << std::endl << std::endl;

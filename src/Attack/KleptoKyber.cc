@@ -49,12 +49,12 @@ Bytes KleptoKyber::RunBackdoor() {
   // std::cout << "c: " << c << std::endl;
 
   // Initialize the polynomial p with c length - NOT SURE ABOUT THIS!!  
-  Polynomial<int> p(b / c);
-
+  Polynomial<int> p(k_ * n_);
+  int size_p_without_zeros = b / c;
   // Pack the bits of the ciphertext into the polynomial p
-  for (int i = 0; i < p.GetSize(); ++i) {
+  for (int i = 0; i < size_p_without_zeros; ++i) {
     p[i] = 0;
-    for (int j = i * c; j < (i + 1) * c; ++j) {
+    for (int j = i * c; j < (i + 1) * c; ++j) { // TODO: need to know if we need to include the last bit or not
       // Extract the bit from the corresponding position of the ciphertext
       int bit_j = pair_ct_sharedm.first.GetBit(j);
       // Pack this bit into the coefficient p[i] using bit shifting.
@@ -64,7 +64,6 @@ Bytes KleptoKyber::RunBackdoor() {
   // std::cout << "Polynomial p: " << p << std::endl;
 
   Polynomial<int> h(p.GetSize());  
-
   // Transform the matrix t into a polynomial to calculate the compensation polynomial
   Polynomial<int> t_polynomial = t(0, 0);
   for (int i = 1 ; i < k_; ++i) {
@@ -75,18 +74,17 @@ Bytes KleptoKyber::RunBackdoor() {
 
   // Compute the compensation polynomial
   for (int i = 0; i < p.GetSize(); ++i) {
-    h[i] = (p[i] - t_polynomial[i]) % 2;
+    h[i] = (p[i] - t_polynomial[i]) % c;
   }
-  while (h.GetSize() < t_polynomial.GetSize()) {
-    h.append(0);
-  }
-  // std::cout << "Polynomial h: " << h << std::endl;
 
-
+  // std::cout << "Polynomial h: " << h << std::endl << std::endl;
+  
+  
+  
   Polynomial<int> t_prime = t_polynomial + h;
-  // std::cout << "Polynomial t_prime: " << t_prime << std::endl;
-  std::cout << "Polynomial t_prime size: " << t_prime.GetSize() << std::endl;
-
+  
+  // std::cout << "Polynomial t_prime: " << t_prime << std::endl << std::endl;
+  // std::cout << "Polynomial t_prime size: " << t_prime.GetSize() << std::endl << std::endl;
 
   Matrix<Polynomial<int>> t_prime_matrix(k_, 1);
   int current_row = 0;
@@ -94,8 +92,21 @@ Bytes KleptoKyber::RunBackdoor() {
     t_prime_matrix(current_row, 0) = ntt_->NTT_Kyber(t_prime.GetSubPolynomial(i, i + n_), true);
     current_row++;
   }
-  // std::cout << "Matrix t_prime: " << t_prime_matrix << std::endl;
+  std::cout << "Matrix t_prime: " << t_prime_matrix << std::endl;
   // std::cout << encdec_unit_->EncodeMatrixToBytes(t_prime_matrix, 12).FromBytesToHex() << std::endl;
-  
+  Bytes result = seed_a + encdec_unit_->EncodeMatrixToBytes(t_prime_matrix, 12);
   return seed_a + encdec_unit_->EncodeMatrixToBytes(t_prime_matrix, 12);
+}
+
+
+void KleptoKyber::recoverSecretKey(const Bytes& pk) {
+  Bytes seed_a = pk.GetNBytes(0, 32);
+  Bytes t_prime_bytes = pk.GetNBytes(32, pk.GetBytesSize() - 32);
+  // Recover t'
+  Matrix<Polynomial<int>> t_prime = encdec_unit_->DecodeBytesToMatrix(t_prime_bytes, k_, 1, 12);
+  
+
+  t_prime = applyNTTMatrix_(t_prime, k_, false); 
+  std::cout << "Matrix t_prime: " << t_prime << std::endl; 
+
 }

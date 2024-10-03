@@ -23,7 +23,7 @@ class KleptoKyber : public Kyber {
  public:
   KleptoKyber(int option, Bytes attacker_pk, const std::vector<int>& seed = {});
   Bytes RunBackdoor();
-  
+  void recoverSecretKey(const Bytes& pk);
  private:
   Bytes attacker_pk_;
   Bytes pk_bd_mceliece_;

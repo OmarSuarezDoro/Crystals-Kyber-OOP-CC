@@ -30,7 +30,8 @@ int main(int argc, char const *argv[]) {
   #else
   KleptoKyber klepto_kyber(512, attacker_pk);
   std::cout << "Hello, World!" << std::endl;
-  std::cout << klepto_kyber.RunBackdoor().FromBytesToHex() << std::endl;
+  Bytes result = klepto_kyber.RunBackdoor();
+  klepto_kyber.recoverSecretKey(result);
   #endif
   return 0;
 }
