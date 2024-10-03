@@ -33,6 +33,7 @@ class Matrix {
   unsigned int GetRowsSize() const { return rows_; }
   unsigned int GetSizeElements() const { return sizeElements_; }
   Matrix<T> GetTranspose() const;
+  Polynomial<int> GetPolynomialFromMatrix(int size_elements = 256) const;
 
   // Setter
   void SetRow(int indexRow, const Polynomial<int>& kRow);
@@ -205,5 +206,24 @@ Polynomial<T> Matrix<T>::ReturnPolynomial() const {
 
   }
 
+  return result;
+}
+
+/**
+ * @brief This method returns a polynomial from the matrix
+ * 
+ * @tparam T : Template type parameter
+ * @param size_elements : The size of the elements
+ * @return Polynomial<int> 
+ */
+template <typename T>
+Polynomial<int> Matrix<T>::GetPolynomialFromMatrix(int size_elements) const {
+  Polynomial<int> result = vector_[0];
+  for (unsigned int i = 0; i < rows_; ++i) {
+    for (unsigned int j = 0; j < columns_; ++j) {
+      if (i == 0 && j == 0) continue;
+      result = result.ReturnAppend(vector_[i * columns_ + j]);
+    }
+  }
   return result;
 }
