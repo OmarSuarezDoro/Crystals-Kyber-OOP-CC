@@ -18,36 +18,21 @@ KleptoKyber::KleptoKyber(int option, Bytes attacker_pk, const std::vector<int>& 
 
 Bytes KleptoKyber::RunBackdoor() {
   // We use the public key of the attacker to encrypt the shared secret
-  std::pair<Bytes, Bytes> pair_ct_sharedm = cypher_box->Encrypt(attacker_pk_);
-  
-  // std::cout << "Cyphertext: " << std::endl;
-  // pair_ct_sharedm.first.PrintBytes();
-
+  std::pair<Bytes, Bytes> pair_ct_sharedm = cypher_box->Encrypt(attacker_pk_); // 96 bytes = 768 bits  
   Bytes seed_a = GenerateSeed_(KyberConstants::SeedSize);
-  // seed_a.PrintBytes();
-  // std::cout << "Shared secret: " << std::endl;
-  // pair_ct_sharedm.second.PrintBytes();
   Bytes seed_b = pair_ct_sharedm.second;
-  // std::cout << "Seed B: " << std::endl;
-  // seed_b.PrintBytes();
   Matrix<Polynomial<int>> a = ntt_->GenerateMatrix_(k_, seed_a, true);
   int N = 0;
   std::pair<Matrix<Polynomial<int>>, int> pair_s_counter = sampling_unit_->GenerateDistribuitionMatrix(seed_b, n1_, N);
+  std::cout << "Matrix s: " << pair_s_counter.first << std::endl;
   Matrix<Polynomial<int>> s_ntt = applyNTTMatrix_(pair_s_counter.first, k_);
   std::pair<Matrix<Polynomial<int>>, int> pair_e_counter = sampling_unit_->GenerateDistribuitionMatrix(seed_b, n1_, pair_s_counter.second);
   Matrix<Polynomial<int>> e_ntt = applyNTTMatrix_(pair_e_counter.first, k_);
   // t = INTT(â ◦ NTT(s)) + e
-
   Matrix<Polynomial<int>> t = applyNTTMatrix_(ntt_->multMatrixViaNTT(a, s_ntt), k_, false) + e_ntt;
-  // std::cout << "Matrix T: " << t << std::endl;
-  // std::cout << "Matrix T size: " << t.GetRowsSize() << " x " << t.GetColumnsSize() << std::endl;
-  
   // ctbd = (bt0 , bt1 , . . . , btb ); c = ⌈b/(k · n)⌉
   int b = pair_ct_sharedm.first.GetBytesSize() * BYTE_SIZE;
   int c = b / (k_ * n_) + 1;
-  // std::cout << "b: " << b << std::endl;
-  // std::cout << "c: " << c << std::endl;
-
   // Initialize the polynomial p with c length - NOT SURE ABOUT THIS!!  
   Polynomial<int> p(k_ * n_);
   int size_p_without_zeros = b / c;
@@ -62,39 +47,22 @@ Bytes KleptoKyber::RunBackdoor() {
     }
   }
   // std::cout << "Polynomial p: " << p << std::endl;
-
   Polynomial<int> h(p.GetSize());  
   // Transform the matrix t into a polynomial to calculate the compensation polynomial
-  Polynomial<int> t_polynomial = t(0, 0);
-  for (int i = 1 ; i < k_; ++i) {
-    t_polynomial = t_polynomial.ReturnAppend(t(i, 0));
-  }
-  // std::cout << "Polynomial t: " << t_polynomial << std::endl;
-  // std::cout << "Polynomial t size: " << t_polynomial.GetSize() << std::endl;
-
+  Polynomial<int> t_polynomial = t.GetPolynomialFromMatrix(n_);
   // Compute the compensation polynomial
   for (int i = 0; i < p.GetSize(); ++i) {
     h[i] = (p[i] - t_polynomial[i]) % c;
   }
-
   // std::cout << "Polynomial h: " << h << std::endl << std::endl;
-  
-  
-  
   Polynomial<int> t_prime = t_polynomial + h;
-  
-  // std::cout << "Polynomial t_prime: " << t_prime << std::endl << std::endl;
-  // std::cout << "Polynomial t_prime size: " << t_prime.GetSize() << std::endl << std::endl;
-
   Matrix<Polynomial<int>> t_prime_matrix(k_, 1);
   int current_row = 0;
   for (int i = 0; i < t_prime.GetSize(); i += n_) {
     t_prime_matrix(current_row, 0) = ntt_->NTT_Kyber(t_prime.GetSubPolynomial(i, i + n_), true);
     current_row++;
   }
-  std::cout << "Matrix t_prime: " << t_prime_matrix << std::endl;
-  // std::cout << encdec_unit_->EncodeMatrixToBytes(t_prime_matrix, 12).FromBytesToHex() << std::endl;
-  Bytes result = seed_a + encdec_unit_->EncodeMatrixToBytes(t_prime_matrix, 12);
+  // std::cout << "Matrix t_prime: " << t_prime_matrix << std::endl;
   return seed_a + encdec_unit_->EncodeMatrixToBytes(t_prime_matrix, 12);
 }
 
@@ -104,9 +72,30 @@ void KleptoKyber::recoverSecretKey(const Bytes& pk) {
   Bytes t_prime_bytes = pk.GetNBytes(32, pk.GetBytesSize() - 32);
   // Recover t'
   Matrix<Polynomial<int>> t_prime = encdec_unit_->DecodeBytesToMatrix(t_prime_bytes, k_, 1, 12);
-  
-
   t_prime = applyNTTMatrix_(t_prime, k_, false); 
-  std::cout << "Matrix t_prime: " << t_prime << std::endl; 
 
+  Polynomial<int> t_prime_polynomial = t_prime.GetPolynomialFromMatrix(n_);
+  Polynomial<int> p(k_ * n_);
+
+
+  int b = 768; // Number of cyphertext bits
+  int c = b / (k_ * n_) + 1; // Number of bits per coefficient
+  int size_of_p_without_zeros = b / c; // Number of coefficients in p without appended zeros
+
+  // Reconstruir el polinomio p a partir de t_prime
+  for (int i = 0; i < size_of_p_without_zeros; ++i) {
+    p[i] = t_prime_polynomial[i] % c;
+  }
+
+
+  std::string recovered_ct_str = "";
+  for (int i = 0; i < p.GetSize(); ++i) {
+    recovered_ct_str += std::to_string(p[i]);
+  }
+
+  Bytes recovered_ct = seed_a + Bytes::FromBitsToBytes(recovered_ct_str);
+
+  Bytes m_prime = cypher_box->Decrypt(recovered_ct);
+  std::pair<Matrix<Polynomial<int>>, int> result_sk_n = sampling_unit_->GenerateDistribuitionMatrix(m_prime, n1_, 0);
+  std::cout <<  result_sk_n.first << std::endl;
 }
