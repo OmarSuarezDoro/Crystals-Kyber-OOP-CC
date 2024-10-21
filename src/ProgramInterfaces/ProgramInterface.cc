@@ -69,9 +69,6 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
  * @param seed : The seed to generate the rho and sigma values
  */
 void ProgramInterface::run(int option, const std::vector<int>& seed) {
-  #ifdef TIME
-  auto start = std::chrono::high_resolution_clock::now();
-  #endif
   // Initialize Kyber object
   std::unique_ptr<Kyber> kyber = std::make_unique<Kyber>(specification_, std::vector<int>(), cypher_box_option_);
   // Pad & Split the message
@@ -81,6 +78,13 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
   std::pair<Bytes, Bytes> keypair;
   std::vector<Bytes> cyphertexts(message_blocks.size());
   std::vector<Bytes> decryptedtexts(message_blocks.size());
+  
+  #ifdef TIME
+  auto start = std::chrono::high_resolution_clock::now();
+  #endif
+  std::fstream archivo("resultados.txt", std::ios::app);
+  unsigned long long ciclosInicio = __rdtsc();
+
 
   #ifndef KEM
   keypair = kyber->KeyGen();
@@ -102,7 +106,7 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
   }
   #endif
 
-  // 2. Encrypt the message
+  // Decrypt the message
   std::string decrypted_message;
   for (const Bytes& decryptedtext : decryptedtexts) {
     decrypted_message += decryptedtext.FromBytesToAscii();
@@ -113,8 +117,14 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
   
   #ifdef TIME
   std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
+  unsigned long long ciclosFin = __rdtsc();
+  unsigned long long ciclosTranscurridos = ciclosFin - ciclosInicio;
+  archivo << elapsed.count() << ", " << ciclosTranscurridos << "\n";
+  #ifdef DEBUG
   std::cout << "Decrypted message: " << decrypted_message << std::endl;
   std::cout << "Elapsed time: " << elapsed.count() << "s" << std::endl;
+  std::cout << "Elapsed cycles: " << ciclosTranscurridos << std::endl;
+  #endif
   #endif
 }
 

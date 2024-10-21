@@ -26,7 +26,9 @@ int main(int argc, char const *argv[]) {
     args.push_back(argv[i]);
   }
   ProgramInterface program_interface(args);
-  program_interface.run();
+  for (int i = 0; i < 100000; ++i) {
+    program_interface.run();
+  }
   #else
   KleptoKyber klepto_kyber(512, attacker_pk);
   std::cout << "Hello, World!" << std::endl;

@@ -19,6 +19,7 @@
 #include <thread>
 #include <mutex>
 #include <vector>
+#include <x86intrin.h> 
 
 #include "../Kyber/Kyber.h"
 #include "./MessageParser.h"
