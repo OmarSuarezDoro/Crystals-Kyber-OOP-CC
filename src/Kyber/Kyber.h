@@ -27,6 +27,7 @@
 
 #include "../Attack/cyphers/mceliece-348864.h"
 #include "../Attack/cyphers/mceliece-460896.h"
+#include "../Attack/cyphers/FRODOKEM-640-shake.h"
 #include "../Attack/cyphers/FRODOKEM-1344-shake.h"
 
 
@@ -34,6 +35,7 @@
 #define MCELIECE_348864 1
 #define MCELIECE_460896 2
 #define FRODOKEM_1344_SHAKE 3
+#define FRODOKEM_640_SHAKE 4
 
 class Kyber {
  public:

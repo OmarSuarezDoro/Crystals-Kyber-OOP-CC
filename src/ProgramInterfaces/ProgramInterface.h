@@ -35,8 +35,8 @@
 #define OPTION_HELP_SHORT "-h"
 #define OPTION_HELP_LONG "--help"
 
-#define OPTION_KEM_SHORT "-k"
-#define OPTION_KEM_LONG "--kem"
+#define OPTION_ITERATIONS_SHORT "-i"
+#define OPTION_ITERATIONS_LONG "--iterations"
 
 #define OPTION_FILE_SHORT "-f"
 #define OPTION_FILE_LONG "--file"
@@ -57,6 +57,7 @@ class ProgramInterface {
   std::string input_file_ = "";
   std::string input_message_ = "";
   int cypher_box_option_ = KYBER_CBOX;
+  long iterations_ = 1;
 
   static void KEMEncryptBlocks_(const std::vector<std::string>& message_chunks, std::vector<Bytes>& operand, const Bytes& key);
   static void KEMDecryptBlocks_(const std::vector<Bytes>& encrypted_messages, std::vector<Bytes>& operand, const Bytes& key);

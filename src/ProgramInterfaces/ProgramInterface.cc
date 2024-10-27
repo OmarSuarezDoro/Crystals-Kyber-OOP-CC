@@ -49,6 +49,9 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
       std::cout << "  " << OPTION_HELP_SHORT << ", " << OPTION_HELP_LONG << " :" << " Show the help menu" << std::endl;
       exit(0);
     }
+    if (args[i] == OPTION_ITERATIONS_SHORT || args[i] == OPTION_ITERATIONS_LONG) {
+      iterations_ = std::stol(args[i + 1]);
+    }
     if (args[i] == OPTION_CYPHER_BOX_SHORT || args[i] == OPTION_CYPHER_BOX_LONG) {
       if (args[i + 1] == "mceliece-348864") {
         cypher_box_option_ = MCELIECE_348864;
@@ -59,6 +62,10 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
       if (args[i + 1] == "frodokem-1344-shake") {
         cypher_box_option_ = FRODOKEM_1344_SHAKE;
       }
+      if (args[i + 1] == "frodokem-640-shake") {
+        cypher_box_option_ = FRODOKEM_640_SHAKE;
+      }
+
     }
     ++i;
   }}
@@ -71,61 +78,63 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
 void ProgramInterface::run(int option, const std::vector<int>& seed) {
   // Initialize Kyber object
   std::unique_ptr<Kyber> kyber = std::make_unique<Kyber>(specification_, std::vector<int>(), cypher_box_option_);
-  // Pad & Split the message
-  std::pair<std::string, int> message_padlen = MessageParser::PadMessage(input_message_);
-  std::vector<std::string> message_blocks = MessageParser::SplitMessageInChunks(message_padlen.first);  
-  // Start the process
-  std::pair<Bytes, Bytes> keypair;
-  std::vector<Bytes> cyphertexts(message_blocks.size());
-  std::vector<Bytes> decryptedtexts(message_blocks.size());
-  
-  #ifdef TIME
-  auto start = std::chrono::high_resolution_clock::now();
-  #endif
-  std::fstream archivo("resultados.txt", std::ios::app);
-  unsigned long long ciclosInicio = __rdtsc();
+  for (long i = 0; i < iterations_; ++i) {
+    // Pad & Split the message
+    std::pair<std::string, int> message_padlen = MessageParser::PadMessage(input_message_);
+    std::vector<std::string> message_blocks = MessageParser::SplitMessageInChunks(message_padlen.first);  
+    // Start the process
+    std::pair<Bytes, Bytes> keypair;
+    std::vector<Bytes> cyphertexts(message_blocks.size());
+    std::vector<Bytes> decryptedtexts(message_blocks.size());
+    
+    #ifdef TIME
+    auto start = std::chrono::high_resolution_clock::now();
+    #endif
+    std::fstream archivo("resultados.txt", std::ios::app);
+    unsigned long long ciclosInicio = __rdtsc();
 
 
-  #ifndef KEM
-  keypair = kyber->KeyGen();
-  EncryptBlocks_(keypair.first, message_blocks, cyphertexts, kyber.get());
-  DecryptBlocks_(cyphertexts, keypair.second, decryptedtexts, kyber.get());
-  #else
-  keypair = kyber->KEMKeyGen();
-  // Encapsulate the shared secret
-  std::pair<Bytes, Bytes> pair_ct_shareds = kyber->KEMEncapsulation(keypair.first);
+    #ifndef KEM
+    keypair = kyber->KeyGen();
+    EncryptBlocks_(keypair.first, message_blocks, cyphertexts, kyber.get());
+    DecryptBlocks_(cyphertexts, keypair.second, decryptedtexts, kyber.get());
+    #else
+    keypair = kyber->KEMKeyGen();
+    // Encapsulate the shared secret
+    std::pair<Bytes, Bytes> pair_ct_shareds = kyber->KEMEncapsulation(keypair.first);
 
-  KEMEncryptBlocks_(message_blocks, cyphertexts, pair_ct_shareds.second);
+    KEMEncryptBlocks_(message_blocks, cyphertexts, pair_ct_shareds.second);
 
-  // Decapsulate the shared secret
-  Bytes shared_secret = kyber->KEMDecapsulation(keypair.second, pair_ct_shareds.first);
-  decryptedtexts = cyphertexts;
-  KEMDecryptBlocks_(cyphertexts, decryptedtexts, shared_secret);
-  if (pair_ct_shareds.second != shared_secret) {
-    throw "The shared secret is not the same";
+    // Decapsulate the shared secret
+    Bytes shared_secret = kyber->KEMDecapsulation(keypair.second, pair_ct_shareds.first);
+    decryptedtexts = cyphertexts;
+    KEMDecryptBlocks_(cyphertexts, decryptedtexts, shared_secret);
+    if (pair_ct_shareds.second != shared_secret) {
+      throw "The shared secret is not the same";
+    }
+    #endif
+
+    // Decrypt the message
+    std::string decrypted_message;
+    for (const Bytes& decryptedtext : decryptedtexts) {
+      decrypted_message += decryptedtext.FromBytesToAscii();
+    }
+    if (message_padlen.second > 0) {
+      decrypted_message = MessageParser::unpad(decrypted_message);
+    }
+    
+    #ifdef TIME
+    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
+    unsigned long long ciclosFin = __rdtsc();
+    unsigned long long ciclosTranscurridos = ciclosFin - ciclosInicio;
+    archivo << elapsed.count() << ", " << ciclosTranscurridos << "\n";
+    #ifdef DEBUG
+    std::cout << "Decrypted message: " << decrypted_message << std::endl;
+    std::cout << "Elapsed time: " << elapsed.count() << "s" << std::endl;
+    std::cout << "Elapsed cycles: " << ciclosTranscurridos << std::endl;
+    #endif
+    #endif
   }
-  #endif
-
-  // Decrypt the message
-  std::string decrypted_message;
-  for (const Bytes& decryptedtext : decryptedtexts) {
-    decrypted_message += decryptedtext.FromBytesToAscii();
-  }
-  if (message_padlen.second > 0) {
-    decrypted_message = MessageParser::unpad(decrypted_message);
-  }
-  
-  #ifdef TIME
-  std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-  unsigned long long ciclosFin = __rdtsc();
-  unsigned long long ciclosTranscurridos = ciclosFin - ciclosInicio;
-  archivo << elapsed.count() << ", " << ciclosTranscurridos << "\n";
-  #ifdef DEBUG
-  std::cout << "Decrypted message: " << decrypted_message << std::endl;
-  std::cout << "Elapsed time: " << elapsed.count() << "s" << std::endl;
-  std::cout << "Elapsed cycles: " << ciclosTranscurridos << std::endl;
-  #endif
-  #endif
 }
 
 /**

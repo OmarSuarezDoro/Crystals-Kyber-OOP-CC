@@ -26,7 +26,7 @@ int main(int argc, char const *argv[]) {
     args.push_back(argv[i]);
   }
   ProgramInterface program_interface(args);
-  for (int i = 0; i < 100000; ++i) {
+  for (int i = 0; i < 10000; ++i) {
     program_interface.run();
   }
   #else

@@ -82,6 +82,8 @@ add_executable(
   ./src/Attack/cyphers/mceliece-460896.h
   ./src/Attack/cyphers/FRODOKEM-1344-shake.cc
   ./src/Attack/cyphers/FRODOKEM-1344-shake.h
+  ./src/Attack/cyphers/FRODOKEM-640-shake.cc
+  ./src/Attack/cyphers/FRODOKEM-640-shake.h
   ./.conf/constants_values.h
 )
 
@@ -118,6 +120,8 @@ add_executable(
   ./src/Attack/cyphers/mceliece-460896.h
   ./src/Attack/cyphers/FRODOKEM-1344-shake.cc
   ./src/Attack/cyphers/FRODOKEM-1344-shake.h
+  ./src/Attack/cyphers/FRODOKEM-640-shake.cc
+  ./src/Attack/cyphers/FRODOKEM-640-shake.h
   ./.conf/constants_values.h
 )
 
