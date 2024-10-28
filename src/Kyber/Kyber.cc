@@ -46,6 +46,9 @@ Kyber::Kyber(int option, const std::vector<int>& seed, int cypher_box_option) {
     case FRODOKEM_640_SHAKE:
       cypher_box_ = std::make_unique<Frodokem_640_shake>(Frodokem_640_shake());
       break;
+    case KYBER_KEM_512_OQS:
+      cypher_box_ = std::make_unique<KyberKEM_512>(KyberKEM_512());
+      break;
     default:
       break;
   }

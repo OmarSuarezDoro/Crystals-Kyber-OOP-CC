@@ -84,6 +84,8 @@ add_executable(
   ./src/Attack/cyphers/FRODOKEM-1344-shake.h
   ./src/Attack/cyphers/FRODOKEM-640-shake.cc
   ./src/Attack/cyphers/FRODOKEM-640-shake.h
+  ./src/Attack/cyphers/KYBER-KEM-512.cc
+  ./src/Attack/cyphers/KYBER-KEM-512.h
   ./.conf/constants_values.h
 )
 
@@ -122,6 +124,8 @@ add_executable(
   ./src/Attack/cyphers/FRODOKEM-1344-shake.h
   ./src/Attack/cyphers/FRODOKEM-640-shake.cc
   ./src/Attack/cyphers/FRODOKEM-640-shake.h
+  ./src/Attack/cyphers/KYBER-KEM-512.cc
+  ./src/Attack/cyphers/KYBER-KEM-512.h
   ./.conf/constants_values.h
 )
 

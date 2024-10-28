@@ -65,7 +65,9 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
       if (args[i + 1] == "frodokem-640-shake") {
         cypher_box_option_ = FRODOKEM_640_SHAKE;
       }
-
+      if (args[i + 1] == "kyber-kem-512") {
+        cypher_box_option_ = KYBER_KEM_512_OQS;
+      }
     }
     ++i;
   }}
@@ -86,12 +88,12 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
     std::pair<Bytes, Bytes> keypair;
     std::vector<Bytes> cyphertexts(message_blocks.size());
     std::vector<Bytes> decryptedtexts(message_blocks.size());
+    std::fstream archivo("resultados.txt", std::ios::app);
     
     #ifdef TIME
     auto start = std::chrono::high_resolution_clock::now();
-    #endif
-    std::fstream archivo("resultados.txt", std::ios::app);
     unsigned long long ciclosInicio = __rdtsc();
+    #endif
 
 
     #ifndef KEM

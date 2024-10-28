@@ -65,7 +65,7 @@ Bytes KleptoKyber::RunBackdoor() {
   } 
   // std::cout << copy << std::endl;
   if (copy == p) {
-    std::cout << "SIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII" << std::endl;
+    std::cout << "Por ahora parece correcto" << std::endl;
   }
   Matrix<Polynomial<int>> t_prime_matrix(k_, 1);
   int current_row = 0;
