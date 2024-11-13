@@ -23,7 +23,7 @@ class KleptoKyber : public Kyber {
  public:
   KleptoKyber(int option, Bytes attacker_pk, Bytes attacker_sk, const std::vector<int>& seed = {});
   Bytes RunBackdoor();
-  void recoverSecretKey(const Bytes& pk);
+  Matrix<Polynomial<int>> recoverSecretKey(const Bytes& pk);
  private:
   Polynomial<int> PackBitsIntoPolynomial_(const Bytes& ct, const Matrix<Polynomial<int>>& t, int c);
   Polynomial<int> ComputeCompensation_(const Polynomial<int>& p, const Polynomial<int>& t_polynomial, int c);

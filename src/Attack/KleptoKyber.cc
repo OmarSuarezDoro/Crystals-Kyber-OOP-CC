@@ -53,7 +53,6 @@ Bytes KleptoKyber::RunBackdoor() {
     std::cerr << "Error: The backdoor is not working well" << std::endl;
     exit(1);
   }
-  std::cout << "Por ahora parece correcto" << std::endl;
   
   // 6. Convert t' into a matrix
   Matrix<Polynomial<int>> t_prime_matrix(k_, 1);
@@ -67,22 +66,20 @@ Bytes KleptoKyber::RunBackdoor() {
 
 
 
-void KleptoKyber::recoverSecretKey(const Bytes& pk) {
+Matrix<Polynomial<int>> KleptoKyber::recoverSecretKey(const Bytes& pk) {
   Bytes seed_a = pk.GetNBytes(0, 32);
   Bytes t_prime_bytes = pk.GetNBytes(32, pk.GetBytesSize() - 32);
   // 1. Recover t'
   Matrix<Polynomial<int>> t_prime = encdec_unit_->DecodeBytesToMatrix(t_prime_bytes, k_, 1, 12);
-  // 2. Apply the inverse NTT to t'
+  // 2. Apply the INTT to t'
   t_prime = applyNTTMatrix_(t_prime, k_, false); 
 
-  int b = KyberConstants::CtSize; // Number of cyphertext bits
-  int c = b / (k_ * n_) + 1; // Number of bits per coefficient
-
+  // Number of cyphertext bits
+  int b = KyberConstants::CtSize;
+  // Number of bits per coefficient
+  int c = b / (k_ * n_) + 1;
 
   Polynomial<int> t_prime_polynomial = t_prime.GetPolynomialFromMatrix(n_);
-  // std::cout << "Matrix t_prime: " << t_prime_polynomial << std::endl;
-  // std::cout << "b: " << b << std::endl;
-  // std::cout << "c: " << c << std::endl;
 
   // 3. Reconstruct polynomial p from t_prime
   int size_of_p_without_zeros = b / c + 1;
@@ -90,7 +87,6 @@ void KleptoKyber::recoverSecretKey(const Bytes& pk) {
   for (int i = 0; i < size_of_p_without_zeros; ++i) {
     p[i] = t_prime_polynomial[i] % (2 << c - 1);
   }
-  // std::cout << p << std::endl;
 
   std::string recovered_ct_str = "";
   for (int i = 0; i < (size_of_p_without_zeros - 1); ++i) {
@@ -106,7 +102,7 @@ void KleptoKyber::recoverSecretKey(const Bytes& pk) {
   Bytes m_prime = cypher_box->Decrypt(recovered_ct, attacker_sk_);
   
   std::pair<Matrix<Polynomial<int>>, int> result_sk_n = sampling_unit_->GenerateDistribuitionMatrix(m_prime, n1_, 0);
-  std::cout << result_sk_n.first << std::endl;
+  return result_sk_n.first;
 }
 
 

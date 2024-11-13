@@ -50,6 +50,7 @@ class ProgramInterface {
  public:
   ProgramInterface(const std::vector<std::string>& args);
   void run(int option = 512, const std::vector<int>& seed = {});
+  void runAttack(int option = 512, const std::vector<int>& seed = {});
   
  private:
   int specification_;

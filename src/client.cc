@@ -20,25 +20,17 @@
 #include "./ProgramInterfaces/ProgramInterface.h"
 
 int main(int argc, char const *argv[]) {
-  #ifndef ATTACK
   std::vector<std::string> args;
   for (int i = 0; i < argc; ++i) {
     args.push_back(argv[i]);
   }
   ProgramInterface program_interface(args);
-  for (int i = 0; i < 10000; ++i) {
-    program_interface.run();
-  }  
-  #else
-  Kyber kyber(512, {}, MCELIECE_348864);
-  std::pair<Bytes, Bytes> pair = kyber.KEMKeyGen();
-  Bytes attacker_pk = pair.first;
-  Bytes attacker_sk = pair.second;
-  // std::cout << "Public Key: " << attacker_pk.FromBytesToHex() << std::endl
-  //           << "Secret Key: " << attacker_sk.FromBytesToHex() << std::endl;
-  KleptoKyber klepto_kyber(512, attacker_pk, attacker_sk, {});
-  Bytes result = klepto_kyber.RunBackdoor();
-  klepto_kyber.recoverSecretKey(result);
-  #endif
+  for (int i = 0; i < 1; ++i) {
+    #ifdef ATTACK
+      program_interface.runAttack();
+    #else
+      program_interface.run();
+    #endif
+  }
   return 0;
 }

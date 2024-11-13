@@ -140,6 +140,23 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
 }
 
 /**
+ * @brief Run the attack
+ * @param option : The option to choose the parameters of the Kyber cryptosystem
+ * @param seed : The seed to generate the rho and sigma values
+ */
+void ProgramInterface::runAttack(int option, const std::vector<int>& seed) {
+  Kyber kyber(option, {}, cypher_box_option_);
+  std::pair<Bytes, Bytes> pair = kyber.KEMKeyGen();
+  Bytes attacker_pk = pair.first;
+  Bytes attacker_sk = pair.second;
+  KleptoKyber klepto_kyber(option, attacker_pk, attacker_sk, {});
+  Bytes result = klepto_kyber.RunBackdoor();
+  std::cout << klepto_kyber.recoverSecretKey(result) << std::endl;
+}
+
+
+
+/**
  * @brief Encrypt the blocks of the message
  * @param public_key : The public key
  * @param message_chunks : The vector of message chunks
