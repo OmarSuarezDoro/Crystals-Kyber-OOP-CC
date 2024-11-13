@@ -22,7 +22,7 @@ class Frodokem_640_shake : public Cypher {
   Frodokem_640_shake();
   ~Frodokem_640_shake() { OQS_KEM_free(kem); }
   std::pair<Bytes, Bytes> Encrypt(const Bytes& message) override;
-  Bytes Decrypt(const Bytes& cyphertext) override;
+  Bytes Decrypt(const Bytes& cyphertext, const Bytes& sk = Bytes()) override;
 
  private:
   OQS_KEM* kem;

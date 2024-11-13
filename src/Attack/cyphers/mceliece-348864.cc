@@ -22,7 +22,7 @@ McEliece_348864::McEliece_348864() {
   if (kem == nullptr) {
     throw std::runtime_error("ERROR: Unable to initialize the McEliece-348864 cypher.");
   }
-  
+
   // We need to assign the length of the public and secret keys
   public_key_.resize(kem->length_public_key);
   secret_key_.resize(kem->length_secret_key);
@@ -64,7 +64,12 @@ std::pair<Bytes, Bytes> McEliece_348864::Encrypt(const Bytes& pk) {
  * @param cyphertext The cyphertext to be decrypted
  * @return Bytes The decrypted message
  */
-Bytes McEliece_348864::Decrypt(const Bytes& cyphertext) {
+Bytes McEliece_348864::Decrypt(const Bytes& cyphertext, const Bytes& sk) {
+  if (sk.GetBytesSize() != 0) {
+    // std::cout << "Using the provided secret key" << std::endl;
+    // std::cout << "Sk of the attacker: " << sk.FromBytesToHex() << std::endl;
+    secret_key_ = sk.GetBytes();
+  }
   std::vector<uint8_t> aux_cyphertext = cyphertext.GetBytes();
   std::vector<uint8_t> shared_secret(kem->length_shared_secret);
   // Decrypt the message

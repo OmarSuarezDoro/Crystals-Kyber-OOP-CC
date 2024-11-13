@@ -64,7 +64,12 @@ std::pair<Bytes, Bytes> Frodokem_1344_shake::Encrypt(const Bytes& pk) {
  * @param cyphertext The cyphertext to be decrypted
  * @return Bytes The decrypted message
  */
-Bytes Frodokem_1344_shake::Decrypt(const Bytes& cyphertext) {
+Bytes Frodokem_1344_shake::Decrypt(const Bytes& cyphertext, const Bytes& sk) {
+  if (sk.GetBytesSize() != 0) {
+    std::cout << "Using the provided secret key" << std::endl;
+    secret_key_ = sk.GetBytes();
+  }
+
   std::vector<uint8_t> aux_cyphertext = cyphertext.GetBytes();
   std::vector<uint8_t> shared_secret(kem->length_shared_secret);
   // Decrypt the message

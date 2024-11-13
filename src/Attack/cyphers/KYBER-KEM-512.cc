@@ -64,7 +64,7 @@ std::pair<Bytes, Bytes> KyberKEM_512::Encrypt(const Bytes& pk) {
  * @param cyphertext The cyphertext to be decrypted
  * @return Bytes The decrypted message
  */
-Bytes KyberKEM_512::Decrypt(const Bytes& cyphertext) {
+Bytes KyberKEM_512::Decrypt(const Bytes& cyphertext, const Bytes& sk) {
   std::vector<uint8_t> aux_cyphertext = cyphertext.GetBytes();
   std::vector<uint8_t> shared_secret(kem->length_shared_secret);
   // Decrypt the message
