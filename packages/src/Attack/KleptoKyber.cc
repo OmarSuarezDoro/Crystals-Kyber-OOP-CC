@@ -12,11 +12,23 @@
 
 #include "./KleptoKyber.h"
 
+/**
+ * @brief Construct a new Klepto Kyber:: Klepto Kyber object
+ * 
+ * @param option The option of the Kyber cryptosystem
+ * @param attacker_pk The attacker public key
+ * @param attacker_sk The attacker secret key
+ * @param seed The seed to generate the rho and sigma values
+ */
 KleptoKyber::KleptoKyber(int option, Bytes attacker_pk, Bytes attacker_sk, const std::vector<int>& seed) : Kyber(option, seed) {
   attacker_pk_ = attacker_pk;
   attacker_sk_ = attacker_sk;
 }
 
+/**
+ * @brief This function generates a seed of a given size
+ * @return Bytes 
+ */
 Bytes KleptoKyber::RunBackdoor() {
   // We use the public key of the attacker to encrypt the shared secret
   std::pair<Bytes, Bytes> pair_ct_sharedm = cypher_box->Encrypt(attacker_pk_); // 96 bytes = 768 bits  
@@ -65,7 +77,12 @@ Bytes KleptoKyber::RunBackdoor() {
 }
 
 
-
+/**
+ * @brief This function recovers the secret key of the Kyber cryptosystem
+ * 
+ * @param pk The public key of the attacker
+ * @return Matrix<Polynomial<int>> 
+ */
 Matrix<Polynomial<int>> KleptoKyber::recoverSecretKey(const Bytes& pk) {
   Bytes seed_a = pk.GetNBytes(0, 32);
   Bytes t_prime_bytes = pk.GetNBytes(32, pk.GetBytesSize() - 32);
@@ -89,31 +106,34 @@ Matrix<Polynomial<int>> KleptoKyber::recoverSecretKey(const Bytes& pk) {
   }
 
   std::string recovered_ct_str = "";
+
   for (int i = 0; i < (size_of_p_without_zeros - 1); ++i) {
-    std::string bits = std::bitset<2>(p[i]).to_string();
-    std::reverse(bits.begin(), bits.end());
+    std::string bits = byteToReversedBits(p[i], c);
     recovered_ct_str += bits;
   }
-  
   Bytes recovered_ct = Bytes::FromBitsToBytes(recovered_ct_str);
-
   // std::cout << "Ciphertext: " << recovered_ct.FromBytesToHex() << std::endl;
-
   Bytes m_prime = cypher_box->Decrypt(recovered_ct, attacker_sk_);
-  
   std::pair<Matrix<Polynomial<int>>, int> result_sk_n = sampling_unit_->GenerateDistribuitionMatrix(m_prime, n1_, 0);
   return result_sk_n.first;
 }
 
 
-
+/**
+ * @brief This function generates a seed of a given size
+ * 
+ * @param ct Ciphertext
+ * @param t t matrix
+ * @param c Number of bits per coefficient
+ * @return Polynomial<int> 
+ */
 Polynomial<int> KleptoKyber::PackBitsIntoPolynomial_(const Bytes& ct, const Matrix<Polynomial<int>>& t, int c) {
   int b = ct.GetBytesSize() * BYTE_SIZE;
   int size_p_without_zeros = b / c;
   Polynomial<int> p(k_ * n_);
   for (int i = 0; i < size_p_without_zeros; ++i) {
     p[i] = 0;
-    for (int j = i * c; j < (i + 1) * c; ++j) { // TODO: need to know if we need to include the last bit or not
+    for (int j = i * c; j < (i + 1) * c; ++j) {
       // Extract the bit from the corresponding position of the ciphertext
       int bit_j = ct.GetBit(j);
       // Pack this bit into the coefficient p[i] using bit shifting.
@@ -123,7 +143,14 @@ Polynomial<int> KleptoKyber::PackBitsIntoPolynomial_(const Bytes& ct, const Matr
   return p;
 }
 
-
+/**
+ * @brief this function computes the compensation polynomial
+ * 
+ * @param p polynomial p
+ * @param t_polynomial polynomial t
+ * @param c number of bits per coefficient
+ * @return Polynomial<int> 
+ */
 Polynomial<int> KleptoKyber::ComputeCompensation_(const Polynomial<int>& p, const Polynomial<int>& t_polynomial, int c) {
   Polynomial<int> h(k_ * n_);
   for (int i = 0; i < p.GetSize(); ++i) {
@@ -132,6 +159,16 @@ Polynomial<int> KleptoKyber::ComputeCompensation_(const Polynomial<int>& p, cons
   return h;
 }
 
+/**
+ * @brief This function checks if the backdoor is working well
+ * 
+ * @param p The polynomial p
+ * @param t_polynomial The polynomial t
+ * @param h The compensation polynomial h
+ * @param c The number of bits per coefficient
+ * @return true 
+ * @return false 
+ */
 bool KleptoKyber::IsWorkingWell_(const Polynomial<int>& p, const Polynomial<int>& t_polynomial, const Polynomial<int>& h, int c) {
   for (int i = 0; i < p.GetSize(); ++i) {
     if ((p[i] - t_polynomial[i]) % (2 << c - 1) != h[i]) {
@@ -139,4 +176,19 @@ bool KleptoKyber::IsWorkingWell_(const Polynomial<int>& p, const Polynomial<int>
     }
   }
   return true;
+}
+
+/**
+ * @brief This function converts a byte into a string of reversed bits
+ * 
+ * @param byte The byte to convert
+ * @param numBits The number of bits to convert
+ * @return std::string 
+ */
+std::string KleptoKyber::byteToReversedBits(unsigned char byte, int numBits = 2); {
+  std::string bits;
+  for (int i = 0; i < numBits; ++i) {
+    bits += (byte & (1 << i)) ? '1' : '0';
+  }
+  return bits;
 }
