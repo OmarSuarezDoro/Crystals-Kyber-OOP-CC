@@ -48,16 +48,14 @@
 class ProgramInterface { 
  public:
   ProgramInterface(const std::vector<std::string>& args);
-  void run(int option = specification_, const std::vector<int>& seed = {});
-  void runAttack(int option = specification_, const std::vector<int>& seed = {});
+  void run(int option = 512, const std::vector<int>& seed = {});
+  bool runAttack(int option = 768, const std::vector<int>& seed = {});
   
  private:
   int specification_;
-  long number_of_instances_ = 0;
   std::string input_file_ = "";
   std::string input_message_ = "";
   int cypher_box_option_ = KYBER_CBOX;
-  long iterations_ = 1;
 
   static void KEMEncryptBlocks_(const std::vector<std::string>& message_chunks, std::vector<Bytes>& operand, const Bytes& key);
   static void KEMDecryptBlocks_(const std::vector<Bytes>& encrypted_messages, std::vector<Bytes>& operand, const Bytes& key);

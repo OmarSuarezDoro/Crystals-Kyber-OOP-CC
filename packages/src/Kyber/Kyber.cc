@@ -21,13 +21,13 @@ std::mutex mutex;
  */
 Kyber::Kyber(int option, const std::vector<int>& seed, int cypher_box_option) {
   InitializeConstants(option);
-  n_ = KyberConstants::N;
-  q_ = KyberConstants::Q;
-  k_ = KyberConstants::K;
-  n1_ = KyberConstants::N1;
-  n2_ = KyberConstants::N2;
-  du_ = KyberConstants::Du;
-  dv_ = KyberConstants::Dv;  
+  n_ = n_;
+  q_ = q_;
+  k_ = k_;
+  n1_ = n1_;
+  n2_ = n2_;
+  du_ = du_;
+  dv_ = dv_;  
   seed_ = seed;
   ntt_ = std::make_unique<NTT>(NTT(n_, q_));
   encdec_unit_ = std::make_unique<EncDecUnit>(EncDecUnit(n_));
@@ -60,9 +60,9 @@ Kyber::Kyber(int option, const std::vector<int>& seed, int cypher_box_option) {
  * 
  * @return std::pair<Bytes, Bytes> : The generated key pair
  */
-std::pair<Bytes, Bytes> Kyber::KeyGen() {
+std::pair<Bytes, Bytes> Kyber::KeyGen() const {
   auto start = std::chrono::high_resolution_clock::now();
-  Bytes seed = GenerateSeed_(KyberConstants::SeedSize);
+  Bytes seed = GenerateSeed_(seed_size_);
   if (seed_.size() > 0) {
     seed = Bytes(seed_);
   }
@@ -106,8 +106,8 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
     std::cout << "Public Key: " << t_encoded.FromBytesToHex() << std::endl;
     std::cout << "Secret Key: " << s_encoded.FromBytesToHex() << std::endl << std::endl;
   #endif
-  pk_ = std::make_unique<Bytes>(t_encoded);
-  sk_ = std::make_unique<Bytes>(s_encoded);
+  std::make_unique<Bytes>(t_encoded);
+  std::make_unique<Bytes>(s_encoded);
   return std::make_pair(t_encoded, s_encoded);
 }
 
@@ -119,7 +119,7 @@ std::pair<Bytes, Bytes> Kyber::KeyGen() {
  * @param seed : The seed to generate the rho and sigma values
  * @return Bytes : The encrypted message
  */
-Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed) {
+Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed) const {
   auto start = std::chrono::high_resolution_clock::now();
   Bytes rho = pk.GetNBytes(pk.GetBytesSize() - 32, 32);
   #ifdef DEBUG
@@ -185,7 +185,7 @@ Bytes Kyber::Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed
  * @param dv : The dv value
  * @return Bytes : The decrypted message
  */
-Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext) {
+Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext) const {
   auto start = std::chrono::high_resolution_clock::now();
   Bytes c2 = ciphertext.GetNBytes(du_ * k_ * int(n_ / 8), ciphertext.GetBytesSize() - du_ * k_ * int(n_ / 8));
   Matrix<Polynomial<int>> u = compressor_unit_->DecompressMatrix(encdec_unit_->DecodeBytesToMatrix(ciphertext, k_, 1, du_), du_);
@@ -217,18 +217,19 @@ Bytes Kyber::Decryption(const Bytes& sk, const Bytes& ciphertext) {
  * 
  * @return std::pair<Bytes, Bytes> : The generated key pair
  */
-std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
+std::pair<Bytes, Bytes> Kyber::KEMKeyGen() const {
   if (cypher_box_) {
     return {cypher_box_->GetPublicKey(), cypher_box_->GetSecretKey()};
   }
   auto start = std::chrono::high_resolution_clock::now();
-  Bytes seed = GenerateSeed_(KyberConstants::SeedSize);
+  Bytes seed = GenerateSeed_(seed_size_);
   #ifdef DEBUG
     std::cout << "Seed Generated: " << seed.FromBytesToHex() << std::endl;
   #endif
   std::pair<Bytes, Bytes> key_pair = Kyber::KeyGen();
   Bytes pk = key_pair.first;
   Bytes sk = key_pair.second + pk + Keccak::H(pk, 32) + seed;
+
   #ifdef DEBUG
     std::cout << "Secret Key: " << sk.FromBytesToHex() << std::endl;
   #endif
@@ -242,23 +243,28 @@ std::pair<Bytes, Bytes> Kyber::KEMKeyGen() {
  * @param pk : The public key
  * @return std::pair<Bytes, Bytes> : The encapsulated key
  */
-std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk) {
+std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk) const {
   if (cypher_box_) {
     return cypher_box_->Encrypt(cypher_box_->GetPublicKey());
   }
+
   auto start = std::chrono::high_resolution_clock::now();
-  Bytes message = Keccak::H(GenerateSeed_(KyberConstants::SeedSize), KyberConstants::SeedSize);
+  Bytes message = Keccak::H(GenerateSeed_(seed_size_), seed_size_);
   #ifdef DEBUG
     std::cout << "Message: " << message.FromBytesToHex() << std::endl;
   #endif
-  std::pair<Bytes, Bytes> pair = Keccak::G(message + Keccak::H(pk, KyberConstants::SeedSize));
+  std::pair<Bytes, Bytes> pair = Keccak::G(message + Keccak::H(pk, seed_size_));
   #ifdef DEBUG
     std::cout << "K' and r': " << pair.first.FromBytesToHex() << " " << pair.second.FromBytesToHex() << std::endl;
   #endif
   Bytes K_prime = pair.first;
   Bytes r = pair.second;
   Bytes c = Encryption(pk, message, r);
-  Bytes K = Keccak::KDF(K_prime + Keccak::H(c, KyberConstants::SeedSize), KyberConstants::SeedSize);
+  if (c.GetBytesSize() != (du_ * k_ * int(n_ / 8) + dv_ * int(n_ / 8))) {
+    throw std::invalid_argument("The cyphered text or the K' value is not the correct size");
+  }
+  Bytes K = Keccak::KDF(K_prime + Keccak::H(c, seed_size_), seed_size_);
+
   #ifdef DEBUG
     std::cout << "Ciphertext: " << c.FromBytesToHex() << std::endl;
     std::cout << "K: " << K.FromBytesToHex() << std::endl << std::endl;
@@ -274,7 +280,7 @@ std::pair<Bytes, Bytes> Kyber::KEMEncapsulation(const Bytes& pk) {
  * @param ciphertext : The ciphertext to decapsulate
  * @return Bytes : The decapsulated key
  */
-Bytes Kyber::KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext) {
+Bytes Kyber::KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext) const {
   if (cypher_box_) {
     return cypher_box_->Decrypt(ciphertext);
   }
@@ -287,7 +293,7 @@ Bytes Kyber::KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext) {
   }
   int entry_index = 12 * k_ * int(n_ / 8);
   int following_index = 24 * k_ * int(n_ / 8);
-  Bytes pk = sk.GetNBytes(entry_index, KyberConstants::PkSize);
+  Bytes pk = sk.GetNBytes(entry_index, pk_size_);
   Bytes h = sk.GetNBytes(following_index + 32, 32);
   Bytes z = sk.GetNBytes(following_index + 64, 32);
   #ifdef DEBUG
@@ -364,41 +370,43 @@ std::pair<Bytes, Bytes> Kyber::GenerateRhoSigma_(const Bytes& seed) const {
 void Kyber::InitializeConstants(int option) {
   switch (option) {
     case 512:
-      KyberConstants::N = 256;
-      KyberConstants::Q = 3329;
-      KyberConstants::K = 2;
-      KyberConstants::N1 = 3;
-      KyberConstants::N2 = 2;
-      KyberConstants::Du = 10;
-      KyberConstants::Dv = 4;
-      KyberConstants::PkSize = 800;
-      KyberConstants::SkSize = 1632;
-      KyberConstants::CtSize = 768;
-      KyberConstants::SeedSize = 32;
+      n_ = 256;
+      q_ = 3329;
+      k_ = 2;
+      n1_ = 3;
+      n2_ = 2;
+      du_ = 10;
+      dv_ = 4;
+      pk_size_ = 800;
+      sk_size_ = 1632;
+      ct_size_ = 768;
+      seed_size_ = 32;
       break;
     case 768:
-      KyberConstants::N = 256;
-      KyberConstants::Q = 3329;
-      KyberConstants::K = 3;
-      KyberConstants::N1 = 3;
-      KyberConstants::N2 = 2;
-      KyberConstants::Du = 10;
-      KyberConstants::Dv = 4;
-      KyberConstants::PkSize = 1184;
-      KyberConstants::SkSize = 2400;
-      KyberConstants::CtSize = 1088;
+      n_ = 256;
+      q_ = 3329;
+      k_ = 3;
+      n1_ = 2;
+      n2_ = 2;
+      du_ = 10;
+      dv_ = 4;
+      pk_size_ = 1184;
+      sk_size_ = 2400;
+      ct_size_ = 1088;
+      seed_size_ = 32;
       break;
     case 1024:
-      KyberConstants::N = 256;
-      KyberConstants::Q = 3329;
-      KyberConstants::K = 4;
-      KyberConstants::N1 = 2;
-      KyberConstants::N2 = 2;
-      KyberConstants::Du = 11;
-      KyberConstants::Dv = 5;
-      KyberConstants::PkSize = 1568;
-      KyberConstants::SkSize = 3168;
-      KyberConstants::CtSize = 1568;
+      n_ = 256;
+      q_ = 3329;
+      k_ = 4;
+      n1_ = 2;
+      n2_ = 2;
+      du_ = 11;
+      dv_ = 5;
+      pk_size_ = 1568;
+      sk_size_ = 3168;
+      ct_size_ = 1568;
+      seed_size_ = 32;
       break;
     default:
       break;

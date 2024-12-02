@@ -14,7 +14,6 @@
 
 #include <stdarg.h>
 
-#include "../../.conf/constants_values.h"
 
 #include "../Components/NTT.h"
 #include "../Components/Keccak.h"
@@ -43,13 +42,13 @@ class Kyber {
  public:
   Kyber(int option, const std::vector<int>& seed = {}, int cypher_box_option = KYBER_CBOX);
   
-  std::pair<Bytes, Bytes> KeyGen();
-  Bytes Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed);  
-  Bytes Decryption(const Bytes& sk, const Bytes& ciphertext);
+  std::pair<Bytes, Bytes> KeyGen() const;
+  Bytes Encryption(const Bytes& pk, const Bytes& message, const Bytes& seed) const;  
+  Bytes Decryption(const Bytes& sk, const Bytes& ciphertext) const;
   
-  std::pair<Bytes, Bytes> KEMKeyGen();
-  std::pair<Bytes, Bytes> KEMEncapsulation(const Bytes& pk);
-  Bytes KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext);
+  std::pair<Bytes, Bytes> KEMKeyGen() const;
+  std::pair<Bytes, Bytes> KEMEncapsulation(const Bytes& pk) const;
+  Bytes KEMDecapsulation(const Bytes& sk, const Bytes& ciphertext) const;
 
  protected:
   Bytes GenerateSeed_(int seed_size) const;
@@ -64,6 +63,11 @@ class Kyber {
   int n2_;
   int du_;
   int dv_;
+  int seed_size_;
+  int ct_size_;
+  int pk_size_;
+  int sk_size_;
+
   
   std::unique_ptr<NTT> ntt_ = nullptr;
   std::unique_ptr<EncDecUnit> encdec_unit_ = nullptr;

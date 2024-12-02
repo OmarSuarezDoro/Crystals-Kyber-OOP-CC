@@ -52,7 +52,6 @@ std::pair<Bytes, Bytes> McEliece_460896::Encrypt(const Bytes& pk) {
   if (status != OQS_SUCCESS) {
     throw std::runtime_error("ERROR: Unable to encrypt the message using the McEliece-460896 cypher.");
   }
- 
   Bytes cyphertext(ciphertext);
   Bytes shared_secret_bytes(shared_secret);
   return {cyphertext, shared_secret_bytes};

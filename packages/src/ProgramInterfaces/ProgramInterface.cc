@@ -48,9 +48,6 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
       std::cout << "  " << OPTION_HELP_SHORT << ", " << OPTION_HELP_LONG << " :" << " Show the help menu" << std::endl;
       exit(0);
     }
-    if (args[i] == OPTION_ITERATIONS_SHORT || args[i] == OPTION_ITERATIONS_LONG) {
-      iterations_ = std::stol(args[i + 1]);
-    }
     if (args[i] == OPTION_CYPHER_BOX_SHORT || args[i] == OPTION_CYPHER_BOX_LONG) {
       if (args[i + 1] == "mceliece-348864") {
         cypher_box_option_ = MCELIECE_348864;
@@ -79,60 +76,54 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
 void ProgramInterface::run(int option, const std::vector<int>& seed) {
   // Initialize Kyber object
   std::unique_ptr<Kyber> kyber = std::make_unique<Kyber>(specification_, std::vector<int>(), cypher_box_option_);
-  for (long i = 0; i < iterations_; ++i) {
-    // Pad & Split the message
-    std::pair<std::string, int> message_padlen = MessageParser::PadMessage(input_message_);
-    std::vector<std::string> message_blocks = MessageParser::SplitMessageInChunks(message_padlen.first);  
-    // Start the process
-    std::pair<Bytes, Bytes> keypair;
-    std::vector<Bytes> cyphertexts(message_blocks.size());
-    std::vector<Bytes> decryptedtexts(message_blocks.size());
-    std::fstream archivo("resultados.txt", std::ios::app);
-    
-    #ifdef TIME
-    auto start = std::chrono::high_resolution_clock::now();
-    #endif
+  // Pad & Split the message
+  std::pair<std::string, int> message_padlen = MessageParser::PadMessage(input_message_);
+  std::vector<std::string> message_blocks = MessageParser::SplitMessageInChunks(message_padlen.first);  
+  // Start the process
+  std::pair<Bytes, Bytes> keypair;
+  std::vector<Bytes> cyphertexts(message_blocks.size());
+  std::vector<Bytes> decryptedtexts(message_blocks.size());
+  
+  #ifdef TIME
+  auto start = std::chrono::high_resolution_clock::now();
+  #endif
 
 
-    #ifndef KEM
-    keypair = kyber->KeyGen();
-    EncryptBlocks_(keypair.first, message_blocks, cyphertexts, kyber.get());
-    DecryptBlocks_(cyphertexts, keypair.second, decryptedtexts, kyber.get());
-    #else
-    keypair = kyber->KEMKeyGen();
-    // Encapsulate the shared secret
-    std::pair<Bytes, Bytes> pair_ct_shareds = kyber->KEMEncapsulation(keypair.first);
+  #ifndef KEM
+  keypair = kyber->KeyGen();
+  EncryptBlocks_(keypair.first, message_blocks, cyphertexts, kyber.get());
+  DecryptBlocks_(cyphertexts, keypair.second, decryptedtexts, kyber.get());
+  #else
+  keypair = kyber->KEMKeyGen();
+  // Encapsulate the shared secret
+  std::pair<Bytes, Bytes> pair_ct_shareds = kyber->KEMEncapsulation(keypair.first);
 
-    KEMEncryptBlocks_(message_blocks, cyphertexts, pair_ct_shareds.second);
+  KEMEncryptBlocks_(message_blocks, cyphertexts, pair_ct_shareds.second);
 
-    // Decapsulate the shared secret
-    Bytes shared_secret = kyber->KEMDecapsulation(keypair.second, pair_ct_shareds.first);
-    decryptedtexts = cyphertexts;
-    KEMDecryptBlocks_(cyphertexts, decryptedtexts, shared_secret);
-    if (pair_ct_shareds.second != shared_secret) {
-      throw "The shared secret is not the same";
-    }
-    #endif
-
-    // Decrypt the message
-    std::string decrypted_message;
-    for (const Bytes& decryptedtext : decryptedtexts) {
-      decrypted_message += decryptedtext.FromBytesToAscii();
-    }
-    if (message_padlen.second > 0) {
-      decrypted_message = MessageParser::unpad(decrypted_message);
-    }
-    
-    #ifdef TIME
-    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-    archivo << elapsed.count() << "\n";
-    #ifdef DEBUG
-    std::cout << "Decrypted message: " << decrypted_message << std::endl;
-    std::cout << "Elapsed time: " << elapsed.count() << "s" << std::endl;
-    std::cout << "Elapsed cycles: " << ciclosTranscurridos << std::endl;
-    #endif
-    #endif
+  // Decapsulate the shared secret
+  Bytes shared_secret = kyber->KEMDecapsulation(keypair.second, pair_ct_shareds.first);
+  decryptedtexts = cyphertexts;
+  if (pair_ct_shareds.second != shared_secret) {
+    throw "The shared secret is not the same";
   }
+  KEMDecryptBlocks_(cyphertexts, decryptedtexts, shared_secret);
+  
+  #endif
+
+  // Decrypt the message
+  std::string decrypted_message;
+  for (const Bytes& decryptedtext : decryptedtexts) {
+    decrypted_message += decryptedtext.FromBytesToAscii();
+  }
+  if (message_padlen.second > 0) {
+    decrypted_message = MessageParser::unpad(decrypted_message);
+  }
+  
+  std::cout << "Decrypted message: " << decrypted_message << std::endl;
+  #ifdef TIME
+  std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
+  std::cout << "Elapsed time: " << elapsed.count() << "s" << std::endl;
+  #endif
 }
 
 /**
@@ -140,14 +131,17 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
  * @param option : The option to choose the parameters of the Kyber cryptosystem
  * @param seed : The seed to generate the rho and sigma values
  */
-void ProgramInterface::runAttack(int option, const std::vector<int>& seed) {
+bool ProgramInterface::runAttack(int option, const std::vector<int>& seed) {
   Kyber kyber(option, {}, cypher_box_option_);
+  // Generation of the public and secret key of the attacker
   std::pair<Bytes, Bytes> pair = kyber.KEMKeyGen();
   Bytes attacker_pk = pair.first;
   Bytes attacker_sk = pair.second;
+  // Instantiate the KleptoKyber object
   KleptoKyber klepto_kyber(option, attacker_pk, attacker_sk, {});
-  Bytes result = klepto_kyber.RunBackdoor();
-  std::cout << klepto_kyber.recoverSecretKey(result) << std::endl;
+  std::pair<Bytes, Bytes> key_pair_backdoored = klepto_kyber.RunBackdoor();
+  std::cout << key_pair_backdoored.first.GetBytesSize() << std::endl;
+  return klepto_kyber.recoverSecretKey(key_pair_backdoored.first) == key_pair_backdoored.second; 
 }
 
 

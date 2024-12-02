@@ -20,26 +20,28 @@
  * @param attacker_sk The attacker secret key
  * @param seed The seed to generate the rho and sigma values
  */
-KleptoKyber::KleptoKyber(int option, Bytes attacker_pk, Bytes attacker_sk, const std::vector<int>& seed) : Kyber(option, seed) {
+KleptoKyber::KleptoKyber(int option, Bytes attacker_pk, Bytes attacker_sk, const std::vector<int>& seed, int cypher) : Kyber(option, seed, cypher) {
   attacker_pk_ = attacker_pk;
   attacker_sk_ = attacker_sk;
 }
 
 /**
  * @brief This function generates a seed of a given size
- * @return Bytes 
+ * @return std::pair<Bytes, Bytes>, where pk and sk
  */
-Bytes KleptoKyber::RunBackdoor() {
+std::pair<Bytes, Bytes> KleptoKyber::RunBackdoor() const {
   // We use the public key of the attacker to encrypt the shared secret
-  std::pair<Bytes, Bytes> pair_ct_sharedm = cypher_box->Encrypt(attacker_pk_); // 96 bytes = 768 bits  
+  std::pair<Bytes, Bytes> pair_ct_sharedm = cypher_box_->Encrypt(attacker_pk_);  
+
   // std::cout << "Ciphertext: " << pair_ct_sharedm.first.FromBytesToHex() << std::endl;
-  Bytes seed_a = GenerateSeed_(KyberConstants::SeedSize);
+  Bytes seed_a = GenerateSeed_(seed_size_);
   Bytes seed_b = pair_ct_sharedm.second;
   Matrix<Polynomial<int>> a = ntt_->GenerateMatrix_(k_, seed_a, true);
   int N = 0;
   std::pair<Matrix<Polynomial<int>>, int> pair_s_counter = sampling_unit_->GenerateDistribuitionMatrix(seed_b, n1_, N);
-  std::cout << pair_s_counter.first << std::endl;
+    // std::cout << "s: " << pair_s_counter.first << std::endl;
   Matrix<Polynomial<int>> s_ntt = applyNTTMatrix_(pair_s_counter.first, k_);
+
   std::pair<Matrix<Polynomial<int>>, int> pair_e_counter = sampling_unit_->GenerateDistribuitionMatrix(seed_b, n1_, pair_s_counter.second);
   Matrix<Polynomial<int>> e_ntt = applyNTTMatrix_(pair_e_counter.first, k_);
   // Start of the backdoor
@@ -73,7 +75,7 @@ Bytes KleptoKyber::RunBackdoor() {
     t_prime_matrix(current_row, 0) = ntt_->NTT_Kyber(t_prime.GetSubPolynomial(i, i + n_), true);
     current_row++;
   }
-  return seed_a + encdec_unit_->EncodeMatrixToBytes(t_prime_matrix, 12);
+  return std::pair<Bytes, Bytes>{seed_a + encdec_unit_->EncodeMatrixToBytes(t_prime_matrix, 12), encdec_unit_->EncodeMatrixToBytes(s_ntt, 12)};
 }
 
 
@@ -81,9 +83,9 @@ Bytes KleptoKyber::RunBackdoor() {
  * @brief This function recovers the secret key of the Kyber cryptosystem
  * 
  * @param pk The public key of the attacker
- * @return Matrix<Polynomial<int>> 
+ * @return Bytes
  */
-Matrix<Polynomial<int>> KleptoKyber::recoverSecretKey(const Bytes& pk) {
+Bytes KleptoKyber::recoverSecretKey(const Bytes& pk) const {
   Bytes seed_a = pk.GetNBytes(0, 32);
   Bytes t_prime_bytes = pk.GetNBytes(32, pk.GetBytesSize() - 32);
   // 1. Recover t'
@@ -92,7 +94,7 @@ Matrix<Polynomial<int>> KleptoKyber::recoverSecretKey(const Bytes& pk) {
   t_prime = applyNTTMatrix_(t_prime, k_, false); 
 
   // Number of cyphertext bits
-  int b = KyberConstants::CtSize;
+  int b = ct_size_;
   // Number of bits per coefficient
   int c = b / (k_ * n_) + 1;
 
@@ -112,10 +114,12 @@ Matrix<Polynomial<int>> KleptoKyber::recoverSecretKey(const Bytes& pk) {
     recovered_ct_str += bits;
   }
   Bytes recovered_ct = Bytes::FromBitsToBytes(recovered_ct_str);
-  // std::cout << "Ciphertext: " << recovered_ct.FromBytesToHex() << std::endl;
-  Bytes m_prime = cypher_box->Decrypt(recovered_ct, attacker_sk_);
+  Bytes m_prime = cypher_box_->Decrypt(recovered_ct, attacker_sk_);
   std::pair<Matrix<Polynomial<int>>, int> result_sk_n = sampling_unit_->GenerateDistribuitionMatrix(m_prime, n1_, 0);
-  return result_sk_n.first;
+    // std::cout << "SK N: " << result_sk_n.first << std::endl;
+
+  Matrix<Polynomial<int>> sk_n_ntt = applyNTTMatrix_(result_sk_n.first, k_);
+  return encdec_unit_->EncodeMatrixToBytes(sk_n_ntt, 12);
 }
 
 
@@ -127,7 +131,7 @@ Matrix<Polynomial<int>> KleptoKyber::recoverSecretKey(const Bytes& pk) {
  * @param c Number of bits per coefficient
  * @return Polynomial<int> 
  */
-Polynomial<int> KleptoKyber::PackBitsIntoPolynomial_(const Bytes& ct, const Matrix<Polynomial<int>>& t, int c) {
+Polynomial<int> KleptoKyber::PackBitsIntoPolynomial_(const Bytes& ct, const Matrix<Polynomial<int>>& t, int c) const {
   int b = ct.GetBytesSize() * BYTE_SIZE;
   int size_p_without_zeros = b / c;
   Polynomial<int> p(k_ * n_);
@@ -151,7 +155,7 @@ Polynomial<int> KleptoKyber::PackBitsIntoPolynomial_(const Bytes& ct, const Matr
  * @param c number of bits per coefficient
  * @return Polynomial<int> 
  */
-Polynomial<int> KleptoKyber::ComputeCompensation_(const Polynomial<int>& p, const Polynomial<int>& t_polynomial, int c) {
+Polynomial<int> KleptoKyber::ComputeCompensation_(const Polynomial<int>& p, const Polynomial<int>& t_polynomial, int c) const {
   Polynomial<int> h(k_ * n_);
   for (int i = 0; i < p.GetSize(); ++i) {
     h[i] = (p[i] - t_polynomial[i])  % (2 << c - 1);
@@ -169,7 +173,7 @@ Polynomial<int> KleptoKyber::ComputeCompensation_(const Polynomial<int>& p, cons
  * @return true 
  * @return false 
  */
-bool KleptoKyber::IsWorkingWell_(const Polynomial<int>& p, const Polynomial<int>& t_polynomial, const Polynomial<int>& h, int c) {
+bool KleptoKyber::IsWorkingWell_(const Polynomial<int>& p, const Polynomial<int>& t_polynomial, const Polynomial<int>& h, int c) const {
   for (int i = 0; i < p.GetSize(); ++i) {
     if ((p[i] - t_polynomial[i]) % (2 << c - 1) != h[i]) {
       return false;
@@ -185,7 +189,7 @@ bool KleptoKyber::IsWorkingWell_(const Polynomial<int>& p, const Polynomial<int>
  * @param numBits The number of bits to convert
  * @return std::string 
  */
-std::string KleptoKyber::byteToReversedBits(unsigned char byte, int numBits = 2); {
+std::string KleptoKyber::byteToReversedBits(unsigned char byte, int numBits) const {
   std::string bits;
   for (int i = 0; i < numBits; ++i) {
     bits += (byte & (1 << i)) ? '1' : '0';

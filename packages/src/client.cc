@@ -25,9 +25,14 @@ int main(int argc, char const *argv[]) {
     args.push_back(argv[i]);
   }
   ProgramInterface program_interface(args);
+  
   for (int i = 0; i < 1; ++i) {
     #ifdef ATTACK
-      program_interface.runAttack();
+    if (program_interface.runAttack()) {
+      std::cout << "The backdoor is working well" << std::endl;
+    } else {
+      std::cerr << "The backdoor is not working well" << std::endl;
+    }
     #else
       program_interface.run();
     #endif

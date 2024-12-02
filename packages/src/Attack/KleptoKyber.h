@@ -19,15 +19,15 @@
 
 class KleptoKyber : public Kyber {
  public:
-  KleptoKyber(int option, Bytes attacker_pk, Bytes attacker_sk, const std::vector<int>& seed = {});
-  Bytes RunBackdoor();
-  Matrix<Polynomial<int>> recoverSecretKey(const Bytes& pk);
+  KleptoKyber(int option, Bytes attacker_pk, Bytes attacker_sk, const std::vector<int>& seed = {}, int cypher = MCELIECE_348864);
+  std::pair<Bytes, Bytes> RunBackdoor() const;
+  Bytes recoverSecretKey(const Bytes& pk) const;
+  
  private:
-  Polynomial<int> PackBitsIntoPolynomial_(const Bytes& ct, const Matrix<Polynomial<int>>& t, int c);
-  Polynomial<int> ComputeCompensation_(const Polynomial<int>& p, const Polynomial<int>& t_polynomial, int c);
-  bool IsWorkingWell_(const Polynomial<int>& p, const Polynomial<int>& t_polynomial, const Polynomial<int>& h, int c);
-  std::string byteToReversedBits(unsigned char byte, int numBits = 2);
+  Polynomial<int> PackBitsIntoPolynomial_(const Bytes& ct, const Matrix<Polynomial<int>>& t, int c) const;
+  Polynomial<int> ComputeCompensation_(const Polynomial<int>& p, const Polynomial<int>& t_polynomial, int c) const;
+  bool IsWorkingWell_(const Polynomial<int>& p, const Polynomial<int>& t_polynomial, const Polynomial<int>& h, int c) const;
+  std::string byteToReversedBits(unsigned char byte, int numBits = 2) const;
   Bytes attacker_pk_;
   Bytes attacker_sk_;
-  std::unique_ptr<Cypher> cypher_box = std::make_unique<McEliece_348864>();
 };

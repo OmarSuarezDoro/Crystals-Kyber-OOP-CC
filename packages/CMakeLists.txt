@@ -63,6 +63,7 @@ add_executable(
   test/EncDecUnit.cc
   test/CompressorUnit.cc
   test/Kyber.cc
+  test/Attack.cc
   ./src/DataStructures/Bytes.cc
   ./src/Components/Keccak.cc
   ./src/Components/NTT.cc
@@ -75,6 +76,8 @@ add_executable(
   ./src/Components/CompressorUnit.h
   ./src/Kyber/Kyber.cc  
   ./src/Kyber/Kyber.h
+  ./src/Attack/KleptoKyber.cc
+  ./src/Attack/KleptoKyber.h
   ./src/Attack/cyphers/cypher.h
   ./src/Attack/cyphers/mceliece-348864.cc
   ./src/Attack/cyphers/mceliece-348864.h
@@ -86,7 +89,6 @@ add_executable(
   ./src/Attack/cyphers/FRODOKEM-640-shake.h
   ./src/Attack/cyphers/KYBER-KEM-512.cc
   ./src/Attack/cyphers/KYBER-KEM-512.h
-  ./.conf/constants_values.h
 )
 
 # Adds an executable target called "client_main" to be built from the source files listed in the command invocation.
@@ -126,7 +128,6 @@ add_executable(
   ./src/Attack/cyphers/FRODOKEM-640-shake.h
   ./src/Attack/cyphers/KYBER-KEM-512.cc
   ./src/Attack/cyphers/KYBER-KEM-512.h
-  ./.conf/constants_values.h
 )
 
 # Add Crypto++ library
