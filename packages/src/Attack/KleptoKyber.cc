@@ -29,7 +29,7 @@ KleptoKyber::KleptoKyber(int option, Bytes attacker_pk, Bytes attacker_sk, const
  * @brief This function generates a seed of a given size
  * @return std::pair<Bytes, Bytes>, where pk and sk
  */
-std::pair<Bytes, Bytes> KleptoKyber::RunBackdoor() const {
+std::pair<Bytes, Bytes> KleptoKyber::RunBackdoor()  {
   // We use the public key of the attacker to encrypt the shared secret
   std::pair<Bytes, Bytes> pair_ct_sharedm = cypher_box_->Encrypt(attacker_pk_);  
 
@@ -50,12 +50,16 @@ std::pair<Bytes, Bytes> KleptoKyber::RunBackdoor() const {
   Matrix<Polynomial<int>> t = applyNTTMatrix_(ntt_->multMatrixViaNTT(a, s_ntt), k_, false) + e_ntt;
   // ctbd = (bt0 , bt1 , . . . , btb ); c = ⌈b/(k · n)⌉
   int b = pair_ct_sharedm.first.GetBytesSize() * BYTE_SIZE;
+  ct_size_ = b;
   int c = b / (k_ * n_) + 1;
+  
   // Initialize the polynomial p with c length
   Polynomial<int> p(k_ * n_);
   int size_p_without_zeros = b / c;
   // 2. Pack the bits of the ciphertext into the polynomial p
   p = PackBitsIntoPolynomial_(pair_ct_sharedm.first, t, c);
+
+
   // 3. Compute the compensation polynomial
   Polynomial<int> t_polynomial = t.GetPolynomialFromMatrix(n_);
   Polynomial<int> h = ComputeCompensation_(p, t_polynomial, c);
@@ -97,14 +101,13 @@ Bytes KleptoKyber::recoverSecretKey(const Bytes& pk) const {
   int b = ct_size_;
   // Number of bits per coefficient
   int c = b / (k_ * n_) + 1;
-
   Polynomial<int> t_prime_polynomial = t_prime.GetPolynomialFromMatrix(n_);
-
+  std::cout << "c: " << c << std::endl;
   // 3. Reconstruct polynomial p from t_prime
   int size_of_p_without_zeros = b / c + 1;
   Polynomial<int> p(k_ * n_);
   for (int i = 0; i < size_of_p_without_zeros; ++i) {
-    p[i] = t_prime_polynomial[i] % (2 << c - 1);
+    p[i] = t_prime_polynomial[i] % (2 << (c - 1));
   }
 
   std::string recovered_ct_str = "";
@@ -158,7 +161,7 @@ Polynomial<int> KleptoKyber::PackBitsIntoPolynomial_(const Bytes& ct, const Matr
 Polynomial<int> KleptoKyber::ComputeCompensation_(const Polynomial<int>& p, const Polynomial<int>& t_polynomial, int c) const {
   Polynomial<int> h(k_ * n_);
   for (int i = 0; i < p.GetSize(); ++i) {
-    h[i] = (p[i] - t_polynomial[i])  % (2 << c - 1);
+    h[i] = (p[i] - t_polynomial[i])  % (2 << (c - 1));
   }
   return h;
 }
@@ -175,7 +178,7 @@ Polynomial<int> KleptoKyber::ComputeCompensation_(const Polynomial<int>& p, cons
  */
 bool KleptoKyber::IsWorkingWell_(const Polynomial<int>& p, const Polynomial<int>& t_polynomial, const Polynomial<int>& h, int c) const {
   for (int i = 0; i < p.GetSize(); ++i) {
-    if ((p[i] - t_polynomial[i]) % (2 << c - 1) != h[i]) {
+    if ((p[i] - t_polynomial[i]) % (2 << (c - 1)) != h[i]) {
       return false;
     }
   }

@@ -132,15 +132,17 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
  * @param seed : The seed to generate the rho and sigma values
  */
 bool ProgramInterface::runAttack(int option, const std::vector<int>& seed) {
+  std::cout << "Cypher: " << cypher_box_option_ << std::endl; 
+  std::cout << "Specification: " << option << std::endl;
   Kyber kyber(option, {}, cypher_box_option_);
   // Generation of the public and secret key of the attacker
+
   std::pair<Bytes, Bytes> pair = kyber.KEMKeyGen();
   Bytes attacker_pk = pair.first;
   Bytes attacker_sk = pair.second;
   // Instantiate the KleptoKyber object
   KleptoKyber klepto_kyber(option, attacker_pk, attacker_sk, {});
   std::pair<Bytes, Bytes> key_pair_backdoored = klepto_kyber.RunBackdoor();
-  std::cout << key_pair_backdoored.first.GetBytesSize() << std::endl;
   return klepto_kyber.recoverSecretKey(key_pair_backdoored.first) == key_pair_backdoored.second; 
 }
 

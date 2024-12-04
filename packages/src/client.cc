@@ -28,7 +28,7 @@ int main(int argc, char const *argv[]) {
   
   for (int i = 0; i < 1; ++i) {
     #ifdef ATTACK
-    if (program_interface.runAttack()) {
+    if (program_interface.runAttack(1024)) {
       std::cout << "The backdoor is working well" << std::endl;
     } else {
       std::cerr << "The backdoor is not working well" << std::endl;

@@ -20,7 +20,7 @@
 class KleptoKyber : public Kyber {
  public:
   KleptoKyber(int option, Bytes attacker_pk, Bytes attacker_sk, const std::vector<int>& seed = {}, int cypher = MCELIECE_348864);
-  std::pair<Bytes, Bytes> RunBackdoor() const;
+  std::pair<Bytes, Bytes> RunBackdoor();
   Bytes recoverSecretKey(const Bytes& pk) const;
   
  private:
@@ -30,4 +30,5 @@ class KleptoKyber : public Kyber {
   std::string byteToReversedBits(unsigned char byte, int numBits = 2) const;
   Bytes attacker_pk_;
   Bytes attacker_sk_;
+  int ct_size_;
 };
