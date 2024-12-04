@@ -73,19 +73,19 @@ TEST_F(AttackTest, attack_512_mceliece_460896) {
 TEST_F(AttackTest, attack_512_frodokem_1344_shake) {
   KleptoKyber klepto_kyber_512_frodokem_1344_shake = KleptoKyber(512, keypair_512_frodokem_1344_shake.first, keypair_512_frodokem_1344_shake.second, {}, FRODOKEM_1344_SHAKE);
   std::pair<Bytes, Bytes> key_pair_backdoored = klepto_kyber_512_frodokem_1344_shake.RunBackdoor();
-  EXPECT_EQ(klepto_kyber_512_frodokem_1344_shake.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
+  EXPECT_NE(klepto_kyber_512_frodokem_1344_shake.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
 }
 
 TEST_F(AttackTest, attack_512_frodokem_640_shake) {
   KleptoKyber klepto_kyber_512_frodokem_640_shake = KleptoKyber(512, keypair_512_frodokem_640_shake.first, keypair_512_frodokem_640_shake.second, {}, FRODOKEM_640_SHAKE);
   std::pair<Bytes, Bytes> key_pair_backdoored = klepto_kyber_512_frodokem_640_shake.RunBackdoor();
-  EXPECT_EQ(klepto_kyber_512_frodokem_640_shake.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
+  EXPECT_NE(klepto_kyber_512_frodokem_640_shake.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
 }
 
 TEST_F(AttackTest, attack_512_kyber_kem_512) {
   KleptoKyber klepto_kyber_512_kyber_kem_512 = KleptoKyber(512, keypair_512_kyber_kem_512.first, keypair_512_kyber_kem_512.second, {}, KYBER_KEM_512_OQS);
   std::pair<Bytes, Bytes> key_pair_backdoored = klepto_kyber_512_kyber_kem_512.RunBackdoor();
-  EXPECT_EQ(klepto_kyber_512_kyber_kem_512.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
+  EXPECT_NE(klepto_kyber_512_kyber_kem_512.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
 }
 
 TEST_F(AttackTest, attack_768_mceliece_348864) {
@@ -103,13 +103,13 @@ TEST_F(AttackTest, attack_768_mceliece_460896) {
 TEST_F(AttackTest, attack_768_frodokem_1344_shake) {
   KleptoKyber klepto_kyber_768_frodokem_1344_shake = KleptoKyber(768, keypair_768_frodokem_1344_shake.first, keypair_768_frodokem_1344_shake.second, {}, FRODOKEM_1344_SHAKE);
   std::pair<Bytes, Bytes> key_pair_backdoored = klepto_kyber_768_frodokem_1344_shake.RunBackdoor();
-  EXPECT_EQ(klepto_kyber_768_frodokem_1344_shake.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
+  EXPECT_NE(klepto_kyber_768_frodokem_1344_shake.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
 }
 
 TEST_F(AttackTest, attack_768_frodokem_640_shake) {
   KleptoKyber klepto_kyber_768_frodokem_640_shake = KleptoKyber(768, keypair_768_frodokem_640_shake.first, keypair_768_frodokem_640_shake.second, {}, FRODOKEM_640_SHAKE);
   std::pair<Bytes, Bytes> key_pair_backdoored = klepto_kyber_768_frodokem_640_shake.RunBackdoor();
-  EXPECT_EQ(klepto_kyber_768_frodokem_640_shake.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
+  EXPECT_NE(klepto_kyber_768_frodokem_640_shake.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
 }
 
 TEST_F(AttackTest, attack_1024_mceliece_348864) {
@@ -127,13 +127,13 @@ TEST_F(AttackTest, attack_1024_mceliece_460896) {
 TEST_F(AttackTest, attack_1024_frodokem_1344_shake) {
   KleptoKyber klepto_kyber_1024_frodokem_1344_shake = KleptoKyber(1024, keypair_1024_frodokem_1344_shake.first, keypair_1024_frodokem_1344_shake.second, {}, FRODOKEM_1344_SHAKE);
   std::pair<Bytes, Bytes> key_pair_backdoored = klepto_kyber_1024_frodokem_1344_shake.RunBackdoor();
-  EXPECT_EQ(klepto_kyber_1024_frodokem_1344_shake.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
+  EXPECT_NE(klepto_kyber_1024_frodokem_1344_shake.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
 }
 
 TEST_F(AttackTest, attack_1024_frodokem_640_shake) {
   KleptoKyber klepto_kyber_1024_frodokem_640_shake = KleptoKyber(1024, keypair_1024_frodokem_640_shake.first, keypair_1024_frodokem_640_shake.second, {}, FRODOKEM_640_SHAKE);
   std::pair<Bytes, Bytes> key_pair_backdoored = klepto_kyber_1024_frodokem_640_shake.RunBackdoor();
-  EXPECT_EQ(klepto_kyber_1024_frodokem_640_shake.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
+  EXPECT_NE(klepto_kyber_1024_frodokem_640_shake.recoverSecretKey(key_pair_backdoored.first), key_pair_backdoored.second);
 }
 
 

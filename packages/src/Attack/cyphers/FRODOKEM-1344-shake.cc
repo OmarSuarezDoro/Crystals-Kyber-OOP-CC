@@ -66,7 +66,6 @@ std::pair<Bytes, Bytes> Frodokem_1344_shake::Encrypt(const Bytes& pk) {
  */
 Bytes Frodokem_1344_shake::Decrypt(const Bytes& cyphertext, const Bytes& sk) {
   if (sk.GetBytesSize() != 0) {
-    std::cout << "Using the provided secret key" << std::endl;
     secret_key_ = sk.GetBytes();
   }
 
