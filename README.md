@@ -1,7 +1,22 @@
-Authors:
+# Authors:
 - **Omar Suárez Doro** (alu0101483474@ull.edu.es)
 - **Edgar Pérez Ramos** (alu0101207667@ull.edu.es)
 - **Pino Caballero Gil** (pcaballe@ull.edu.es)
+
+
+## Acknowledgments
+
+I would like to express my deepest gratitude to those who contributed to the development and success of this project:
+
+- **Prassana Ravi**, the original author whose groundbreaking work on kleptographic attacks inspired this research and implementation. His contributions to the field of cryptography have been invaluable.
+
+- **Dr. Pino Caballero Gil**, my TFG supervisor, for her guidance, support, and encouragement throughout the development of this project. Her expertise and insights have been instrumental in shaping the direction and depth of this research.
+
+- **Edgar Pérez Ramos**, my co-supervisor, for his invaluable technical advice, feedback, and patience. His support and mentorship were crucial in overcoming challenges and achieving the project objectives.
+
+This work would not have been possible without their contributions, and I am sincerely grateful for their time, knowledge, and dedication.
+
+
 ## 1. Index
 - [1. Index](#1-index)
 - [2. Abstract](#2-abstract)
@@ -16,12 +31,27 @@ Authors:
   - [a) Data Structures](#a-data-structures)
   - [b) Keccak](#b-keccak)
   - [c) Sampling Unit](#c-sampling-unit)
-  - [d) NTT](#d-ntt-number-theoric-transform)
+  - [d) Number Theoretic Transform (NTT)](#d-number-theoretic-transform-ntt)
+  - [e) EncDecUnit Class](#e-encdecunit-class)
+  - [f) Compression Unit](#f-compression-unit)
+  - [g) Kyber Class](#f-kyber-class)
+- [7. Introduction to the Attack](#7-introduction-to-the-attack)
+  - [7.1 Key Aspects Before Implementation](#71-key-aspects-before-implementation)
+- [8. Deployment and Compilation](#8-deployment-and-compilation)
+  - [8.1 Deployment](#deployment)
+  - [8.2 Compilation](#compilation)
+  - [8.3 Compilation Flags](#compilation-flags)
+  - [8.4 Client Parameters](#client-parameters)
+- [9. Advantages Over the Original Repository](#10-advantages-over-the-original-repository)
+- [10. Results](#11-results)
+  - [10.1 Timing Calculated for McEliece-348864](#timing-calculated-for-mceliece-348864)
+  - [10.2 Timing Calculated for McEliece-460896](#timing-calculated-for-mceliece-460896)
+  - [10.3 Comparison of Malicious KeyGen Timings](#comparison-of-malicious-keygen-timings)
 
 
 
 ## 2. Abstract
-This repository contains a C++ implementation of **Crystals Kyber Algorithm**(CKA). The CKA is a standard in **Post Quantum Cryptography**(PQC), which development is driven by National Institute of Standards and Technology ([NIST](https://www.nist.gov/)).
+This repository contains a C++ implementation of **Crystals Kyber Algorithm**(CKA) and kleptographic attack on this algorithm. The CKA is a standard in **Post Quantum Cryptography**(PQC), which development is driven by National Institute of Standards and Technology ([NIST](https://www.nist.gov/)). The Reference repository of the attack is from Prassana Ravi ([PRASANNA-RAVI/Klepto_on_Kyber](https://github.com/PRASANNA-RAVI/Klepto_on_Kyber)).
 
 
 ## 3. Why C++?
@@ -184,12 +214,29 @@ This Logic Gates operates with privates methods which use the functions of the l
 <br>
 
 ### c) Sampling Unit
-The Sampling unit is a component that is going to generate samples of noise (the errors, which envolves the LWE problem, described at [b) Learning With Errors Problem](#b-learning-with-errors-problem)) and also will be used to generate random polynomials which satisfies the security of the scheme. We need to keep in mind that to guarantee that the algorithm works, we need to introduce a distribution close to 0, so that the error is tiny, in order to recover the original data.
 
-To make this possible *CKA* use **CBD(Central Binomial Distribution)**, which have:
-- An accurate control of the noise generated
-- Computacional efficiency (less complex operations)
-- Ensures the security of the scheme (ensures that the sample generated fulfill security conditions)
+The sampling unit is a component that generates noise samples
+(the errors involved in the Learning With Errors or LWE problem) and also
+generates random polynomials that comply with the scheme's security. To
+ensure the algorithm works correctly, a distribution close to 0 is introduced
+so that the error is small, allowing the recovery of the original data.
+
+To achieve this, Kyber uses the Central Binomial Distribution (CBD),
+which provides:
+
+- Precise control of the generated noise.
+- Computational efficiency (less complex operations).
+- Guarantee of the scheme's security.
+
+This component has two main methods:
+
+1. **GenerateDistributionMatrix**: Generates a \(k \times 1\) matrix using the CBD. It should be noted that through a PRF gate prior to the CBD,
+   the output's determinism is ensured, biases in distribution generation are
+   prevented, and resistance to attacks is reinforced.
+
+2. **CBD**: Implements the central binomial distribution. In the code, the inversion
+   in byte management ensures compatibility with internal representations
+   and cryptographic standards.
 
 
 > [!NOTE]
@@ -202,9 +249,31 @@ To make this possible *CKA* use **CBD(Central Binomial Distribution)**, which ha
 > - The accuracy in noice management
 
 
-### d) NTT (Number Theoretic Transform)
+### d) Number Theoretic Transform (NTT)
 
-The NTT is a variant of the Discrete Fourier Transform (DFT), but it operates in a finite field instead of complex numbers. This allows for efficient computations with integers, which is crucial for cryptographic applications. The primary reason for using NTT in cryptographic schemes like Kyber is to **efficiently perform polynomial multiplication**.  
+The Number Theoretic Transform (NTT) is a variant of the Discrete
+Fourier Transform (DFT), but it operates in a finite field instead of complex
+numbers. As mentioned earlier, this element enables efficient computations
+with integers, which is crucial for cryptographic applications. The main reason
+to use NTT in cryptographic schemes like Kyber is:
+
+- Improve the efficiency of polynomial multiplication.
+- Reduce computational complexity.
+- Ensure security by working within a finite field.
+
+It is worth noting that in the repository's implementation, the
+NTT class includes methods to perform polynomial multiplication using pointwise multiplication, which involves:
+
+1. **Transformation to the frequency domain**: Each polynomial is transformed
+   using the NTT, converting convolution operations in the time domain into
+   pointwise multiplications in the frequency domain.
+
+2. **Pointwise multiplication**: Once in the frequency domain, the coefficients
+   of the polynomials are directly multiplied with each other.
+
+3. **Inverse Transformation (INTT)**: Finally, the inverse NTT transformation
+   is applied to return the result to the time domain, obtaining the final product polynomial.
+
 
 > [!Important]
 >
@@ -225,4 +294,186 @@ The NTT is a variant of the Discrete Fourier Transform (DFT), but it operates in
 
 
 
-### e) 
+### e) EncDecUnit Class
+
+The **EncDecUnit** class is a component whose main purpose is to handle the encoding and decoding of messages within the cryptographic scheme.
+
+The **EncDecUnit** class is responsible for:
+
+- Transforming matrices of polynomials into byte sequences.
+- Performing the inverse operation, converting byte sequences back into polynomial matrices.
+
+This functionality is essential to efficiently represent data and ensure it can be transmitted or stored without losing information.
+
+### f) Compression Unit
+
+The purpose of the **CompressorUnit** class is to define functions for compression and decompression, enabling the removal of some less significant bits from the ciphertext. This does not affect the validity of the ciphertext or its subsequent decryption, thereby reducing the size of encrypted texts.
+
+#### Main Methods
+
+1. **CompressMatrix**: Compresses a matrix of polynomials by reducing the number of bits per coefficient, resulting in a more compact representation.
+2. **DecompressMatrix**: Performs the inverse operation of `CompressMatrix`, restoring the compressed data to its original form with the specified precision.
+3. **Compress**: Compresses a polynomial using a defined number of bits per coefficient.
+4. **Decompress**: Decompresses a previously compressed polynomial to recover its original form.
+5. **round up**: Performs rounding up of a floating-point number with a precision adjustment to avoid calculation errors.
+
+
+### f) Kyber Class
+
+The **Kyber** class is the main element of the entire scheme. This class handles the instantiation and orchestration of the other component classes. There are 6 main methods, the first 3 correspond to the CPAKE mode, while the following 3 are respective to the CCAKEM mode.
+
+#### Main Methods
+
+| Algorithm           | Code Name                   | Description         |
+|---------------------|-----------------------------|---------------------|
+| Key Generation      | Kyber.CPAKE.KeyGen          | Keygen              |
+| Encryption          | Kyber.CPAKE.Enc             | Encryption          |
+| Decryption          | Kyber.CPAKE.Dec             | Decryption          |
+| Key Generation      | Kyber.CCAKEM.KeyGen         | KEMKeyGen           |
+| Encapsulation       | Kyber.CCAKEM.Enc            | KEMEncapsulation    |
+| Decapsulation       | Kyber.CCAKEM.Dec            | KEMDecapsulation    |
+
+
+## 7. Introduction to the Attack
+
+This work focuses on the analysis and implementation of a kleptographic attack described by Ravi in ?. This attack proposes the insertion of a backdoor into post-quantum encryption schemes, specifically in Kyber KEM, exploiting inherent properties of the Module-LWE problem.
+
+The described attack modifies the key generation procedure in the KEM mode so that the generated public keys leak information about the seed (the 32-byte vector) used to create the secret. The objective is to enable the generation of the same secret key from the same recovered seed.
+
+To execute the attack, it is divided into 3 main phases:
+
+1. **Insertion of attacker keys into the cryptosystem (Offline)**:  
+   In this phase, the attacker generates their keys using an encryption algorithm, such as Mceliece-348864, and then embeds these keys into the cryptosystem to make the necessary modifications. It is important to note that the key generation must use the same encryption algorithm employed in the communications intended to be compromised.
+
+2. **Execution of the modified KeyGen (Online)**:  
+   In this phase, the modified `KeyGen` method is executed, generating keys that allow secure communications. However, the public key contains information that enables the recovery of the seed.
+
+3. **Seed recovery (Offline)**:  
+   The goal of this phase is for the attacker to recover the seed from the target's public key.
+
+### Key Aspects Before learn
+
+Before proceeding with the implementation, there are several key aspects to consider.
+
+In the code, a child class named **KleptoKyber** has been created. This is because, during the second phase, methods from the **Kyber** base class are used, leveraging its structure to facilitate development.
+
+Additionally, to compare results and implement the attack using the encryption proposed in Ravi's paper, a hierarchy of encryption classes has been designed. In this hierarchy, the base class is **Cypher**, which implements the **Facade** pattern. This pattern allows the class to invoke methods from the [Open Quantum Safe](https://openquantumsafe.org/) library in C++, simplifying interaction with the underlying algorithms.
+
+The base class contains a private attribute called `cypher_`, which is an object of the **Cypher** class. This attribute is used to perform operations such as encryption, key generation, or other related actions, using the specified encryption instead of the default behavior, thereby ensuring greater flexibility in cryptographic operations.
+
+In the official repository of the attack, the effectiveness of this approach has been demonstrated specifically for the **Kyber768** specification, as well as with the **mceliece-460896** algorithm. This supports the functionality and viability of the implementation in different scenarios.
+
+To ensure the proper replication of the attack and its correct functionality:
+
+- **Docker** has been used as the execution environment.
+- Specific tests have been implemented to verify the attack's functionality with each encryption and specification, increasing development reliability.
+
+
+## 8. Deployment and Compilation
+
+### Deployment
+
+To deploy the code, Docker can be used. By running the command `docker compose up`, a container will be deployed using the `ubuntu@latest` image. This container mounts a volume from the host system into the `packages` folder. This setup allows code modifications within the container to persist. Although mounting a volume presents certain risks, once the final version is ready, the folder could simply be copied instead of relying on volumes.
+
+### Compilation
+
+To compile the project, execute the following commands in the root folder of the project:
+
+```bash
+mkdir build
+cd build
+cmake .. (Here you can specify compilation flags)
+make
+```
+
+### Compilation Flags
+
+The project supports several compilation flags:
+
+| **Compilation Flag**     | **Description**                                  |
+|---------------------------|------------------------------------------------|
+| **-DENABLE_KEM**          | Enables CCAKEM mode.                           |
+| **-DENABLE_DEBUG**        | Displays additional debug messages.            |
+| **-DENABLE_ATTACK**       | Executes the attack.                           |
+| **-DENABLE_TIME**         | Measures the execution time of processes.      |
+
+These commands will generate two executables: `runTests` and `client_main`. The first is used to execute all project tests, while the second is a client program for interaction with or without the attack.
+
+### Client Parameters
+
+The following parameters can be used to interact with the client program:
+
+| **Flag**                      | **Description**                                                                 |
+|-------------------------------|---------------------------------------------------------------------------------|
+| **-h**                        | Displays the help message.                                                     |
+| **-s [512,768,1024]** (required) | Selects the Kyber specification to use.                                        |
+| **-m ["message"]**            | Specifies the message to be used.                                              |
+| **-f [../my_msg.txt]**        | Reads the message from the specified input file.                               |
+| **-c [mceliece-348864]**      | Uses the specified encryption instead of the implemented one. Available options are: |
+|                               | - `mceliece-348864`                                                             |
+|                               | - `mceliece-460896`                                                             |
+|                               | - `frodokem-1344-shake`                                                         |
+|                               | - `frodokem-640-shake`                                                          |
+|                               | - `kyber-kem-512 (OQS)`                                                         |
+
+
+
+## 10. Advantages Over the Original Repository
+
+The first thing to consider is the approach taken by the author of the original code. Ravi prioritized efficiency over code expressiveness and traceability. This resulted in highly efficient code in terms of runtime but sacrificed the ability to understand the attack easily or trace its execution. This makes it extremely difficult for users unfamiliar with kleptographic attack ecosystems to follow the code, particularly due to the use of numerous impure functions (evident in the direct manipulation of structures rather than returning the results of functions). Combined with minimal documentation and the naming conventions used, this makes the code extremely hard to follow. However, in the proposed implementation, best practices were followed to avoid this problem.
+
+Another issue to highlight is the inconsistency of the installation and replication guide provided by the author in the `README.md`. It not only excludes non-expert users but also fails to work for certain systems, as the package proposed for dependency installation does not function properly. To address this issue, our attack can be deployed using Docker and Docker Compose, enabling it to run on any system equipped with container management software.
+
+Another aspect to consider is the absence of a client program for user-driven testing in the original repository; it only includes a test file. In the proposed implementation, a client program is included, which, despite being somewhat static, has an associated class `ProgramInterface` that accounts for scenarios involving parallel computation.
+
+Finally, it is important to note that in the official repository, the author only considered implementing the attack for the Kyber768 specification and the mceliece-460896 encryption algorithm. The proposed implementation supports all Kyber specifications and any encryption scheme where the computation of `c` is less than 12. Therefore, certain schemes like FRODOKEM, where the backdoor does not work, are excluded. Tests developed in the `Attack.cc` file within the `tests` folder can be consulted to confirm that some tests expect the backdoor to fail.
+
+
+
+## 11. Results
+### Timing Calculated for McEliece-348864
+
+| **Kyber Spec**                | **Complete**       | **Keygen**         | **Enc.**           | **Dec.**           |
+|-------------------------------|--------------------|--------------------|--------------------|--------------------|
+| Kyber512 + mceliece348864     | 1.84 ms           | 0.83 ms           | 0.88 ms           | 0.13 ms           |
+| Kyber768 + mceliece348864     | 1.86 ms           | 0.85 ms           | 0.88 ms           | 0.13 ms           |
+| Kyber1024 + mceliece348864    | 1.87 ms           | 0.86 ms           | 0.87 ms           | 0.14 ms           |
+| Kyber512 + M.mceliece348864   | 5.17 ms           | 4.16 ms           | 0.88 ms           | 0.13 ms           |
+| Kyber768 + M.mceliece348864   | 6.56 ms           | 5.56 ms           | 0.88 ms           | 0.13 ms           |
+| Kyber1024 + M.mceliece348864  | 8.26 ms           | 7.26 ms           | 0.87 ms           | 0.14 ms           |
+
+---
+
+### Timing Calculated for McEliece-460896
+
+| **Kyber Spec**                | **Complete**       | **Keygen**         | **Enc.**           | **Dec.**           |
+|-------------------------------|--------------------|--------------------|--------------------|--------------------|
+| Kyber512 + mceliece460896     | 3.66 ms           | 1.74 ms           | 1.75 ms           | 0.16 ms           |
+| Kyber768 + mceliece460896     | 3.69 ms           | 1.75 ms           | 1.77 ms           | 0.16 ms           |
+| Kyber1024 + mceliece460896    | 3.62 ms           | 1.72 ms           | 1.74 ms           | 0.16 ms           |
+| Kyber512 + M.mceliece460896   | 5.95 ms           | 4.03 ms           | 1.75 ms           | 0.16 ms           |
+| Kyber768 + M.mceliece460896   | 8.33 ms           | 6.40 ms           | 1.77 ms           | 0.16 ms           |
+| Kyber1024 + M.mceliece460896  | 11.14 ms          | 9.24 ms           | 1.74 ms           | 0.16 ms           |
+
+---
+
+### Comparison of Malicious KeyGen Timings
+
+| **Kyber Spec**                | **KeyGen**         | **Malicious KeyGen** | **Difference**     |
+|-------------------------------|--------------------|----------------------|--------------------|
+| Kyber512 + mceliece348864     | 0.83 ms           | 4.16 ms             | 5.03x             |
+| Kyber768 + mceliece348864     | 0.85 ms           | 5.56 ms             | 6.56x             |
+| Kyber1024 + mceliece348864    | 0.86 ms           | 7.26 ms             | 8.47x             |
+| Kyber512 + mceliece460896     | **1.74 ms**       | 4.03 ms             | 2.32x             |
+| Kyber768 + mceliece460896     | **1.75 ms**       | 6.40 ms             | 3.67x             |
+| Kyber1024 + mceliece460896    | 1.72 ms           | 9.24 ms             | 5.37x             |
+
+---
+
+### Notes
+- All timings are provided in milliseconds (ms).
+- Malicious KeyGen timings are calculated based on the modified attack implementation.
+- The difference column represents the ratio of the malicious KeyGen time to the standard KeyGen time.
+
+
+
