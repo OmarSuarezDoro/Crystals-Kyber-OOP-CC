@@ -19,20 +19,21 @@
  * @param args : The arguments passed to the program 
  */
 ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
-  if (args.size() < 3) {
-    throw std::invalid_argument("The number of arguments is not correct");
-  }
-  int i = 0;
-  while (args.size() > i) {
-    if (args[i] == OPTION_SPECIFICATION_SHORT || args[i] == OPTION_SPECIFICATION_LONG) {
-      specification_ = std::stoi(args[i + 1]);
+  int i = 1;
+  while (i < args.size()) {
+    if ((args[i] == OPTION_SPECIFICATION_SHORT || args[i] == OPTION_SPECIFICATION_LONG) && i + 1 < args.size()) {
+      specification_ = std::stoi(args[++i]);
+      ++i;
+      continue;
     }
-    if (args[i] == OPTION_MESSAGE_SHORT || args[i] == OPTION_MESSAGE_LONG) {
-      input_message_ = args[i + 1];
+    if ((args[i] == OPTION_MESSAGE_SHORT || args[i] == OPTION_MESSAGE_LONG) && i + 1 < args.size()) {
+      input_message_ = args[++i];
+      ++i;
+      continue;
     }
-    if (args[i] == OPTION_FILE_SHORT || args[i] == OPTION_FILE_LONG) {
-      std::ifstream file(args[i + 1]);
-      input_file_ = args[i + 1];
+    if ((args[i] == OPTION_FILE_SHORT || args[i] == OPTION_FILE_LONG) && i + 1 < args.size()) {
+      input_file_ = args[++i];
+      std::ifstream file(input_file_);
       if (!file.is_open()) {
         throw std::invalid_argument("The file could not be opened");
       }
@@ -40,33 +41,77 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
       buffer << file.rdbuf();
       file.close();
       input_message_ = buffer.str();
+      ++i;
+      continue;
     }
     if (args[i] == OPTION_HELP_SHORT || args[i] == OPTION_HELP_LONG) {
-      std::cout << "Usage: " << std::endl;
-      std::cout << "  " << OPTION_SPECIFICATION_SHORT << ", " << OPTION_SPECIFICATION_LONG << " <specification> :" << " The specification of the Kyber cryptosystem" << std::endl;
-      std::cout << "  " << OPTION_MESSAGE_SHORT << ", " << OPTION_MESSAGE_LONG << " <message> :" << " The message to encrypt and decrypt" << std::endl;
-      std::cout << "  " << OPTION_HELP_SHORT << ", " << OPTION_HELP_LONG << " :" << " Show the help menu" << std::endl;
+      std::cout << "\n🔐 Usage: " << args[0] << " [OPTIONS]\n\n";
+    
+      std::cout << "OPTIONS:\n";
+      std::cout << "  " << OPTION_HELP_SHORT << ", " << OPTION_HELP_LONG << "\n"
+                << "      Show this help menu\n\n";
+    
+      std::cout << "  " << OPTION_SPECIFICATION_SHORT << ", " << OPTION_SPECIFICATION_LONG << " <value>\n"
+                << "      Kyber/FrodoKEM specification (e.g., 512, 768, 1024)\n\n";
+    
+      std::cout << "  " << OPTION_CYPHER_BOX_SHORT << ", " << OPTION_CYPHER_BOX_LONG << " <algorithm>\n"
+                << "      Select the cypher system:\n"
+                << "         - mceliece-348864\n"
+                << "         - mceliece-460896\n"
+                << "         - frodokem-1344-shake\n"
+                << "         - frodokem-640-shake\n";
+    
+      std::cout << "  " << OPTION_MESSAGE_SHORT << ", " << OPTION_MESSAGE_LONG << " <message>\n"
+                << "      Message to encrypt (normal mode only)\n\n";
+    
+      std::cout << "  " << OPTION_FILE_SHORT << ", " << OPTION_FILE_LONG << " <file_path>\n"
+                << "      Load message from a text file (normal mode only)\n\n";
+    
+      std::cout << "  --attack\n"
+                << "      Run the program in attack mode\n"
+                << "      ⚠️  In this mode:\n"
+                << "         - You MUST specify a cypher box using -c / --cypher-box\n"
+                << "         - Options like --message and --file will be ignored\n\n";
+    
+      std::cout << "  --iterations <n>\n"
+                << "      Number of iterations to run (default: 1)\n\n";
+    
+      std::cout << "Examples:\n";
+      std::cout << "  " << args[0] << " --spec 512 --message \"Hello\" --cypher-box kyber-kem-512\n";
+      std::cout << "  " << args[0] << " --spec 1024 --file ./msg.txt --cypher-box mceliece-348864\n";
+      std::cout << "  " << args[0] << " --spec 1024 --cypher-box mceliece-348864 --attack --iterations 10\n\n";
+    
       exit(0);
     }
-    if (args[i] == OPTION_CYPHER_BOX_SHORT || args[i] == OPTION_CYPHER_BOX_LONG) {
-      if (args[i + 1] == "mceliece-348864") {
-        cypher_box_option_ = MCELIECE_348864;
-      }
-      if (args[i + 1] == "mceliece-460896") {
-        cypher_box_option_ = MCELIECE_460896;
-      }
-      if (args[i + 1] == "frodokem-1344-shake") {
-        cypher_box_option_ = FRODOKEM_1344_SHAKE;
-      }
-      if (args[i + 1] == "frodokem-640-shake") {
-        cypher_box_option_ = FRODOKEM_640_SHAKE;
-      }
-      if (args[i + 1] == "kyber-kem-512") {
-        cypher_box_option_ = KYBER_KEM_512_OQS;
-      }
+    
+    if ((args[i] == OPTION_CYPHER_BOX_SHORT || args[i] == OPTION_CYPHER_BOX_LONG) && i + 1 < args.size()) {
+      std::string arg = args[++i];
+      if (arg == "mceliece-348864") cypher_box_option_ = MCELIECE_348864;
+      else if (arg == "mceliece-460896") cypher_box_option_ = MCELIECE_460896;
+      else if (arg == "frodokem-1344-shake") cypher_box_option_ = FRODOKEM_1344_SHAKE;
+      else if (arg == "frodokem-640-shake") cypher_box_option_ = FRODOKEM_640_SHAKE;
+      else if (arg == "kyber-kem-512") cypher_box_option_ = KYBER_KEM_512_OQS;
+      ++i;
+      continue;
+    }
+    if (args[i] == "--iterations" && i + 1 < args.size()) {
+      iterations_ = std::stoi(args[++i]);
+      ++i;
+      continue;
+    }
+    if (args[i] == "--attack") {
+      mode_ = "attack";
+      ++i;
+      continue;
     }
     ++i;
-  }}
+  }
+  if (mode_ == "attack") {
+    if (cypher_box_option_ == KYBER_CBOX) { cypher_box_option_ = MCELIECE_348864; }  
+  }
+  
+}
+
 
 /**
  * @brief Run the program
@@ -74,56 +119,88 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
  * @param seed : The seed to generate the rho and sigma values
  */
 void ProgramInterface::run(int option, const std::vector<int>& seed) {
-  // Initialize Kyber object
-  std::unique_ptr<Kyber> kyber = std::make_unique<Kyber>(specification_, std::vector<int>(), cypher_box_option_);
-  // Pad & Split the message
-  std::pair<std::string, int> message_padlen = MessageParser::PadMessage(input_message_);
-  std::vector<std::string> message_blocks = MessageParser::SplitMessageInChunks(message_padlen.first);  
-  // Start the process
-  std::pair<Bytes, Bytes> keypair;
-  std::vector<Bytes> cyphertexts(message_blocks.size());
-  std::vector<Bytes> decryptedtexts(message_blocks.size());
-  
   #ifdef TIME
-  auto start = std::chrono::high_resolution_clock::now();
+  std::ofstream out("results.txt");
   #endif
 
+  for (int i = 0; i < iterations_; ++i) {
+    // Initialize Kyber object
+    std::unique_ptr<Kyber> kyber = std::make_unique<Kyber>(specification_, std::vector<int>(), cypher_box_option_);
+    // Pad & Split the message
+    std::pair<std::string, int> message_padlen = MessageParser::PadMessage(input_message_);
+    std::vector<std::string> message_blocks = MessageParser::SplitMessageInChunks(message_padlen.first);  
+    // Start the process
+    std::pair<Bytes, Bytes> keypair;
+    std::vector<Bytes> cyphertexts(message_blocks.size());
+    std::vector<Bytes> decryptedtexts(message_blocks.size());
+    
+    #ifdef TIME
+    auto full_start = std::chrono::high_resolution_clock::now();
+    auto keygen_start = std::chrono::high_resolution_clock::now();
+    #endif
 
-  #ifndef KEM
-  keypair = kyber->KeyGen();
-  EncryptBlocks_(keypair.first, message_blocks, cyphertexts, kyber.get());
-  DecryptBlocks_(cyphertexts, keypair.second, decryptedtexts, kyber.get());
-  #else
-  keypair = kyber->KEMKeyGen();
-  // Encapsulate the shared secret
-  std::pair<Bytes, Bytes> pair_ct_shareds = kyber->KEMEncapsulation(keypair.first);
-
-  KEMEncryptBlocks_(message_blocks, cyphertexts, pair_ct_shareds.second);
-
-  // Decapsulate the shared secret
-  Bytes shared_secret = kyber->KEMDecapsulation(keypair.second, pair_ct_shareds.first);
-  decryptedtexts = cyphertexts;
-  if (pair_ct_shareds.second != shared_secret) {
-    throw "The shared secret is not the same";
+    #ifndef KEM
+    keypair = kyber->KeyGen();
+    #ifdef TIME
+    auto keygen_end = std::chrono::high_resolution_clock::now();
+    auto encrypt_start = std::chrono::high_resolution_clock::now();
+    #endif
+    EncryptBlocks_(keypair.first, message_blocks, cyphertexts, kyber.get());
+    #ifdef TIME
+    auto encrypt_end = std::chrono::high_resolution_clock::now();
+    auto decrypt_start = std::chrono::high_resolution_clock::now();
+    #endif
+    DecryptBlocks_(cyphertexts, keypair.second, decryptedtexts, kyber.get());
+    auto decrypt_end = std::chrono::high_resolution_clock::now();
+    #else
+    keypair = kyber->KEMKeyGen();
+    #ifdef TIME
+    auto keygen_end = std::chrono::high_resolution_clock::now();
+    #endif
+    // Encapsulate the shared secret
+    #ifdef TIME
+    auto encrypt_start = std::chrono::high_resolution_clock::now();
+    #endif
+    std::pair<Bytes, Bytes> pair_ct_shareds = kyber->KEMEncapsulation(keypair.first);
+    #ifdef TIME
+    auto encrypt_end = std::chrono::high_resolution_clock::now();
+    #endif
+    KEMEncryptBlocks_(message_blocks, cyphertexts, pair_ct_shareds.second);
+    // Decapsulate the shared secret
+    #ifdef TIME
+    auto decrypt_start = std::chrono::high_resolution_clock::now();
+    #endif
+    Bytes shared_secret = kyber->KEMDecapsulation(keypair.second, pair_ct_shareds.first);
+    #ifdef TIME
+    auto decrypt_end = std::chrono::high_resolution_clock::now();
+    #endif
+    decryptedtexts = cyphertexts;
+    if (pair_ct_shareds.second != shared_secret) {
+      throw "The shared secret is not the same";
+    }
+    KEMDecryptBlocks_(cyphertexts, decryptedtexts, shared_secret);
+    #endif
+    // Decrypt the message
+    std::string decrypted_message;
+    for (const Bytes& decryptedtext : decryptedtexts) {
+      decrypted_message += decryptedtext.FromBytesToAscii();
+    }
+    if (message_padlen.second > 0) {
+      decrypted_message = MessageParser::unpad(decrypted_message);
+    }
+    std::cout << "Decrypted message: " << decrypted_message << std::endl;
+    #ifdef TIME
+    std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - full_start;
+    std::cout << "Elapsed time: " << elapsed.count() << "s" << std::endl;
+    std::chrono::duration<double> keygen_time = keygen_end - keygen_start;
+    std::chrono::duration<double> encrypt_time = encrypt_end - encrypt_start;
+    std::chrono::duration<double> decrypt_time = decrypt_end - decrypt_start;
+    out << elapsed.count() << " " 
+      << keygen_time.count() << " " 
+      << encrypt_time.count() << " " 
+      << decrypt_time.count() << "\n";
+    #endif
   }
-  KEMDecryptBlocks_(cyphertexts, decryptedtexts, shared_secret);
-  
-  #endif
-
-  // Decrypt the message
-  std::string decrypted_message;
-  for (const Bytes& decryptedtext : decryptedtexts) {
-    decrypted_message += decryptedtext.FromBytesToAscii();
-  }
-  if (message_padlen.second > 0) {
-    decrypted_message = MessageParser::unpad(decrypted_message);
-  }
-  
-  std::cout << "Decrypted message: " << decrypted_message << std::endl;
-  #ifdef TIME
-  std::chrono::duration<double> elapsed = std::chrono::high_resolution_clock::now() - start;
-  std::cout << "Elapsed time: " << elapsed.count() << "s" << std::endl;
-  #endif
 }
 
 /**
@@ -134,16 +211,61 @@ void ProgramInterface::run(int option, const std::vector<int>& seed) {
 bool ProgramInterface::runAttack(int option, const std::vector<int>& seed) {
   std::cout << "Cypher: " << cypher_box_option_ << std::endl; 
   std::cout << "Specification: " << option << std::endl;
-  Kyber kyber(option, {}, cypher_box_option_);
-  // Generation of the public and secret key of the attacker
+  bool not_allways_success = false;
+  #ifdef TIME
+  std::ofstream out("results.txt");
+  #endif
 
-  std::pair<Bytes, Bytes> pair = kyber.KEMKeyGen();
-  Bytes attacker_pk = pair.first;
-  Bytes attacker_sk = pair.second;
-  // Instantiate the KleptoKyber object
-  KleptoKyber klepto_kyber(option, attacker_pk, attacker_sk, {});
-  std::pair<Bytes, Bytes> key_pair_backdoored = klepto_kyber.RunBackdoor();
-  return klepto_kyber.recoverSecretKey(key_pair_backdoored.first) == key_pair_backdoored.second; 
+  for (int i = 0; i < iterations_; ++i) {
+    #ifdef TIME
+    auto t_total_start = std::chrono::high_resolution_clock::now();
+    auto t_setup_start = std::chrono::high_resolution_clock::now();
+    #endif
+    // Simulating an attacker installing its klepto key
+    Kyber kyber(option, {}, cypher_box_option_);
+    std::pair<Bytes, Bytes> attacker_keypair = kyber.KEMKeyGen();
+
+    #ifdef TIME
+    auto t_setup_end = std::chrono::high_resolution_clock::now();
+    auto t_keygen_start = std::chrono::high_resolution_clock::now();
+    #endif
+    // Simulating the victim using the klepto system generating the backdoored key
+    KleptoKyber klepto_kyber(option, attacker_keypair.first, attacker_keypair.second, {});
+    std::pair<Bytes, Bytes> key_pair_backdoored = klepto_kyber.RunBackdoor();
+
+    #ifdef TIME
+    auto t_keygen_end = std::chrono::high_resolution_clock::now();
+    auto t_recover_start = std::chrono::high_resolution_clock::now();
+    #endif
+    // Simulating the attacker recovering the victim's secret key using its secret key
+    bool success = klepto_kyber.recoverSecretKey(key_pair_backdoored.first) == key_pair_backdoored.second;
+
+    #ifdef TIME
+    auto t_recover_end = std::chrono::high_resolution_clock::now();
+    auto t_total_end = t_recover_end;
+
+    double setup_time = std::chrono::duration<double, std::milli>(t_setup_end - t_setup_start).count();
+    double keygen_time = std::chrono::duration<double, std::milli>(t_keygen_end - t_keygen_start).count();
+    double recovery_time = std::chrono::duration<double, std::milli>(t_recover_end - t_recover_start).count();
+    double total_time = std::chrono::duration<double, std::milli>(t_total_end - t_total_start).count();
+
+    out << total_time << " " 
+        << setup_time << " " 
+        << keygen_time << " " 
+        << recovery_time << " " 
+        << (success ? 1 : 0) << "\n";
+    #endif
+
+    if (!success) {
+      std::cerr << "The backdoor is not working well" << std::endl;
+      not_allways_success = true;
+    }
+  }
+
+  #ifdef TIME
+  out.close();
+  #endif
+  return !not_allways_success; 
 }
 
 

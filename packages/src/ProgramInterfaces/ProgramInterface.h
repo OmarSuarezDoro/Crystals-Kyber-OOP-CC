@@ -26,7 +26,7 @@
 
 
 #define OPTION_SPECIFICATION_SHORT "-s"
-#define OPTION_SPECIFICATION_LONG "--specification"
+#define OPTION_SPECIFICATION_LONG "--spec"
 
 #define OPTION_MESSAGE_SHORT "-m"
 #define OPTION_MESSAGE_LONG "--message"
@@ -50,12 +50,18 @@ class ProgramInterface {
   ProgramInterface(const std::vector<std::string>& args);
   void run(int option = 512, const std::vector<int>& seed = {});
   bool runAttack(int option = 512, const std::vector<int>& seed = {});
+  int getIterations() const { return iterations_; }
+  int getSpecification() const { return specification_; }
+  std::string getMode() const { return mode_; }
   
  private:
   int specification_;
   std::string input_file_ = "";
   std::string input_message_ = "";
   int cypher_box_option_ = KYBER_CBOX;
+  
+  int iterations_ = 1;
+  std::string mode_ = "normal";
 
   static void KEMEncryptBlocks_(const std::vector<std::string>& message_chunks, std::vector<Bytes>& operand, const Bytes& key);
   static void KEMDecryptBlocks_(const std::vector<Bytes>& encrypted_messages, std::vector<Bytes>& operand, const Bytes& key);

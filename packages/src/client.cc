@@ -20,22 +20,24 @@
 #include "./ProgramInterfaces/ProgramInterface.h"
 
 int main(int argc, char const *argv[]) {
-  std::vector<std::string> args;
-  for (int i = 0; i < argc; ++i) {
-    args.push_back(argv[i]);
-  }
+  std::vector<std::string> args(argv, argv + argc);
   ProgramInterface program_interface(args);
-  
-  for (int i = 0; i < 1; ++i) {
-    #ifdef ATTACK
-    if (program_interface.runAttack(1024)) {
-      std::cout << "The backdoor is working well" << std::endl;
+
+  int iters = program_interface.getIterations();
+  std::string mode = program_interface.getMode();
+
+  if (mode == "attack") {
+    std::cout << "Running the attack:" << std::endl;
+    int spec = program_interface.getSpecification();
+    if (program_interface.runAttack(spec)) {
+      std::cout << "\033[1;32m[+] The backdoor is allways working well.\033[0m" << std::endl;
     } else {
-      std::cerr << "The backdoor is not working well" << std::endl;
+      std::cerr << "\033[1;31m[-] The backdoor is some situations fails.\033[0m" << std::endl;
     }
-    #else
-      program_interface.run();
-    #endif
+  } else {
+    std::cout << "Running the program in mode: " << mode << std::endl;
+    program_interface.run();
   }
+  
   return 0;
 }

@@ -102,7 +102,9 @@ Bytes KleptoKyber::recoverSecretKey(const Bytes& pk) const {
   // Number of bits per coefficient
   int c = b / (k_ * n_) + 1;
   Polynomial<int> t_prime_polynomial = t_prime.GetPolynomialFromMatrix(n_);
+  #ifdef DEBUG
   std::cout << "c: " << c << std::endl;
+  #endif
   // 3. Reconstruct polynomial p from t_prime
   int size_of_p_without_zeros = b / c + 1;
   Polynomial<int> p(k_ * n_);

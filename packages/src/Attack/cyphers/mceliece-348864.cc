@@ -43,8 +43,8 @@ McEliece_348864::McEliece_348864() {
  */
 std::pair<Bytes, Bytes> McEliece_348864::Encrypt(const Bytes& pk) {
   // We need to assign the length of the cyphertext
-  std::vector<uint8_t> ciphertext(kem->length_ciphertext);   // Espacio para ctbd (ciphertext)
-  std::vector<uint8_t> shared_secret(kem->length_shared_secret);  // Espacio para mbd (shared secret)
+  std::vector<uint8_t> ciphertext(kem->length_ciphertext); 
+  std::vector<uint8_t> shared_secret(kem->length_shared_secret);
 
   std::vector<uint8_t> aux_pk = pk.GetBytes();
   
