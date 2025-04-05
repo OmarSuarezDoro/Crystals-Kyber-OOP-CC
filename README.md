@@ -419,9 +419,7 @@ OPTIONS:
          - mceliece-460896
          - frodokem-1344-shake
          - frodokem-640-shake
-         - kyber-kem-512
-         - kyber-kem-768
-         - kyber-kem-1024
+
 
   -m, --message <message>
       Message to encrypt (normal mode only)
