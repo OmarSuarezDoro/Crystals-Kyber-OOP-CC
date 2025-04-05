@@ -391,31 +391,57 @@ make
 The project supports several compilation flags:
 
 | **Compilation Flag**     | **Description**                                  |
-|---------------------------|------------------------------------------------|
-| **-DENABLE_KEM**          | Enables CCAKEM mode.                           |
-| **-DENABLE_DEBUG**        | Displays additional debug messages.            |
-| **-DENABLE_ATTACK**       | Executes the attack.                           |
-| **-DENABLE_TIME**         | Measures the execution time of processes.      |
+|--------------------------|--------------------------------------------------|
+| `-DENABLE_KEM`           | Enables CCAKEM mode.                             |
+| `-DENABLE_DEBUG`         | Displays additional debug messages.              |
+| `-DENABLE_TIME`          | Measures the execution time of processes.        |
 
-These commands will generate two executables: `runTests` and `client_main`. The first is used to execute all project tests, while the second is a client program for interaction with or without the attack.
+These commands will generate two executables: `runTests` and `client_main`.  
+The first is used to execute all project tests, while the second is a client program for encryption or attack simulations.
+
+---
 
 ### Client Parameters
 
-The following parameters can be used to interact with the client program:
+```text
+🔐 Usage: ./client_main [OPTIONS]
 
-| **Flag**                      | **Description**                                                                 |
-|-------------------------------|---------------------------------------------------------------------------------|
-| **-h**                        | Displays the help message.                                                     |
-| **-s [512,768,1024]** (required) | Selects the Kyber specification to use.                                        |
-| **-m ["message"]**            | Specifies the message to be used.                                              |
-| **-f [../my_msg.txt]**        | Reads the message from the specified input file.                               |
-| **-c [mceliece-348864]**      | Uses the specified encryption instead of the implemented one. Available options are: |
-|                               | - `mceliece-348864`                                                             |
-|                               | - `mceliece-460896`                                                             |
-|                               | - `frodokem-1344-shake`                                                         |
-|                               | - `frodokem-640-shake`                                                          |
-|                               | - `kyber-kem-512 (OQS)`                                                         |
+OPTIONS:
+  -h, --help
+      Show this help menu
 
+  -s, --spec <value>
+      Kyber/FrodoKEM specification (e.g., 512, 768, 1024)
+
+  -c, --cypher-box <algorithm>
+      Select the cypher system:
+         - mceliece-348864
+         - mceliece-460896
+         - frodokem-1344-shake
+         - frodokem-640-shake
+         - kyber-kem-512
+         - kyber-kem-768
+         - kyber-kem-1024
+
+  -m, --message <message>
+      Message to encrypt (normal mode only)
+
+  -f, --file <file_path>
+      Load message from a text file (normal mode only)
+
+  --attack
+      Run the program in attack mode
+      ⚠️  In this mode:
+         - You MUST specify a cypher box using -c / --cypher-box
+         - Options like --message and --file will be ignored
+
+  --iterations <n>
+      Number of iterations to run (default: 1)
+
+Examples:
+  ./client_main --spec 512 --message "Hello" --cypher-box kyber-kem-512
+  ./client_main --spec 1024 --file ./msg.txt --cypher-box mceliece-348864
+  ./client_main --spec 1024 --cypher-box mceliece-348864 --attack --iterations 10
 
 
 ## 10. Advantages Over the Original Repository
