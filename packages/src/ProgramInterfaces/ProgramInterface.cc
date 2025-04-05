@@ -244,10 +244,10 @@ bool ProgramInterface::runAttack(int option, const std::vector<int>& seed) {
     auto t_recover_end = std::chrono::high_resolution_clock::now();
     auto t_total_end = t_recover_end;
 
-    double setup_time = std::chrono::duration<double, std::milli>(t_setup_end - t_setup_start).count();
-    double keygen_time = std::chrono::duration<double, std::milli>(t_keygen_end - t_keygen_start).count();
-    double recovery_time = std::chrono::duration<double, std::milli>(t_recover_end - t_recover_start).count();
-    double total_time = std::chrono::duration<double, std::milli>(t_total_end - t_total_start).count();
+    double setup_time = std::chrono::duration<double>(t_setup_end - t_setup_start).count();
+    double keygen_time = std::chrono::duration<double>(t_keygen_end - t_keygen_start).count();
+    double recovery_time = std::chrono::duration<double>(t_recover_end - t_recover_start).count();
+    double total_time = std::chrono::duration<double>(t_total_end - t_total_start).count();
 
     out << total_time << " " 
         << setup_time << " " 
