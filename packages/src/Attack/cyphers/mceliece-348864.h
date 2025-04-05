@@ -21,7 +21,11 @@ class McEliece_348864 : public Cypher {
  public:
   McEliece_348864();
   ~McEliece_348864() { OQS_KEM_free(kem); }
-  std::pair<Bytes, Bytes> Encrypt(const Bytes& message) override;
+  
+  McEliece_348864(const McEliece_348864&) = delete;
+  McEliece_348864& operator=(const McEliece_348864&) = delete;
+
+    std::pair<Bytes, Bytes> Encrypt(const Bytes& message) override;
   Bytes Decrypt(const Bytes& cyphertext, const Bytes& sk = Bytes()) override;
 
  private:

@@ -24,6 +24,9 @@ class McEliece_460896 : public Cypher {
   std::pair<Bytes, Bytes> Encrypt(const Bytes& message) override;
   Bytes Decrypt(const Bytes& cyphertext, const Bytes& sk = Bytes()) override;
 
+  McEliece_460896(const McEliece_460896&) = delete;
+  McEliece_460896& operator=(const McEliece_460896&) = delete;
+
  private:
   OQS_KEM* kem;
 };

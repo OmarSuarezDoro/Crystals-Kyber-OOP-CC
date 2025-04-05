@@ -24,6 +24,9 @@ class Frodokem_1344_shake : public Cypher {
   std::pair<Bytes, Bytes> Encrypt(const Bytes& message) override;
   Bytes Decrypt(const Bytes& cyphertext, const Bytes& sk = Bytes()) override;
 
+  Frodokem_1344_shake(const Frodokem_1344_shake&) = delete;
+  Frodokem_1344_shake& operator=(const Frodokem_1344_shake&) = delete;
+
  private:
   OQS_KEM* kem;
 };

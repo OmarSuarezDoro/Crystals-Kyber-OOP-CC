@@ -24,6 +24,9 @@ class KyberKEM_512 : public Cypher {
   std::pair<Bytes, Bytes> Encrypt(const Bytes& message) override;
   Bytes Decrypt(const Bytes& cyphertext, const Bytes& sk = Bytes()) override;
 
+  KyberKEM_512(const KyberKEM_512&) = delete;
+  KyberKEM_512& operator=(const KyberKEM_512&) = delete;
+
  private:
   OQS_KEM* kem;
 };

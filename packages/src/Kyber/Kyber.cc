@@ -35,19 +35,19 @@ Kyber::Kyber(int option, const std::vector<int>& seed, int cypher_box_option) {
   compressor_unit_ = std::make_unique<CompressorUnit>(CompressorUnit(q_));
   switch (cypher_box_option) {
     case MCELIECE_348864:
-      cypher_box_ = std::make_unique<McEliece_348864>(McEliece_348864());
+      cypher_box_ = std::make_unique<McEliece_348864>();
       break;
     case MCELIECE_460896:
-      cypher_box_ = std::make_unique<McEliece_460896>(McEliece_460896());
+      cypher_box_ = std::make_unique<McEliece_460896>();
       break;
     case FRODOKEM_1344_SHAKE:
-      cypher_box_ = std::make_unique<Frodokem_1344_shake>(Frodokem_1344_shake());
+      cypher_box_ = std::make_unique<Frodokem_1344_shake>();
       break;
     case FRODOKEM_640_SHAKE:
-      cypher_box_ = std::make_unique<Frodokem_640_shake>(Frodokem_640_shake());
+      cypher_box_ = std::make_unique<Frodokem_640_shake>();
       break;
     case KYBER_KEM_512_OQS:
-      cypher_box_ = std::make_unique<KyberKEM_512>(KyberKEM_512());
+      cypher_box_ = std::make_unique<KyberKEM_512>();
       break;
     default:
       break;
