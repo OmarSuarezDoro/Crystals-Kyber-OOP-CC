@@ -230,7 +230,8 @@ bool ProgramInterface::runAttack(int option, const std::vector<int>& seed) {
     auto t_keygen_start = std::chrono::high_resolution_clock::now();
     #endif
     // Simulating the victim using the klepto system generating the backdoored key
-    KleptoKyber klepto_kyber(option, attacker_keypair.first, attacker_keypair.second, {});
+    KleptoKyber klepto_kyber(option, attacker_keypair.first, attacker_keypair.second, {}, cypher_box_option_);
+    // The victim generates a key pair
     std::pair<Bytes, Bytes> key_pair_backdoored = klepto_kyber.RunBackdoor();
 
     #ifdef TIME
