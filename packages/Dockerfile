@@ -3,28 +3,20 @@ FROM ubuntu:latest
 RUN apt update && apt upgrade -y
 
 RUN apt install -y \
-  build-essential \
-  cmake \
-  git \
-  libgtest-dev \
+  build-essential cmake git ninja-build \
   libssl-dev \
-  libcrypto++-dev \
-  libcrypto++-doc \
-  libcrypto++-utils
+  libcrypto++-dev libcrypto++-doc libcrypto++-utils \
+  libgtest-dev \
+  python3-pytest python3-pytest-xdist \
+  unzip xsltproc doxygen graphviz python3-yaml valgrind astyle
 
+# Build & install gtest
+RUN cd /usr/src/gtest && cmake -S . -B build && cmake --build build -j && cmake --install build
 
-RUN apt install astyle cmake gcc ninja-build libssl-dev python3-pytest python3-pytest-xdist unzip xsltproc doxygen graphviz python3-yaml valgrind -y
-RUN  git clone -b main https://github.com/open-quantum-safe/liboqs.git
+# Build & install liboqs
+RUN git clone -b main https://github.com/open-quantum-safe/liboqs.git
 WORKDIR /liboqs
-RUN mkdir build && cd build
-WORKDIR /liboqs/build
-RUN cmake -GNinja ..
-RUN ninja
-RUN ninja install
+RUN cmake -S . -B build -GNinja && ninja -C build && ninja -C build install
 
 WORKDIR /app
-
 COPY . .
-
-WORKDIR /app
-

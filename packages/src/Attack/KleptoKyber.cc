@@ -51,7 +51,12 @@ std::pair<Bytes, Bytes> KleptoKyber::RunBackdoor()  {
   // ctbd = (bt0 , bt1 , . . . , btb ); c = ⌈b/(k · n)⌉
   int b = pair_ct_sharedm.first.GetBytesSize() * BYTE_SIZE;
   ct_size_ = b;
+
   int c = b / (k_ * n_) + 1;
+  
+  #ifdef SYMMETRIC
+    c = 1;
+  #endif
   
   // Initialize the polynomial p with c length
   Polynomial<int> p(k_ * n_);

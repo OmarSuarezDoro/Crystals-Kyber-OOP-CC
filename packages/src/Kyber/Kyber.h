@@ -29,7 +29,7 @@
 #include "../Attack/cyphers/FRODOKEM-640-shake.h"
 #include "../Attack/cyphers/FRODOKEM-1344-shake.h"
 #include "../Attack/cyphers/KYBER-KEM-512.h"
-
+#include "../Attack/cyphers/AES-256-GCM.h"
 
 #define KYBER_CBOX 0
 #define MCELIECE_348864 1
@@ -37,6 +37,7 @@
 #define FRODOKEM_1344_SHAKE 3
 #define FRODOKEM_640_SHAKE 4
 #define KYBER_KEM_512_OQS 5
+#define AES_256_GCM 6
 
 class Kyber {
  public:

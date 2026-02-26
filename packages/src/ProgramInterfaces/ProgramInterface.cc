@@ -91,6 +91,7 @@ ProgramInterface::ProgramInterface(const std::vector<std::string>& args) {
       else if (arg == "frodokem-1344-shake") cypher_box_option_ = FRODOKEM_1344_SHAKE;
       else if (arg == "frodokem-640-shake") cypher_box_option_ = FRODOKEM_640_SHAKE;
       else if (arg == "kyber-kem-512") cypher_box_option_ = KYBER_KEM_512_OQS;
+      else if (arg == "aes-256-gcm")  cypher_box_option_ = AES_256_GCM;
       ++i;
       continue;
     }

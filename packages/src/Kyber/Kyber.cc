@@ -49,6 +49,10 @@ Kyber::Kyber(int option, const std::vector<int>& seed, int cypher_box_option) {
     case KYBER_KEM_512_OQS:
       cypher_box_ = std::make_unique<KyberKEM_512>();
       break;
+    case AES_256_GCM:
+      cypher_box_ = std::make_unique<AES256GCM>();
+      break;
+
     default:
       break;
   }

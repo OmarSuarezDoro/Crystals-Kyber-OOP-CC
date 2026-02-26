@@ -89,6 +89,8 @@ add_executable(
   ./src/Attack/cyphers/FRODOKEM-640-shake.h
   ./src/Attack/cyphers/KYBER-KEM-512.cc
   ./src/Attack/cyphers/KYBER-KEM-512.h
+  ./src/Attack/cyphers/AES-256-GCM.cc
+  ./src/Attack/cyphers/AES-256-GCM.h
 )
 
 # Adds an executable target called "client_main" to be built from the source files listed in the command invocation.
@@ -128,6 +130,8 @@ add_executable(
   ./src/Attack/cyphers/FRODOKEM-640-shake.h
   ./src/Attack/cyphers/KYBER-KEM-512.cc
   ./src/Attack/cyphers/KYBER-KEM-512.h
+  ./src/Attack/cyphers/AES-256-GCM.cc
+  ./src/Attack/cyphers/AES-256-GCM.h
 )
 
 # Add Crypto++ library
@@ -156,6 +160,7 @@ option(ENABLE_DEBUG "Enable debugging" OFF)
 option(ENABLE_TIME "Enable timing measurements" OFF)
 option(ENABLE_BENCHMARKING "Enable BENCHMARKING mode" OFF)
 option(ENABLE_KEM "Enable KEM mode" OFF)
+option(ENABLE_SYMMETRYC "Enable SYMMETRYC mode" OFF)
 
 
 target_compile_options(runTests PRIVATE)
@@ -183,4 +188,8 @@ endif()
 # If ENABLE_KEM is enabled, define the KEM macro in the preprocessor
 if(ENABLE_KEM)
   target_compile_definitions(client_main PRIVATE KEM)
+endif()
+
+if(SYMMETRYC)
+  target_compile_definitions(client_main PRIVATE SYMMETRYC)
 endif()
